@@ -1,0 +1,11 @@
+{
+  "plan_type": "optimized",
+  "waypoints": [],
+  "stats": {
+    "coverage_pct": 0,
+    "priority_coverage_pct": 0,
+    "path_length": 0,
+    "battery_used": 0,
+    "battery_budget": 0
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "id": "bridge-a",
+  "name": "Bridge Section A (underside)",
+  "width": 1,
+  "height": 1,
+  "grid": [[0]],
+  "start": { "x": 0, "y": 0 },
+  "battery_budget": 0,
+  "capture_spacing": 1
+}
