@@ -31,8 +31,8 @@ app.add_middleware(
 )
 
 # Server-side credential. No VITE_ prefix: this never reaches the frontend bundle.
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 
 SYSTEM_PROMPT = (
     "You write short, plain-language bridge inspection summaries for "
@@ -96,35 +96,35 @@ def _build_user_prompt(req: ReportRequest) -> str:
     )
 
 
-async def _call_openai(req: ReportRequest) -> str:
+async def _call_gemini(req: ReportRequest) -> str:
     """Call the LLM provider server-side. Swap this single function to change
-    providers (e.g. Amazon Bedrock with Claude)."""
+    providers. Currently: Google Gemini (generateContent REST API)."""
+    url = (
+        "https://generativelanguage.googleapis.com/v1beta/models/"
+        f"{GEMINI_MODEL}:generateContent"
+    )
     payload: dict[str, Any] = {
-        "model": OPENAI_MODEL,
-        "messages": [
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": _build_user_prompt(req)},
+        "system_instruction": {"parts": [{"text": SYSTEM_PROMPT}]},
+        "contents": [
+            {"role": "user", "parts": [{"text": _build_user_prompt(req)}]}
         ],
-        "temperature": 0.3,
+        "generationConfig": {"temperature": 0.3},
     }
     headers = {
         "Content-Type": "application/json",
-        "Authorization": f"Bearer {OPENAI_API_KEY}",
+        "x-goog-api-key": GEMINI_API_KEY,
     }
     async with httpx.AsyncClient(timeout=30.0) as client:
-        res = await client.post(
-            "https://api.openai.com/v1/chat/completions",
-            json=payload,
-            headers=headers,
-        )
+        res = await client.post(url, json=payload, headers=headers)
     if res.status_code != 200:
         raise HTTPException(status_code=502, detail="LLM provider request failed")
     data = res.json()
-    text = (
-        data.get("choices", [{}])[0].get("message", {}).get("content")
-        if data.get("choices")
-        else None
-    )
+    text = None
+    candidates = data.get("candidates")
+    if candidates:
+        parts = candidates[0].get("content", {}).get("parts")
+        if parts:
+            text = parts[0].get("text")
     if not text:
         raise HTTPException(status_code=502, detail="LLM provider returned no content")
     return text
@@ -137,9 +137,9 @@ async def health() -> dict[str, str]:
 
 @app.post("/report", response_model=ReportResponse)
 async def report(req: ReportRequest) -> ReportResponse:
-    if not OPENAI_API_KEY:
+    if not GEMINI_API_KEY:
         # No server-side credential configured. Signal unavailable so the
         # frontend uses its mock fallback.
         raise HTTPException(status_code=503, detail="LLM not configured")
-    text = await _call_openai(req)
+    text = await _call_gemini(req)
     return ReportResponse(text=text)

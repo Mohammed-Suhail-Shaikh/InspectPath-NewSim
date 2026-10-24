@@ -34,7 +34,7 @@ pip install -r requirements.txt
 #    Copy the example and fill in your key. api/.env is gitignored.
 copy .env.example .env    # Windows
 # cp .env.example .env     # macOS/Linux
-#    Then edit .env and set OPENAI_API_KEY=...
+#    Then edit .env and set GEMINI_API_KEY=...
 
 # 4. Run the server (http://localhost:8000)
 uvicorn main:app --reload --port 8000
@@ -50,7 +50,7 @@ a secret — no credentials live in the frontend.
 
 ## Swapping the LLM provider
 
-Provider logic is isolated in `_call_openai()` in `main.py`. To use Amazon
-Bedrock with Claude (or another provider), replace that one function and the
-corresponding env var(s); the endpoint, request/response models, and the
-frontend wiring stay the same.
+Provider logic is isolated in `_call_gemini()` in `main.py` (currently Google
+Gemini). To use another provider (e.g. OpenAI or Amazon Bedrock with Claude),
+replace that one function and the corresponding env var(s); the endpoint,
+request/response models, and the frontend wiring stay the same.
