@@ -135,7 +135,7 @@ The optional report backend runs from `api/` with `uvicorn main:app --port 8000`
 ## 8. Testing
 
 - Dashboard: from `web/`, `npm run build` and `npm test`. 49 tests run against mock data and need no dataset. This is the main test suite.
-- Defect tier rule: `python -m pytest ml/defect/tests/test_tier.py` (14 tests, no model or dataset needed). The API tests in `ml/defect/tests/test_api.py` also need `torch`, `fastapi`, and `pillow` installed to collect, since the API module imports the model stack at load time.
+- Defect tier rule: `python -m pytest ml/defect/tests/test_tier.py` (14 tests, no model or dataset needed). The 8 API tests in `ml/defect/tests/test_api.py` also need `torch`, `fastapi`, and `pillow` installed to collect, since the API module imports the model stack at load time.
 
 A judge without the datasets can still see the system work: start the defect API in mock mode and run the dashboard, which falls back to mock structure, plan, and findings while replaying the real KW51 demo window. The monitor labels whether it is showing real or sample data, so what is real stays clear.
 
@@ -154,6 +154,8 @@ Specs. `.kiro/specs/` holds one spec per component, each structured as requireme
 Working from a written spec caught things a quick prompt would have missed. The trigger spec recorded the threshold disagreement with the contract as an explicit open decision (Requirement 15) instead of silently picking a number, which is how the team later reconciled on 0.75 / 1.5 / 2.0. For small changes, like relabeling the monitor subtitle or adding a link, we edited directly without a spec.
 
 Steering. `.kiro/steering/` holds `product.md`, `tech.md`, and `structure.md`. These kept the agent following the shared data contract, reporting only measured numbers, and editing only the owner's folder for each change instead of reaching into another person's component.
+
+Hooks. `.kiro/hooks/defect-api-tests.json` is a PostFileSave hook that runs the defect API tests in mock mode when a file under `ml/defect/api/` is saved, so a change to the API is checked against its tests right away without a model or dataset.
 
 Concrete things it did on this build:
 
