@@ -1,0 +1,62 @@
+{
+  "w8": {
+    "scores": {
+      "crack": 0.74,
+      "spallation": 0.81,
+      "exposed_bars": 0.66,
+      "efflorescence": 0.22,
+      "corrosion_stain": 0.4
+    },
+    "detected": ["crack", "spallation", "exposed_bars"],
+    "tier": "high",
+    "threshold": 0.5
+  },
+  "w9": {
+    "scores": {
+      "crack": 0.3,
+      "spallation": 0.12,
+      "exposed_bars": 0.08,
+      "efflorescence": 0.19,
+      "corrosion_stain": 0.73
+    },
+    "detected": ["corrosion_stain"],
+    "tier": "medium",
+    "threshold": 0.5
+  },
+  "w13": {
+    "scores": {
+      "crack": 0.68,
+      "spallation": 0.1,
+      "exposed_bars": 0.04,
+      "efflorescence": 0.57,
+      "corrosion_stain": 0.21
+    },
+    "detected": ["crack", "efflorescence"],
+    "tier": "low",
+    "threshold": 0.5
+  },
+  "w16": {
+    "scores": {
+      "crack": 0.18,
+      "spallation": 0.07,
+      "exposed_bars": 0.03,
+      "efflorescence": 0.11,
+      "corrosion_stain": 0.14
+    },
+    "detected": [],
+    "tier": "none",
+    "threshold": 0.5
+  },
+  "w19": {
+    "scores": {
+      "crack": 0.59,
+      "spallation": 0.09,
+      "exposed_bars": 0.05,
+      "efflorescence": 0.2,
+      "corrosion_stain": 0.13
+    },
+    "detected": ["crack"],
+    "tier": "low",
+    "threshold": 0.5
+  }
+}

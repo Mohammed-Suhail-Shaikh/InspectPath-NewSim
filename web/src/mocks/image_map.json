@@ -1,3 +1,11 @@
 {
-  "bridge-a": {}
+  "bridge-a": {
+    "w8": "images/bridge-a/w8.jpg",
+    "w8_closeup": "images/bridge-a/w8_closeup.jpg",
+    "w9": "images/bridge-a/w9.jpg",
+    "w9_closeup": "images/bridge-a/w9_closeup.jpg",
+    "w13": "images/bridge-a/w13.jpg",
+    "w16": "images/bridge-a/w16.jpg",
+    "w19": "images/bridge-a/w19.jpg"
+  }
 }
