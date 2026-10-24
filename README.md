@@ -77,6 +77,9 @@ battery stats), pins defect findings by tier, and generates a deterministic,
 rule-based inspection report from the findings, plan stats, and alert history.
 An optional LLM "AI summary" is available only when its backend is reachable.
 
+### The Circuit Diagram
+![Uploading image.png…]()
+
 ## 4. Results
 
 Numbers below are copied from the measured results files in the repo.
