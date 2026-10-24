@@ -49,7 +49,8 @@ alerts** (Normal / Watch / Warning / Alarm), combining parameters so that, for
 example, a frequency drop with rising strain and new tilt is treated differently
 from a frequency drop during a heat wave. All node thresholds are demonstration
 values relative to its own baseline, not engineering limits. Full detail:
-[`docs/hardware-spec.md`](docs/hardware-spec.md).
+[`docs/hardware-spec.md`](docs/hardware-spec.md). Live simulation:
+[Varun's ESP32 sensor node simulation in Wokwi](https://wokwi.com/projects/478798310961586177).
 
 Motivation (from Varun's analysis of the 2022 National Bridge Inventory,
 Massachusetts, counting each bridge by its lowest condition rating): **435**
