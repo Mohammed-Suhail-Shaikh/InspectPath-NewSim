@@ -1,0 +1,25 @@
+{
+  "bridge_id": "demo-bridge",
+  "description": "Example 3-span steel girder bridge, 90 m long, piers at 30 m and 60 m. Replace with the real bridge geometry.",
+  "launch": { "x_m": 0.0, "y_m": -10.0 },
+  "priority_radius_m": 20.0,
+  "nodes": {
+    "node-1": { "x_m": 30.0, "y_m": 0.0, "zone": "pier-1" }
+  },
+  "waypoints": [
+    { "id": "A0",    "x_m": 0.0,  "y_m": 0.0, "element": "abutment",       "zone": "abutment-west" },
+    { "id": "S1-10", "x_m": 10.0, "y_m": 0.0, "element": "deck_underside", "zone": "span-1" },
+    { "id": "S1-20", "x_m": 20.0, "y_m": 0.0, "element": "deck_underside", "zone": "span-1" },
+    { "id": "B1",    "x_m": 30.0, "y_m": 2.0, "element": "bearing",        "zone": "pier-1" },
+    { "id": "P1",    "x_m": 30.0, "y_m": 0.0, "element": "pier",           "zone": "pier-1" },
+    { "id": "P1-W",  "x_m": 30.0, "y_m": -2.0, "element": "pier_waterline", "zone": "pier-1" },
+    { "id": "S2-40", "x_m": 40.0, "y_m": 0.0, "element": "deck_underside", "zone": "span-2" },
+    { "id": "S2-50", "x_m": 50.0, "y_m": 0.0, "element": "deck_underside", "zone": "span-2" },
+    { "id": "B2",    "x_m": 60.0, "y_m": 2.0, "element": "bearing",        "zone": "pier-2" },
+    { "id": "P2",    "x_m": 60.0, "y_m": 0.0, "element": "pier",           "zone": "pier-2" },
+    { "id": "P2-W",  "x_m": 60.0, "y_m": -2.0, "element": "pier_waterline", "zone": "pier-2" },
+    { "id": "S3-70", "x_m": 70.0, "y_m": 0.0, "element": "deck_underside", "zone": "span-3" },
+    { "id": "S3-80", "x_m": 80.0, "y_m": 0.0, "element": "deck_underside", "zone": "span-3" },
+    { "id": "A3",    "x_m": 90.0, "y_m": 0.0, "element": "abutment",       "zone": "abutment-east" }
+  ]
+}

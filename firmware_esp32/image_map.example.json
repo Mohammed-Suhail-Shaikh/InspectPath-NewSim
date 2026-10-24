@@ -1,0 +1,8 @@
+{
+  "_note": "Proposed format for Komal's data/image_map.json. Paths point to LOCAL files from Zaiba's TEST split. Never commit the images (CODEBRIM license).",
+  "waypoints": {
+    "P1":    { "capture": "local_images/full/img_0412.jpg", "closeup": "local_images/patches/img_0412_p3.jpg" },
+    "B1":    { "capture": "local_images/full/img_0877.jpg", "closeup": "local_images/patches/img_0877_p1.jpg" },
+    "S2-40": { "capture": "local_images/full/img_0153.jpg", "closeup": "local_images/patches/img_0153_p2.jpg" }
+  }
+}
