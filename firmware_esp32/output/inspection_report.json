@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-24T21:39:34Z",
+  "generated_at": "2026-10-24T22:11:11Z",
   "bridge_id": "demo-bridge",
   "defect_model": "mock (test data, not real predictions)",
   "dispatch": {
@@ -160,50 +160,6 @@
       "rank": 1
     },
     {
-      "waypoint": "S1-20",
-      "zone": "span-1",
-      "element": "deck_underside",
-      "distance_from_alert_m": 10.0,
-      "status": "inspected",
-      "capture": {
-        "image": null,
-        "scores": {
-          "crack": 0.07,
-          "spallation": 0.0,
-          "exposed_bars": 0.68,
-          "efflorescence": 0.48,
-          "corrosion_stain": 0.3
-        },
-        "detected": [
-          "exposed_bars"
-        ],
-        "tier": "high",
-        "threshold": 0.5
-      },
-      "closeup": {
-        "image": null,
-        "scores": {
-          "crack": 0.57,
-          "spallation": 0.39,
-          "exposed_bars": 0.02,
-          "efflorescence": 0.31,
-          "corrosion_stain": 0.28
-        },
-        "detected": [
-          "crack"
-        ],
-        "tier": "low",
-        "threshold": 0.5
-      },
-      "tier": "high",
-      "detected": [
-        "crack",
-        "exposed_bars"
-      ],
-      "max_score": 0.57,
-      "rank": 2
-    },
-    {
       "waypoint": "P1-W",
       "zone": "pier-1",
       "element": "pier_waterline",
@@ -247,7 +203,51 @@
         "exposed_bars",
         "spallation"
       ],
-      "max_score": 0.52,
+      "max_score": 0.79,
+      "rank": 2
+    },
+    {
+      "waypoint": "S1-20",
+      "zone": "span-1",
+      "element": "deck_underside",
+      "distance_from_alert_m": 10.0,
+      "status": "inspected",
+      "capture": {
+        "image": null,
+        "scores": {
+          "crack": 0.07,
+          "spallation": 0.0,
+          "exposed_bars": 0.68,
+          "efflorescence": 0.48,
+          "corrosion_stain": 0.3
+        },
+        "detected": [
+          "exposed_bars"
+        ],
+        "tier": "high",
+        "threshold": 0.5
+      },
+      "closeup": {
+        "image": null,
+        "scores": {
+          "crack": 0.57,
+          "spallation": 0.39,
+          "exposed_bars": 0.02,
+          "efflorescence": 0.31,
+          "corrosion_stain": 0.28
+        },
+        "detected": [
+          "crack"
+        ],
+        "tier": "low",
+        "threshold": 0.5
+      },
+      "tier": "high",
+      "detected": [
+        "crack",
+        "exposed_bars"
+      ],
+      "max_score": 0.68,
       "rank": 3
     },
     {
@@ -292,7 +292,7 @@
         "corrosion_stain",
         "efflorescence"
       ],
-      "max_score": 0.73,
+      "max_score": 0.75,
       "rank": 4
     },
     {
