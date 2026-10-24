@@ -370,3 +370,92 @@ body {
 .plan-btn:hover {
   border-color: #5aa9ff;
 }
+
+.finding-detail {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+.finding-detail-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.finding-tier {
+  font-weight: 700;
+  margin: 0.25rem 0 0.75rem;
+}
+
+.finding-images {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.finding-images figure {
+  margin: 0;
+  flex: 1 1 120px;
+}
+
+.finding-images figcaption {
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  text-align: center;
+}
+
+.finding-img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.placeholder-img {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.finding-scores {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.score-head {
+  font-size: 0.8rem;
+}
+
+.score-row {
+  display: grid;
+  grid-template-columns: 110px 1fr 40px;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.score-bar {
+  height: 8px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.score-fill {
+  height: 100%;
+  background: #5aa9ff;
+}
+
+.score-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}

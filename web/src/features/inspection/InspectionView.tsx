@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { mockSource } from "../../data/mockSource";
-import type { Finding, Plan, Structure } from "../../data/types";
+import type { Finding, ImageMap, Plan, Structure } from "../../data/types";
 import { useViewState } from "../../app/viewState";
 import GridMap from "./GridMap";
 import RobotMarker from "./RobotMarker";
@@ -8,6 +8,7 @@ import CoverageLayer from "./CoverageLayer";
 import StatsPanel from "./StatsPanel";
 import PlanToggle from "./PlanToggle";
 import FindingPin from "./FindingPin";
+import FindingDetail from "./FindingDetail";
 import { useRobotRun } from "./useRobotRun";
 import { cellCenter } from "./mapLayout";
 
@@ -19,6 +20,7 @@ export default function InspectionView() {
   const [structure, setStructure] = useState<Structure | null>(null);
   const [plan, setPlan] = useState<Plan | null>(null);
   const [findings, setFindings] = useState<Finding[]>([]);
+  const [imageMap, setImageMap] = useState<ImageMap>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -28,6 +30,9 @@ export default function InspectionView() {
     });
     mockSource.getFindings(STRUCTURE_ID).then((f) => {
       if (active) setFindings(f);
+    });
+    mockSource.getImageMap().then((m) => {
+      if (active) setImageMap(m);
     });
     return () => {
       active = false;
@@ -63,6 +68,9 @@ export default function InspectionView() {
       return `${cx},${cy}`;
     })
     .join(" ");
+
+  const selectedFinding =
+    findings.find((f) => f.id === selectedFindingId) ?? null;
 
   return (
     <div className="inspection">
@@ -105,7 +113,14 @@ export default function InspectionView() {
         <aside className="inspection-side">
           <PlanToggle />
           {plan && <StatsPanel stats={plan.stats} />}
-          {/* Findings (tasks 16-17) added next. */}
+          {selectedFinding && (
+            <FindingDetail
+              finding={selectedFinding}
+              imageMap={imageMap}
+              structureId={STRUCTURE_ID}
+              onClose={() => setSelectedFindingId(null)}
+            />
+          )}
         </aside>
       </div>
     </div>
