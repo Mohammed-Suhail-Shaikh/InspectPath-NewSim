@@ -1,17 +1,17 @@
 ## Defect model
 
-Says which of 5 defects (crack, spallation, exposed bars, efflorescence, corrosion stain) a concrete patch shows. A simple rule turns that into an urgency tier.
+Says which of 5 defects (crack, spallation, exposed bars, efflorescence, corrosion stain) a concrete patch shows, then maps them to an urgency tier. High or medium tier triggers close-ups. API threshold: 0.5.
 
-**Dataset.** CODEBRIM: Mundt et al., "Meta-learning Convolutional Neural Architectures for Multi-target Concrete Defect Classification with the COncrete DEfect BRidge IMage Dataset", CVPR 2019. Non-commercial research data, NOT redistributed in this repo. Put it in `datasets/codebrim/`.
+**Dataset.** CODEBRIM: Mundt et al., "Meta-learning Convolutional Neural Architectures for Multi-target Concrete Defect Classification with the COncrete DEfect BRidge IMage Dataset", CVPR 2019. Non-commercial research data, NOT redistributed here. Put it in `datasets/codebrim/`.
 
 **Method**
 - Pretrained ResNet-18, 5 independent sigmoid outputs.
 - Rare classes get a higher loss weight.
-- Thin patches are padded to square, then resized.
-- Split by source photo, so test photos are never seen in training.
-- Best epoch chosen on validation data. Test set used once.
+- Thin patches padded to square, then resized.
+- Split by source photo. 52 unlabeled patches left out (train 43, val 5, test 4).
+- Best epoch picked on validation; test used once.
 
-**Results** (628 test patches, threshold 0.5, from `ml/defect/results.md`)
+**Results** (628 test patches, from `results.md`)
 
 | Class | Precision | Recall | F1 | Support |
 |---|---|---|---|---|
@@ -35,4 +35,4 @@ cd ml/defect && uvicorn api.main:app --port 8000
 - One dataset.
 - Patches, not full photos.
 - Overlapping defects make labels hard.
-- Tier rule is a team decision, not an engineering standard.
+- Tier rule is a team decision, not a standard.
