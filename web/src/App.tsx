@@ -1,3 +1,5 @@
+import Footer from "./components/Footer";
+
 export default function App() {
   return (
     <div className="app">
@@ -9,7 +11,7 @@ export default function App() {
         <p className="placeholder">Dashboard coming online…</p>
       </main>
 
-      {/* Footer slot — disclaimer added in task 2 */}
+      <Footer />
     </div>
   );
 }
