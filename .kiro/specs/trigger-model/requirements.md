@@ -175,13 +175,13 @@ An unresolved discrepancy exists between the shared `docs/contract.md` (section 
 
 ### Requirement 13: Demo replay output
 
-**User Story:** As a presenter, I want a short demo replay window that crosses from normal into warning or alarm, so that a demo video shows an alert being raised.
+**User Story:** As a presenter, I want a short demo replay window that crosses from normal into alarm, so that a demo video shows an alarm being raised.
 
 #### Acceptance Criteria
 
 1. WHEN the analysis run completes, THE Analysis_Script SHALL generate the Demo_Replay_File at `data/trigger/replay_kw51_demo.json` using the same field schema and formatting rules as the Replay_File (Requirement 12).
 2. THE Analysis_Script SHALL select for the Demo_Replay_File a continuous window of consecutive readings in ascending timestamp order, with no reading within the window's time span omitted, spanning at least 1 day and at most 7 days.
-3. THE Analysis_Script SHALL select the Demo_Replay_File window such that its readings transition from an earlier Alert_Level `normal` to a later Alert_Level `warning` or `alarm`.
+3. THE Analysis_Script SHALL select the Demo_Replay_File window such that its readings transition from an earlier Alert_Level `normal` to a later Alert_Level `alarm`, with the window ending at the first `alarm` reading.
 4. IF no window satisfying criteria 2 and 3 exists, THEN THE Analysis_Script SHALL report an error indicating that no qualifying demo window was found.
 
 ### Requirement 14: Single runnable script
@@ -194,14 +194,15 @@ An unresolved discrepancy exists between the shared `docs/contract.md` (section 
 2. WHEN invoked as `python ml/trigger/trigger_model.py` and all outputs are written successfully, THE Analysis_Script SHALL write the two plots, the Results_Report, the Replay_File, and the Demo_Replay_File, and exit with status 0.
 3. IF the analysis cannot complete, THEN THE Analysis_Script SHALL exit with a non-zero status and report the failure.
 
-### Requirement 15: Contract threshold and source discrepancy (to be resolved)
+### Requirement 15: Contract threshold and source discrepancy (RESOLVED)
 
-**User Story:** As the trigger-model owner, I want the mismatch between the shared contract and this feature's thresholds and source label recorded as an open decision, so that the shared contract is not changed unilaterally.
+**Resolution:** The team confirmed this feature's alert thresholds (0.75 watch / 1.5 warning / 2.0 alarm) and source label (`"KW51 replay"`). `docs/contract.md` section 2 was updated to match this implementation, so the discrepancy no longer exists.
+
+**User Story:** As the trigger-model owner, I want the shared contract to match this feature's confirmed thresholds and source label, so that the contract and implementation agree.
 
 #### Acceptance Criteria
 
 1. THE Trigger_Model SHALL preserve the replay JSON field schema `node_id`, `timestamp`, `temperature_c`, `frequency_hz`, `predicted_frequency_hz`, `residual_pct`, `alert_level`, `quality`, `source` exactly as defined in Data_Contract section 2.
-2. THE Trigger_Model SHALL record, in a human-readable open-decision note, that Data_Contract section 2 specifies absolute-residual thresholds of 2.0 watch, 5.0 warning, and 8.0 alarm while this feature specifies 0.75 watch, 1.5 warning, and 2.0 alarm.
-3. THE Trigger_Model SHALL record, in the same open-decision note, that Data_Contract section 2 shows the example source label `"Z24 replay"` while this feature specifies the source label `"KW51 replay"`.
-4. THE Trigger_Model SHALL treat the feature-specified thresholds (0.75 / 1.5 / 2.0) and source label (`"KW51 replay"`) as a working assumption pending team confirmation.
-5. WHILE the team has not confirmed the change, THE Trigger_Model SHALL NOT modify Data_Contract section 2.
+2. THE Data_Contract section 2 SHALL specify absolute-residual thresholds of 0.75 watch, 1.5 warning, and 2.0 alarm, matching this feature.
+3. THE Data_Contract section 2 SHALL specify the source label `"KW51 replay"`, matching this feature.
+4. THE Trigger_Model SHALL record, in the Results_Report, that the team confirmed these thresholds and source label and that Data_Contract section 2 was updated to match.
