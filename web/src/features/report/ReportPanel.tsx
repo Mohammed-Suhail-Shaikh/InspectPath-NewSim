@@ -12,6 +12,31 @@ export default function ReportPanel() {
   const { alertHistory } = useViewState();
   const [findings, setFindings] = useState<Finding[]>([]);
   const { report, status, notice, run } = useReport();
+  const [copied, setCopied] = useState(false);
+
+  async function copyReport() {
+    if (!report) return;
+    try {
+      await navigator.clipboard.writeText(report.text);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
+    }
+  }
+
+  function downloadReport() {
+    if (!report) return;
+    const blob = new Blob([report.text], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "inspection-report.txt";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
 
   useEffect(() => {
     let active = true;
@@ -46,6 +71,14 @@ export default function ReportPanel() {
       {report && (
         <div className="report-body">
           <pre className="report-text">{report.text}</pre>
+          <div className="report-actions">
+            <button className="replay-btn" onClick={copyReport}>
+              {copied ? "Copied" : "Copy"}
+            </button>
+            <button className="replay-btn" onClick={downloadReport}>
+              Download
+            </button>
+          </div>
         </div>
       )}
     </section>
