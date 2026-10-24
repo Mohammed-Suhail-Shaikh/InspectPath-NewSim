@@ -1,28 +1,58 @@
 import { useEffect, useState } from "react";
 import { mockSource } from "../../data/mockSource";
-import type { Structure } from "../../data/types";
+import type { Plan, Structure } from "../../data/types";
 import { useViewState } from "../../app/viewState";
 import GridMap from "./GridMap";
+import RobotMarker from "./RobotMarker";
+import CoverageLayer from "./CoverageLayer";
+import { useRobotRun } from "./useRobotRun";
+import { cellCenter } from "./mapLayout";
 
 export default function InspectionView() {
-  const { setActiveView } = useViewState();
+  const { setActiveView, selectedPlan } = useViewState();
   const [structure, setStructure] = useState<Structure | null>(null);
+  const [plan, setPlan] = useState<Plan | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let active = true;
     mockSource.getStructure("bridge-a").then((s) => {
-      if (!active) return;
-      setStructure(s);
-      setLoading(false);
+      if (active) setStructure(s);
     });
     return () => {
       active = false;
     };
   }, []);
 
-  if (loading) return <p className="placeholder">Loading inspection…</p>;
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    mockSource.getPlan(selectedPlan).then((p) => {
+      if (!active) return;
+      setPlan(p);
+      setLoading(false);
+    });
+    return () => {
+      active = false;
+    };
+  }, [selectedPlan]);
+
+  const robotIndex = useRobotRun(plan);
+
+  if (loading && !structure) return <p className="placeholder">Loading inspection…</p>;
   if (!structure) return <p className="placeholder">No structure data available.</p>;
+
+  const waypoints = plan?.waypoints ?? [];
+  const robotWaypoint =
+    waypoints.length > 0
+      ? waypoints[Math.min(robotIndex, waypoints.length - 1)]
+      : null;
+  const pathPoints = waypoints
+    .map((w) => {
+      const { cx, cy } = cellCenter(w.x, w.y);
+      return `${cx},${cy}`;
+    })
+    .join(" ");
 
   return (
     <div className="inspection">
@@ -38,10 +68,23 @@ export default function InspectionView() {
 
       <div className="inspection-body">
         <div className="map-wrap">
-          <GridMap structure={structure} />
+          <GridMap structure={structure}>
+            <CoverageLayer waypoints={waypoints} upToIndex={robotIndex} />
+            {pathPoints && (
+              <polyline
+                points={pathPoints}
+                fill="none"
+                stroke="#5aa9ff"
+                strokeWidth={1.5}
+                strokeOpacity={0.45}
+                strokeDasharray="4 3"
+              />
+            )}
+            <RobotMarker waypoint={robotWaypoint} />
+          </GridMap>
         </div>
-        {/* Robot (task 11), coverage (task 12), stats (task 13),
-            plan toggle (task 14), findings (tasks 16-17) added next. */}
+        {/* Stats (task 13), plan toggle (task 14),
+            findings (tasks 16-17) added next. */}
       </div>
     </div>
   );
