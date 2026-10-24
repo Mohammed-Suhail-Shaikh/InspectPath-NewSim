@@ -1,0 +1,296 @@
+{
+  "_note": "Demo patch pool. Test split only, chosen by TRUE label. Paths are relative to the CODEBRIM folder. No images are stored in the repo (CODEBRIM license).",
+  "seed": 42,
+  "clean": [
+    {
+      "id": "clean_01",
+      "group": "clean",
+      "path": "test/background/image_0000070_crop_0000004.png",
+      "labels": [
+        "background"
+      ],
+      "true_tier": "none"
+    },
+    {
+      "id": "clean_02",
+      "group": "clean",
+      "path": "test/background/image_0000038_crop_0000002.png",
+      "labels": [
+        "background"
+      ],
+      "true_tier": "none"
+    },
+    {
+      "id": "clean_03",
+      "group": "clean",
+      "path": "test/background/image_0000495_crop_0000001.png",
+      "labels": [
+        "background"
+      ],
+      "true_tier": "none"
+    },
+    {
+      "id": "clean_04",
+      "group": "clean",
+      "path": "test/background/image_0000462_crop_0000003.png",
+      "labels": [
+        "background"
+      ],
+      "true_tier": "none"
+    },
+    {
+      "id": "clean_05",
+      "group": "clean",
+      "path": "test/background/image_0000444_crop_0000003.png",
+      "labels": [
+        "background"
+      ],
+      "true_tier": "none"
+    },
+    {
+      "id": "clean_06",
+      "group": "clean",
+      "path": "test/background/image_0000063_crop_0000003.png",
+      "labels": [
+        "background"
+      ],
+      "true_tier": "none"
+    },
+    {
+      "id": "clean_07",
+      "group": "clean",
+      "path": "test/background/image_0001229_crop_0000005.png",
+      "labels": [
+        "background"
+      ],
+      "true_tier": "none"
+    },
+    {
+      "id": "clean_08",
+      "group": "clean",
+      "path": "test/background/image_0000058_crop_0000004.png",
+      "labels": [
+        "background"
+      ],
+      "true_tier": "none"
+    },
+    {
+      "id": "clean_09",
+      "group": "clean",
+      "path": "test/background/image_0001263_crop_0000002.png",
+      "labels": [
+        "background"
+      ],
+      "true_tier": "none"
+    },
+    {
+      "id": "clean_10",
+      "group": "clean",
+      "path": "test/background/image_0001412_crop_0000005.png",
+      "labels": [
+        "background"
+      ],
+      "true_tier": "none"
+    },
+    {
+      "id": "clean_11",
+      "group": "clean",
+      "path": "test/background/image_0000866_crop_0000005.png",
+      "labels": [
+        "background"
+      ],
+      "true_tier": "none"
+    },
+    {
+      "id": "clean_12",
+      "group": "clean",
+      "path": "test/background/image_0000072_crop_0000002.png",
+      "labels": [
+        "background"
+      ],
+      "true_tier": "none"
+    }
+  ],
+  "planted": [
+    {
+      "id": "high_01",
+      "group": "high",
+      "path": "test/defects/image_0001593_crop_0000005.png",
+      "labels": [
+        "exposed_bars"
+      ],
+      "true_tier": "high",
+      "closeup": {
+        "id": "high_01_closeup",
+        "group": "high_closeup",
+        "path": "test/defects/image_0001236_crop_0000001.png",
+        "labels": [
+          "exposed_bars"
+        ],
+        "true_tier": "high"
+      }
+    },
+    {
+      "id": "high_02",
+      "group": "high",
+      "path": "test/defects/image_0001296_crop_0000004.png",
+      "labels": [
+        "exposed_bars"
+      ],
+      "true_tier": "high",
+      "closeup": {
+        "id": "high_02_closeup",
+        "group": "high_closeup",
+        "path": "test/defects/image_0000956_crop_0000003.png",
+        "labels": [
+          "exposed_bars"
+        ],
+        "true_tier": "high"
+      }
+    },
+    {
+      "id": "high_03",
+      "group": "high",
+      "path": "test/defects/image_0000998_crop_0000001.png",
+      "labels": [
+        "spallation"
+      ],
+      "true_tier": "high",
+      "closeup": {
+        "id": "high_03_closeup",
+        "group": "high_closeup",
+        "path": "test/defects/image_0001528_crop_0000004.png",
+        "labels": [
+          "spallation"
+        ],
+        "true_tier": "high"
+      }
+    },
+    {
+      "id": "high_04",
+      "group": "high",
+      "path": "test/defects/image_0000801_crop_0000001.png",
+      "labels": [
+        "spallation"
+      ],
+      "true_tier": "high",
+      "closeup": {
+        "id": "high_04_closeup",
+        "group": "high_closeup",
+        "path": "test/defects/image_0001402_crop_0000006.png",
+        "labels": [
+          "spallation"
+        ],
+        "true_tier": "high"
+      }
+    },
+    {
+      "id": "medium_01",
+      "group": "medium",
+      "path": "test/defects/image_0000404_crop_0000003.png",
+      "labels": [
+        "corrosion_stain"
+      ],
+      "true_tier": "medium",
+      "closeup": {
+        "id": "medium_01_closeup",
+        "group": "medium_closeup",
+        "path": "test/defects/image_0000982_crop_0000001.png",
+        "labels": [
+          "corrosion_stain"
+        ],
+        "true_tier": "medium"
+      }
+    },
+    {
+      "id": "medium_02",
+      "group": "medium",
+      "path": "test/defects/image_0000977_crop_0000003.png",
+      "labels": [
+        "corrosion_stain"
+      ],
+      "true_tier": "medium",
+      "closeup": {
+        "id": "medium_02_closeup",
+        "group": "medium_closeup",
+        "path": "test/defects/image_0001275_crop_0000013.png",
+        "labels": [
+          "corrosion_stain"
+        ],
+        "true_tier": "medium"
+      }
+    },
+    {
+      "id": "medium_03",
+      "group": "medium",
+      "path": "test/defects/image_0000960_crop_0000001.png",
+      "labels": [
+        "corrosion_stain"
+      ],
+      "true_tier": "medium",
+      "closeup": {
+        "id": "medium_03_closeup",
+        "group": "medium_closeup",
+        "path": "test/defects/image_0001550_crop_0000001.png",
+        "labels": [
+          "corrosion_stain"
+        ],
+        "true_tier": "medium"
+      }
+    },
+    {
+      "id": "low_01",
+      "group": "low",
+      "path": "test/defects/image_0001188_crop_0000002.png",
+      "labels": [
+        "crack"
+      ],
+      "true_tier": "low",
+      "closeup": {
+        "id": "low_01_closeup",
+        "group": "low_closeup",
+        "path": "test/defects/image_0000957_crop_0000010.png",
+        "labels": [
+          "crack"
+        ],
+        "true_tier": "low"
+      }
+    },
+    {
+      "id": "low_02",
+      "group": "low",
+      "path": "test/defects/image_0001434_crop_0000002.png",
+      "labels": [
+        "crack"
+      ],
+      "true_tier": "low",
+      "closeup": {
+        "id": "low_02_closeup",
+        "group": "low_closeup",
+        "path": "test/defects/image_0000164_crop_0000003.png",
+        "labels": [
+          "crack"
+        ],
+        "true_tier": "low"
+      }
+    },
+    {
+      "id": "low_03",
+      "group": "low",
+      "path": "test/defects/image_0000168_crop_0000001.png",
+      "labels": [
+        "efflorescence"
+      ],
+      "true_tier": "low",
+      "closeup": {
+        "id": "low_03_closeup",
+        "group": "low_closeup",
+        "path": "test/defects/image_0001272_crop_0000003.png",
+        "labels": [
+          "efflorescence"
+        ],
+        "true_tier": "low"
+      }
+    }
+  ]
+}
