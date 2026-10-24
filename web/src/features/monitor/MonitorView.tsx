@@ -1,6 +1,7 @@
 import { useReplay } from "./useReplay";
 import ReadingsPanel from "./ReadingsPanel";
 import FrequencyChart from "./FrequencyChart";
+import ResidualChart from "./ResidualChart";
 import ReplayControls from "./ReplayControls";
 import EscalationBanner from "./EscalationBanner";
 import DatasetPicker from "./DatasetPicker";
@@ -8,7 +9,7 @@ import { useViewState } from "../../app/viewState";
 
 export default function MonitorView() {
   const { current, loading, records, isMock } = useReplay();
-  const { replayCursor } = useViewState();
+  const { replayCursor, replayDataset } = useViewState();
 
   if (loading) {
     return (
@@ -30,10 +31,16 @@ export default function MonitorView() {
   const index = Math.min(replayCursor, records.length - 1);
   const atEnd = index >= records.length - 1;
 
-  // Never claim real data while on mocks. When a real file is loaded, use its
-  // own "source" field in the subtitle.
+  const isKw51 = !isMock && (replayDataset === "kw51_demo" || replayDataset === "kw51");
+
+  // Panel label by source:
+  // - mock: never claim real data
+  // - KW51 real data: replay of recorded times, not live
+  // - other real source: the file's own source label
   const subtitle = isMock
     ? "Replaying sample sensor data (mock)"
+    : isKw51
+    ? "Replay of real bridge data (KW51, June 2019). Timestamps are recorded times, not live."
     : `Replaying sensor node readings as if live (${current.source}).`;
 
   return (
@@ -54,6 +61,8 @@ export default function MonitorView() {
       <ReadingsPanel record={current} />
 
       <FrequencyChart records={records} upToIndex={index} />
+
+      <ResidualChart records={records} upToIndex={index} />
     </div>
   );
 }
