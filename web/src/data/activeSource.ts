@@ -9,11 +9,21 @@ import { realSource } from "./realSource";
 // Resolution happens once at startup via initDataSource(). Until then, and if
 // no real data is present, getDataSource() returns the mock source.
 
-const DATA_BASE =
+export const DATA_BASE =
   (import.meta.env.VITE_DATA_BASE_URL as string | undefined) ?? "/data";
 
 // The replay file used to detect a real deployment. Matches the default dataset.
 const PROBE_FILE = "replay_kw51_demo.json";
+
+// Resolve an image-map path (relative, e.g. "images/test/x.png") to a URL the
+// browser can load, served under the data base (e.g. "/data/images/test/x.png").
+// Absolute URLs and already-prefixed paths pass through unchanged.
+export function resolveImageUrl(p: string | undefined): string | undefined {
+  if (!p) return undefined;
+  if (/^(https?:)?\/\//.test(p) || p.startsWith(DATA_BASE + "/")) return p;
+  const clean = p.replace(/^\/+/, "");
+  return `${DATA_BASE}/${clean}`;
+}
 
 let active: DataSource = mockSource;
 let initialized = false;

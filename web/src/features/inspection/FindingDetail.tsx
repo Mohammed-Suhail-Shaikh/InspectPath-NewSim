@@ -1,5 +1,6 @@
 import type { Finding, ImageMap } from "../../data/types";
 import { TIER_COLOR, TIER_LABEL } from "../../data/tiers";
+import { resolveImageUrl } from "../../data/activeSource";
 
 const CLASS_LABELS: Record<string, string> = {
   crack: "Crack",
@@ -44,9 +45,9 @@ export default function FindingDetail({
   onClose: () => void;
 }) {
   const images = imageMap[structureId] ?? {};
-  const fullSrc = images[finding.image_key];
+  const fullSrc = resolveImageUrl(images[finding.image_key]);
   const closeupSrc = finding.has_closeup
-    ? images[`${finding.image_key}_closeup`]
+    ? resolveImageUrl(images[`${finding.image_key}_closeup`])
     : undefined;
 
   const tierColor = TIER_COLOR[finding.tier] ?? "var(--muted)";

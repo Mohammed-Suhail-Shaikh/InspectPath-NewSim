@@ -1,0 +1,19 @@
+{
+  "bridge-a": {
+    "w4": "images/test/background/image_0000070_crop_0000004.png",
+    "w6": "images/test/defects/image_0001593_crop_0000005.png",
+    "w6_closeup": "images/test/defects/image_0001236_crop_0000001.png",
+    "w8": "images/test/background/image_0000038_crop_0000002.png",
+    "w9": "images/test/background/image_0000495_crop_0000001.png",
+    "w10": "images/test/defects/image_0000404_crop_0000003.png",
+    "w10_closeup": "images/test/defects/image_0000982_crop_0000001.png",
+    "w11": "images/test/background/image_0000462_crop_0000003.png",
+    "w13": "images/test/defects/image_0001296_crop_0000004.png",
+    "w13_closeup": "images/test/defects/image_0000956_crop_0000003.png",
+    "w14": "images/test/background/image_0000444_crop_0000003.png",
+    "w16": "images/test/background/image_0000063_crop_0000003.png",
+    "w18": "images/test/defects/image_0001434_crop_0000002.png",
+    "w18_closeup": "images/test/defects/image_0000164_crop_0000003.png",
+    "w19": "images/test/background/image_0001229_crop_0000005.png"
+  }
+}

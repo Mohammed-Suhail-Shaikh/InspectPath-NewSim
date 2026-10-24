@@ -1,3 +1,6 @@
 ml/trigger/raw/
 __pycache__/
 .venv/
+
+# CODEBRIM dataset images must never be committed (license forbids redistribution).
+data/images/

@@ -148,12 +148,40 @@ interface PredictResponse {
   threshold: number;
 }
 
+// Convert a Blob to a bare base64 string (no data: prefix).
+function blobToBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const result = reader.result as string; // "data:<mime>;base64,<payload>"
+      const comma = result.indexOf(",");
+      resolve(comma >= 0 ? result.slice(comma + 1) : result);
+    };
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(blob);
+  });
+}
+
+// Contract §1: POST /predict takes an image file or base64 image — NOT a path.
+// We fetch the image from the served data/ path, then send it as base64 JSON
+// ({ image_base64 }), which Zaiba's API accepts. Returns null on any failure so
+// the caller can fall back to the mock result for that waypoint.
 async function predict(imagePath: string): Promise<PredictResponse | null> {
   try {
+    // 1. Fetch the image bytes from /data/<path>.
+    const imgRes = await fetch(`${DATA_BASE}/${imagePath.replace(/^\/+/, "")}`);
+    if (!imgRes.ok) return null;
+    const contentType = imgRes.headers.get("content-type") ?? "";
+    // Guard against the Vite SPA fallback (HTML) when the image is missing.
+    if (!contentType.startsWith("image/")) return null;
+    const blob = await imgRes.blob();
+    const imageBase64 = await blobToBase64(blob);
+
+    // 2. Send it to the defect model as base64.
     const res = await fetch(`${PREDICT_URL}/predict`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ image: imagePath }),
+      body: JSON.stringify({ image_base64: imageBase64 }),
     });
     if (!res.ok) return null;
     const data = await res.json();
