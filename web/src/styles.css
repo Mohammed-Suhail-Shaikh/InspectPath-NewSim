@@ -514,3 +514,62 @@ body {
   gap: 0.5rem;
   margin-top: 0.75rem;
 }
+
+/* Responsive: keep every view usable on a phone. */
+@media (max-width: 720px) {
+  .app-header h1 {
+    font-size: 1.1rem;
+  }
+
+  .monitor-head,
+  .inspection-head,
+  .report-head,
+  .readings-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .replay-controls {
+    justify-content: space-between;
+  }
+
+  /* Map and side panels stack vertically. */
+  .inspection-body {
+    flex-direction: column;
+  }
+
+  .map-wrap,
+  .inspection-side {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .readings-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .finding-images {
+    flex-direction: column;
+  }
+
+  /* Narrower label column so score rows don't overflow. */
+  .score-row {
+    grid-template-columns: 90px 1fr 36px;
+    font-size: 0.75rem;
+  }
+
+  .escalation-banner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .dispatch-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 400px) {
+  .readings-grid {
+    grid-template-columns: 1fr;
+  }
+}
