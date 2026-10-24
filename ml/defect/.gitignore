@@ -1,0 +1,5 @@
+# Training outputs (weights, logs). Commit final weights only on purpose, if under 100 MB.
+artifacts/
+__pycache__/
+*.pyc
+.pytest_cache/
