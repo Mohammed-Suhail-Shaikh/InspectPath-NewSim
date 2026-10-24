@@ -1,1 +1,134 @@
-[]
+[
+  {
+    "node_id": "node-1",
+    "timestamp": "1998-01-17T10:00:00Z",
+    "temperature_c": 4.2,
+    "frequency_hz": 4.04,
+    "predicted_frequency_hz": 4.05,
+    "residual_pct": -0.2,
+    "alert_level": "normal",
+    "quality": "ok",
+    "source": "Z24 replay"
+  },
+  {
+    "node_id": "node-1",
+    "timestamp": "1998-01-17T11:00:00Z",
+    "temperature_c": 3.6,
+    "frequency_hz": 4.03,
+    "predicted_frequency_hz": 4.05,
+    "residual_pct": -0.5,
+    "alert_level": "normal",
+    "quality": "ok",
+    "source": "Z24 replay"
+  },
+  {
+    "node_id": "node-1",
+    "timestamp": "1998-01-17T12:00:00Z",
+    "temperature_c": 2.9,
+    "frequency_hz": 4.01,
+    "predicted_frequency_hz": 4.04,
+    "residual_pct": -0.7,
+    "alert_level": "normal",
+    "quality": "ok",
+    "source": "Z24 replay"
+  },
+  {
+    "node_id": "node-1",
+    "timestamp": "1998-01-17T13:00:00Z",
+    "temperature_c": 1.8,
+    "frequency_hz": 3.98,
+    "predicted_frequency_hz": 4.03,
+    "residual_pct": -1.2,
+    "alert_level": "normal",
+    "quality": "ok",
+    "source": "Z24 replay"
+  },
+  {
+    "node_id": "node-1",
+    "timestamp": "1998-01-17T14:00:00Z",
+    "temperature_c": 0.6,
+    "frequency_hz": 3.94,
+    "predicted_frequency_hz": 4.03,
+    "residual_pct": -2.2,
+    "alert_level": "watch",
+    "quality": "ok",
+    "source": "Z24 replay"
+  },
+  {
+    "node_id": "node-1",
+    "timestamp": "1998-01-17T15:00:00Z",
+    "temperature_c": -0.4,
+    "frequency_hz": 3.92,
+    "predicted_frequency_hz": 4.02,
+    "residual_pct": -2.5,
+    "alert_level": "watch",
+    "quality": "ok",
+    "source": "Z24 replay"
+  },
+  {
+    "node_id": "node-1",
+    "timestamp": "1998-01-17T16:00:00Z",
+    "temperature_c": -1.1,
+    "frequency_hz": 3.88,
+    "predicted_frequency_hz": 4.02,
+    "residual_pct": -3.5,
+    "alert_level": "watch",
+    "quality": "degraded",
+    "source": "Z24 replay"
+  },
+  {
+    "node_id": "node-1",
+    "timestamp": "1998-01-17T17:00:00Z",
+    "temperature_c": -1.8,
+    "frequency_hz": 3.81,
+    "predicted_frequency_hz": 4.01,
+    "residual_pct": -5.0,
+    "alert_level": "warning",
+    "quality": "ok",
+    "source": "Z24 replay"
+  },
+  {
+    "node_id": "node-1",
+    "timestamp": "1998-01-17T18:00:00Z",
+    "temperature_c": -2.4,
+    "frequency_hz": 3.78,
+    "predicted_frequency_hz": 4.01,
+    "residual_pct": -5.7,
+    "alert_level": "warning",
+    "quality": "ok",
+    "source": "Z24 replay"
+  },
+  {
+    "node_id": "node-1",
+    "timestamp": "1998-01-17T19:00:00Z",
+    "temperature_c": -3.1,
+    "frequency_hz": 3.72,
+    "predicted_frequency_hz": 4.00,
+    "residual_pct": -7.0,
+    "alert_level": "warning",
+    "quality": "ok",
+    "source": "Z24 replay"
+  },
+  {
+    "node_id": "node-1",
+    "timestamp": "1998-01-17T20:00:00Z",
+    "temperature_c": -3.8,
+    "frequency_hz": 3.66,
+    "predicted_frequency_hz": 4.00,
+    "residual_pct": -8.5,
+    "alert_level": "alarm",
+    "quality": "ok",
+    "source": "Z24 replay"
+  },
+  {
+    "node_id": "node-1",
+    "timestamp": "1998-01-17T21:00:00Z",
+    "temperature_c": -4.3,
+    "frequency_hz": 3.61,
+    "predicted_frequency_hz": 3.99,
+    "residual_pct": -9.5,
+    "alert_level": "alarm",
+    "quality": "ok",
+    "source": "Z24 replay"
+  }
+]
