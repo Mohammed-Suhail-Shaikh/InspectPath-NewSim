@@ -14,6 +14,8 @@ Output format (docs/contract.md section 5):
 
 Usage (from ml/defect/):
   python demo/assign_to_plan.py --plan <plan.json> --structure <structure.json> --out <file>
+  Optional: --exclude low_01,high_03   pool ids that are never planted
+            --note "text"              adds a top-level "_note" key
 The structure id comes from the plan's "structure_id" key, else --structure-id, else the "id" in
 the --structure file.
 """
@@ -33,13 +35,17 @@ def planted_positions(n_capture, n_plant):
     return [int((i + 0.5) * n_capture / n_plant) for i in range(n_plant)]
 
 
-def assign(plan, pool, structure_id):
+def assign(plan, pool, structure_id, exclude=()):
     capture = [w["id"] for w in plan["waypoints"] if w.get("capture")]
     positions = planted_positions(len(capture), len(PLANT_ORDER))
 
+    unknown = set(exclude) - {p["id"] for p in pool["planted"]}
+    if unknown:
+        raise ValueError(f"--exclude ids not in the pool's planted patches: {sorted(unknown)}")
     by_group = {}
     for p in pool["planted"]:
-        by_group.setdefault(p["group"], []).append(p)
+        if p["id"] not in exclude:
+            by_group.setdefault(p["group"], []).append(p)
     for group in set(PLANT_ORDER):
         if len(by_group.get(group, [])) < PLANT_ORDER.count(group):
             raise ValueError(f"Pool has too few '{group}' patches.")
@@ -86,11 +92,14 @@ def main():
     ap.add_argument("--structure-id")
     ap.add_argument("--out", type=Path, default=DEMO / "image_map.json")
     ap.add_argument("--note", help='adds a top-level "_note" key to the output')
+    ap.add_argument("--exclude", default="",
+                    help="comma-separated pool ids that are never planted, e.g. low_01 (default none)")
     args = ap.parse_args()
 
     plan = json.loads(args.plan.read_text())
     pool = json.loads(args.pool.read_text())
-    result = assign(plan, pool, structure_id_for(plan, args))
+    exclude = {x.strip() for x in args.exclude.split(",") if x.strip()}
+    result = assign(plan, pool, structure_id_for(plan, args), exclude)
     if args.note:
         result = {"_note": args.note, **result}
     args.out.write_text(json.dumps(result, indent=2) + "\n")

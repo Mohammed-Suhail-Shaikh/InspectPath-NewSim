@@ -46,6 +46,17 @@ def test_clean_patches_do_not_repeat_when_pool_is_big_enough():
     assert len(clean) == 6 and len(set(clean)) == 6
 
 
+def test_excluded_ids_are_never_planted():
+    plan, pool = fake_plan(8), fake_pool()
+    base = atp.assign(plan, pool, "s")["s"]
+    out = atp.assign(plan, pool, "s", exclude={"low_0"})["s"]
+    assert "test/defects/low_0.png" in base.values()
+    assert not any("low_0." in v or "low_0_closeup" in v for v in out.values())
+    assert any("low_1." in v for v in out.values())
+    with pytest.raises(ValueError):
+        atp.assign(plan, pool, "s", exclude={"nope"})
+
+
 def test_too_few_capture_waypoints_is_an_error():
     with pytest.raises(ValueError):
         atp.assign(fake_plan(3), fake_pool(), "s")

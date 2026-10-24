@@ -1,5 +1,5 @@
 {
-  "_note": "PROVISIONAL: generated from the mock plan web/src/mocks/plan_optimized.json (structure bridge-a). Must be regenerated when the real plan lands. Paths are relative to the CODEBRIM folder.",
+  "_note": "PROVISIONAL: generated from the mock plan web/src/mocks/plan_optimized.json (structure bridge-a). Regenerate when the real plan lands. Paths are relative to the CODEBRIM folder. Excluded low_01: model over-triaged a crack as high (see pool_check.md).",
   "bridge-a": {
     "w4": "test/background/image_0000070_crop_0000004.png",
     "w6": "test/defects/image_0001593_crop_0000005.png",
@@ -13,8 +13,8 @@
     "w13_closeup": "test/defects/image_0000956_crop_0000003.png",
     "w14": "test/background/image_0000444_crop_0000003.png",
     "w16": "test/background/image_0000063_crop_0000003.png",
-    "w18": "test/defects/image_0001188_crop_0000002.png",
-    "w18_closeup": "test/defects/image_0000957_crop_0000010.png",
+    "w18": "test/defects/image_0001434_crop_0000002.png",
+    "w18_closeup": "test/defects/image_0000164_crop_0000003.png",
     "w19": "test/background/image_0001229_crop_0000005.png"
   }
 }
