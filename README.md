@@ -31,7 +31,7 @@ A low-cost ESP32 node, simulated in Wokwi, that measures the four failure-releva
 - HC-SR04: ultrasonic distance to the water surface, for water level and scour risk.
 - HX711 with a strain gauge: beam strain under traffic. A load cell stands in under simulation.
 
-The node runs on-device data-quality checks on every reading (range, stuck value, rate of change, dropout, timing jitter, and a temperature cross-check). A window with more than 5% flagged samples is excluded, and the node is reported as degraded rather than the bridge being called unsafe. It raises graded alerts (Normal, Watch, Warning, Alarm) and combines parameters, so a frequency drop with rising strain and new tilt is treated differently from a frequency drop during a heat wave. The firmware's own residual thresholds are 2 / 5 / 8 percent because its simulated MPU6050 is noisier than the professional sensors behind the KW51 data; this is intentional, see section 7. Full detail is in [`docs/hardware-spec.md`](docs/hardware-spec.md). Live simulation: [Varun's ESP32 sensor node simulation in Wokwi](https://wokwi.com/projects/478798310961586177).
+The node runs on-device data-quality checks on every reading (range, stuck value, rate of change, dropout, timing jitter, and a temperature cross-check). A window with more than 5% flagged samples is excluded, and the node is reported as degraded rather than the bridge being called unsafe. It raises graded alerts (Normal, Watch, Warning, Alarm) and combines parameters, so a frequency drop with rising strain and new tilt is treated differently from a frequency drop during a heat wave. The firmware's own residual thresholds are 2 / 5 / 8 percent because its simulated MPU6050 is noisier than the professional sensors behind the KW51 data; this is intentional, see section 6. Full detail is in [`docs/hardware-spec.md`](docs/hardware-spec.md). Live simulation: [Varun's ESP32 sensor node simulation in Wokwi](https://wokwi.com/projects/478798310961586177).
 
 <img width="1152" height="971" alt="ESP32 sensor node circuit" src="https://github.com/user-attachments/assets/4afccc9e-e074-431f-b674-a60b70e9584a" />
 
@@ -51,7 +51,7 @@ It is a pretrained ResNet-18 with five independent sigmoid outputs, since one pa
 
 The planner turns an alert into an inspection route. On a Warning it inspects only the zone near the node that raised the alert; on an Alarm it does that zone first, then sweeps the rest of the bridge. It reads a bridge layout (`firmware_esp32/bridge_layout.json`), orders waypoints by nearest-neighbor from the alert, calls the defect model for each captured image (real API or a repeatable mock), and writes a dispatch-plus-findings report (`firmware_esp32/output/inspection_report.json`). Code is in `firmware_esp32/planner.py`.
 
-Note on integration: the planner uses a real-world metric layout (positions in meters, named waypoints). The dashboard was built to the grid-based structure and plan shapes in `docs/contract.md` sections 3 and 4. These two do not match yet (see section 7), so in the current build the dashboard shows a sample bridge layout rather than the planner's output.
+Note on integration: the planner uses a real-world metric layout (positions in meters, named waypoints). The dashboard was built to the grid-based structure and plan shapes in `docs/contract.md` sections 3 and 4. These two do not match yet (see section 10), so in the current build the dashboard shows a sample bridge layout rather than the planner's output.
 
 ### Dashboard and report (Suhail)
 
@@ -121,10 +121,12 @@ Prerequisites: Python 3, Node.js and npm. The datasets are not in the repo; you 
    - KW51: download the tracked-modes file from Zenodo 3745914 to `ml/trigger/raw/trackedmodes.mat`.
    - CODEBRIM: download into `datasets/codebrim/`, then place the demo crops under `data/images/` so the dashboard can serve them. Both locations are kept out of git.
 3. Run the trigger model: `python ml/trigger/trigger_model.py`. This writes `data/trigger/replay_kw51.json` and `replay_kw51_demo.json` and the plots under `ml/trigger/plots/`.
-4. Start the defect API from `ml/defect/`.
-   - Real model: `MODEL_PATH=artifacts/best.pt uvicorn api.main:app --port 8001`
-   - Mock mode, no model needed: `MOCK_MODEL=1 uvicorn api.main:app --port 8001`
-   - `best.pt` (about 43 MB) is committed; mock mode needs no datasets. The dashboard expects the defect API on port 8001.
+4. Start the defect API from `ml/defect/`. The dashboard expects it on port 8001.
+   - Real model (bash): `MODEL_PATH=artifacts/best.pt uvicorn api.main:app --port 8001`
+   - Real model (PowerShell): `$env:MODEL_PATH="artifacts/best.pt"; uvicorn api.main:app --port 8001`
+   - Mock mode, no model needed (bash): `MOCK_MODEL=1 uvicorn api.main:app --port 8001`
+   - Mock mode, no model needed (PowerShell): `$env:MOCK_MODEL="1"; uvicorn api.main:app --port 8001`
+   - `best.pt` (about 43 MB) is committed; mock mode needs no datasets.
 5. Start the dashboard from `web/`: `npm install`, then `npm run dev`. A pre-step copies `data/` into `web/public/data/`, and Vite serves the app at the printed URL (default http://localhost:5173/).
 6. Wokwi simulation of the sensor node: https://wokwi.com/projects/478798310961586177
 
@@ -132,14 +134,12 @@ The optional report backend runs from `api/` with `uvicorn main:app --port 8000`
 
 ## 8. Testing
 
-- Dashboard: from `web/`, `npm run build` and `npm test`. The tests run against mock data and do not need any dataset.
-- Trigger model: `python -m pytest ml/trigger/tests`.
-- Defect model and tier rule: `python -m pytest ml/defect/tests`.
-- Planner: `python -m pytest firmware_esp32` for the planner tests that ship with it.
+- Dashboard: from `web/`, `npm run build` and `npm test`. 49 tests run against mock data and need no dataset. This is the main test suite.
+- Defect tier rule: `python -m pytest ml/defect/tests/test_tier.py` (14 tests, no model or dataset needed). The API tests in `ml/defect/tests/test_api.py` also need `torch`, `fastapi`, and `pillow` installed to collect, since the API module imports the model stack at load time.
 
 A judge without the datasets can still see the system work: start the defect API in mock mode and run the dashboard, which falls back to mock structure, plan, and findings while replaying the real KW51 demo window. The monitor labels whether it is showing real or sample data, so what is real stays clear.
 
-TODO: live demo URL.
+There is no hosted demo. Run it locally using the steps above.
 
 ## 9. How we used Kiro
 

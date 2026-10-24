@@ -4,3 +4,5 @@ __pycache__/
 
 # CODEBRIM dataset images must never be committed (license forbids redistribution).
 data/images/
+# Downloaded datasets (CODEBRIM, etc.) stay local; the CODEBRIM license forbids redistribution.
+datasets/
