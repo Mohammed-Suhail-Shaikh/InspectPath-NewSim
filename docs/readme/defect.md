@@ -1,17 +1,17 @@
 ## Defect model
 
-Says which of 5 defects (crack, spallation, exposed bars, efflorescence, corrosion stain) a concrete patch shows, then maps them to an urgency tier. High or medium tier triggers close-ups. API threshold: 0.5.
+Says which of 5 defects (crack, spallation, exposed bars, efflorescence, corrosion stain) a concrete patch shows, plus an urgency tier. Close-ups trigger on tier high or medium. API threshold stays 0.5.
 
-**Dataset.** CODEBRIM: Mundt et al., "Meta-learning Convolutional Neural Architectures for Multi-target Concrete Defect Classification with the COncrete DEfect BRidge IMage Dataset", CVPR 2019. Non-commercial research data, NOT redistributed here. Put it in `datasets/codebrim/`.
+**Dataset.** CODEBRIM: Mundt et al., "Meta-learning Convolutional Neural Architectures for Multi-target Concrete Defect Classification with the COncrete DEfect BRidge IMage Dataset", CVPR 2019. Non-commercial research data, NOT redistributed here. Place in `datasets/codebrim/`.
 
 **Method**
-- Pretrained ResNet-18, 5 independent sigmoid outputs.
-- Rare classes get a higher loss weight.
+- Pretrained ResNet-18, 5 sigmoid outputs, higher loss weight for rare classes.
 - Thin patches padded to square, then resized.
-- Split by source photo. 52 unlabeled patches left out (train 43, val 5, test 4).
+- Split by source photo.
+- 52 patches with no defect or background label were excluded (43 train, 5 val, 4 test).
 - Best epoch picked on validation; test used once.
 
-**Results** (628 test patches, from `results.md`)
+**Results** (628 test patches)
 
 | Class | Precision | Recall | F1 | Support |
 |---|---|---|---|---|
