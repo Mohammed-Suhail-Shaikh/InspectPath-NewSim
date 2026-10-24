@@ -1,5 +1,5 @@
 {
-  "text": "",
-  "generatedAt": "1970-01-01T00:00:00Z",
+  "text": "Inspection summary — Bridge Section A (underside)\n\nWhat prompted this inspection:\nThe sensor node's natural frequency drifted below the temperature-corrected baseline over the replay window, moving from Normal through Watch to Warning and finally Alarm. The largest difference from the expected frequency reached about -9.5%. One measurement window was flagged as node degraded and should be treated as reduced-confidence data, not as a statement about the structure.\n\nWhat the inspection found (4 findings):\n- High priority (1): A location near the alert zone shows signs consistent with spallation and exposed reinforcement, with a crack also detected. This is the most urgent item to review.\n- Medium priority (1): A nearby location shows a corrosion stain.\n- Low priority (2): Two locations show cracking and some efflorescence.\n\nSuggested order of attention:\n1. Review the high-priority location near the alert zone first, including its close-up capture.\n2. Review the medium-priority corrosion stain.\n3. Note the two low-priority cracking locations for monitoring.\n\nImportant: This is a simulation using real bridge data. The alert levels and priority tiers are demonstration estimates to help prioritize where to look. They are not engineering ratings and do not state whether the bridge is safe or unsafe. A qualified engineer should make any safety determination.",
+  "generatedAt": "1998-01-17T21:05:00Z",
   "source": "mock"
 }
