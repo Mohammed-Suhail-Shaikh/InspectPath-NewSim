@@ -1,6 +1,10 @@
 import Footer from "./components/Footer";
+import MonitorView from "./features/monitor/MonitorView";
+import { useViewState } from "./app/viewState";
 
 export default function App() {
+  const { activeView } = useViewState();
+
   return (
     <div className="app">
       <header className="app-header">
@@ -8,7 +12,11 @@ export default function App() {
       </header>
 
       <main className="app-main">
-        <p className="placeholder">Dashboard coming online…</p>
+        {activeView === "monitor" ? (
+          <MonitorView />
+        ) : (
+          <p className="placeholder">Inspection view coming in task 10.</p>
+        )}
       </main>
 
       <Footer />
