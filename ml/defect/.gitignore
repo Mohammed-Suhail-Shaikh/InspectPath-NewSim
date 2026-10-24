@@ -1,5 +1,7 @@
 # Training outputs (weights, logs). Commit final weights only on purpose, if under 100 MB.
 artifacts/
+# Label CSVs are rebuilt by prepare_data.py. Only test_files.txt is committed.
+splits/*.csv
 __pycache__/
 *.pyc
 .pytest_cache/
