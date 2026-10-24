@@ -3,3 +3,6 @@ dist
 .env
 *.local
 *.tsbuildinfo
+
+# Copied from repo-root data/ by scripts/copy-data.mjs; never commit the copies.
+public/data/
