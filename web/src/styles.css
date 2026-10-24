@@ -241,3 +241,35 @@ body {
 .dispatch-btn:hover {
   background: rgba(0, 0, 0, 0.4);
 }
+
+.inspection-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.inspection-body {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+  align-items: flex-start;
+}
+
+.map-wrap {
+  flex: 1 1 420px;
+  min-width: 280px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.75rem;
+}
+
+.grid-map {
+  display: block;
+  max-width: 640px;
+  height: auto;
+  margin: 0 auto;
+}

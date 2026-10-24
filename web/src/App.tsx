@@ -1,5 +1,6 @@
 import Footer from "./components/Footer";
 import MonitorView from "./features/monitor/MonitorView";
+import InspectionView from "./features/inspection/InspectionView";
 import { useViewState } from "./app/viewState";
 
 export default function App() {
@@ -12,11 +13,7 @@ export default function App() {
       </header>
 
       <main className="app-main">
-        {activeView === "monitor" ? (
-          <MonitorView />
-        ) : (
-          <p className="placeholder">Inspection view coming in task 10.</p>
-        )}
+        {activeView === "monitor" ? <MonitorView /> : <InspectionView />}
       </main>
 
       <Footer />
