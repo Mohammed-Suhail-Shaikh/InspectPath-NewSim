@@ -208,10 +208,10 @@ def inspect(route, node, image_map, args):
                 finding["closeup"] = {"image": closeup_img, **close}
                 finding["tier"] = max(result["tier"], close["tier"], key=TIERS.index)
 
-        best = finding["closeup"] or finding["capture"]
+        shots = [finding["capture"]] + ([finding["closeup"]] if finding["closeup"] else [])
         finding["detected"] = sorted(set(finding["capture"]["detected"]) |
                                      set((finding["closeup"] or {}).get("detected", [])))
-        finding["max_score"] = max(best["scores"].values())
+        finding["max_score"] = max(max(shot["scores"].values()) for shot in shots)   # best of both images
         findings.append(finding)
 
     # Rank: worst tier first, then highest score, then closest to the alert
