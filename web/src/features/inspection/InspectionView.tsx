@@ -5,6 +5,7 @@ import { useViewState } from "../../app/viewState";
 import GridMap from "./GridMap";
 import RobotMarker from "./RobotMarker";
 import CoverageLayer from "./CoverageLayer";
+import StatsPanel from "./StatsPanel";
 import { useRobotRun } from "./useRobotRun";
 import { cellCenter } from "./mapLayout";
 
@@ -83,8 +84,11 @@ export default function InspectionView() {
             <RobotMarker waypoint={robotWaypoint} />
           </GridMap>
         </div>
-        {/* Stats (task 13), plan toggle (task 14),
-            findings (tasks 16-17) added next. */}
+
+        <aside className="inspection-side">
+          {plan && <StatsPanel stats={plan.stats} />}
+          {/* Plan toggle (task 14), findings (tasks 16-17) added next. */}
+        </aside>
       </div>
     </div>
   );
