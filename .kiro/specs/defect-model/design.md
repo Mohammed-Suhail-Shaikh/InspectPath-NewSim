@@ -25,8 +25,8 @@ ml/defect/
   (or 3 with `--groups3`).
 - **Groups3 mapping:** surface = crack OR efflorescence, corrosion = corrosion_stain,
   structural = spallation OR exposed_bars. Class names are stored in the checkpoint.
-- **API:** loads checkpoint once at startup. Env vars: `MODEL_PATH`, `THRESHOLD` (default 0.5),
-  `MOCK_MODEL`, `CORS_ORIGINS`. Mock mode derives scores deterministically from the image bytes.
+- **API:** loads checkpoint once at startup. Env vars (names match `.env.example` on repo-scaffold): `MODEL_PATH`,
+  `CONFIDENCE_THRESHOLD` (default 0.5), `MOCK_MODEL`, `CORS_ORIGINS`. Mock mode derives scores deterministically from the image bytes.
 - **Tier:** `tier.py` has no imports from the model code, so it is trivial to test.
 
 ## Open point
