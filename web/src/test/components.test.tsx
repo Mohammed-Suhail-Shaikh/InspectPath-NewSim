@@ -118,11 +118,21 @@ describe("FindingDetail", () => {
 
 describe("report generation", () => {
   beforeEach(() => {
-    vi.unstubAllEnvs();
+    vi.restoreAllMocks();
   });
 
-  it("falls back to the mock report when no LLM key is configured", async () => {
-    vi.stubEnv("VITE_LLM_API_KEY", "");
+  it("falls back to the mock report when the API endpoint is unavailable", async () => {
+    // Simulate the backend being down / unreachable.
+    vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("network down"));
+    const report = await generateReport({ findings: [], alertHistory: [] });
+    expect(report.source).toBe("mock");
+    expect(report.text.length).toBeGreaterThan(0);
+  });
+
+  it("falls back to the mock report when the API returns an error status", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response("", { status: 503 })
+    );
     const report = await generateReport({ findings: [], alertHistory: [] });
     expect(report.source).toBe("mock");
     expect(report.text.length).toBeGreaterThan(0);

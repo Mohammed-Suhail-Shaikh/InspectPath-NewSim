@@ -3,6 +3,7 @@
 | Path | Owner |
 |---|---|
 | web/ (dashboard, report) | Suhail |
+| api/ (report backend) | Suhail |
 | web/src/planner/ | Varun |
 | web/src/mocks/ | Suhail |
 | ml/defect/ | Zaiba |

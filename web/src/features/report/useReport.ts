@@ -18,7 +18,7 @@ export function useReport() {
       setStatus("done");
       if (result.source === "mock") {
         setNotice(
-          "Showing a sample report. Connect an LLM key (VITE_LLM_API_KEY) for a live summary."
+          "Showing a sample report. Start the InspectPath API with a configured key for a live summary."
         );
       }
     } catch {
