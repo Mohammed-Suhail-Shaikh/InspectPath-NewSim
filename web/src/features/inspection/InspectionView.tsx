@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { mockSource } from "../../data/mockSource";
+import { getDataSource } from "../../data/activeSource";
 import type { Finding, ImageMap, Plan, Structure } from "../../data/types";
 import { useViewState } from "../../app/viewState";
 import GridMap from "./GridMap";
@@ -26,13 +26,14 @@ export default function InspectionView() {
 
   useEffect(() => {
     let active = true;
-    mockSource.getStructure(STRUCTURE_ID).then((s) => {
+    const src = getDataSource();
+    src.getStructure(STRUCTURE_ID).then((s) => {
       if (active) setStructure(s);
     });
-    mockSource.getFindings(STRUCTURE_ID).then((f) => {
+    src.getFindings(STRUCTURE_ID).then((f) => {
       if (active) setFindings(f);
     });
-    mockSource.getImageMap().then((m) => {
+    src.getImageMap().then((m) => {
       if (active) setImageMap(m);
     });
     return () => {
@@ -43,7 +44,7 @@ export default function InspectionView() {
   useEffect(() => {
     let active = true;
     setLoading(true);
-    mockSource.getPlan(selectedPlan).then((p) => {
+    getDataSource().getPlan(selectedPlan).then((p) => {
       if (!active) return;
       setPlan(p);
       setLoading(false);

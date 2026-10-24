@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { mockSource } from "../../data/mockSource";
+import { getDataSource } from "../../data/activeSource";
 import type { TriggerRecord } from "../../data/types";
 import { useViewState } from "../../app/viewState";
 
@@ -30,7 +30,7 @@ export function useReplay(dataset = "z24"): ReplayState {
   // Load records once.
   useEffect(() => {
     let active = true;
-    mockSource.getReplay(dataset).then((recs) => {
+    getDataSource().getReplay(dataset).then((recs) => {
       if (!active) return;
       // Ensure timestamp order.
       const sorted = [...recs].sort((a, b) =>

@@ -1,4 +1,5 @@
 import Footer from "./components/Footer";
+import DataWarningsBanner from "./components/DataWarningsBanner";
 import MonitorView from "./features/monitor/MonitorView";
 import InspectionView from "./features/inspection/InspectionView";
 import { useViewState } from "./app/viewState";
@@ -13,6 +14,7 @@ export default function App() {
       </header>
 
       <main className="app-main">
+        <DataWarningsBanner />
         {activeView === "monitor" ? <MonitorView /> : <InspectionView />}
       </main>
 

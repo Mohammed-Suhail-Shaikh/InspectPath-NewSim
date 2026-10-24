@@ -4,7 +4,7 @@ import FrequencyChart from "./FrequencyChart";
 import ReplayControls from "./ReplayControls";
 import EscalationBanner from "./EscalationBanner";
 import { useViewState } from "../../app/viewState";
-import { mockSource } from "../../data/mockSource";
+import { isMockActive } from "../../data/activeSource";
 
 export default function MonitorView() {
   const { current, loading, records } = useReplay("z24");
@@ -21,7 +21,7 @@ export default function MonitorView() {
   const atEnd = index >= records.length - 1;
 
   // Until real data replaces the mocks, never claim real data.
-  const subtitle = mockSource.isMock
+  const subtitle = isMockActive()
     ? "Replaying sample sensor data (mock)"
     : `Replaying sensor node readings as if live (${current.source}).`;
 

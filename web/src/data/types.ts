@@ -90,6 +90,9 @@ export interface Finding {
   detected: string[]; // per [contract §1]
   image_key: string; // key into ImageMap[structureId] [contract §5]
   has_closeup: boolean; // whether "<image_key>_closeup" exists [contract §5]
+  // [dashboard-internal] provenance of the defect result for this finding.
+  // "mock" when the live /predict call failed and a mock result was substituted.
+  defect_source?: "predict" | "mock";
 }
 
 // [dashboard-internal] accumulated alert transitions observed during replay

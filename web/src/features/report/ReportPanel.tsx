@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { mockSource } from "../../data/mockSource";
+import { getDataSource } from "../../data/activeSource";
 import type { Finding, InspectionReport, Plan, Structure } from "../../data/types";
 import { useViewState } from "../../app/viewState";
 import { buildRuleBasedReport } from "./ruleBasedReport";
@@ -27,10 +27,11 @@ export default function ReportPanel() {
 
   useEffect(() => {
     let active = true;
-    mockSource.getStructure(STRUCTURE_ID).then((s) => {
+    const src = getDataSource();
+    src.getStructure(STRUCTURE_ID).then((s) => {
       if (active) setStructure(s);
     });
-    mockSource.getFindings(STRUCTURE_ID).then((f) => {
+    src.getFindings(STRUCTURE_ID).then((f) => {
       if (active) setFindings(f);
     });
     isBackendReachable().then((ok) => {
@@ -43,7 +44,7 @@ export default function ReportPanel() {
 
   useEffect(() => {
     let active = true;
-    mockSource.getPlan(selectedPlan).then((p) => {
+    getDataSource().getPlan(selectedPlan).then((p) => {
       if (active) setPlan(p);
     });
     return () => {

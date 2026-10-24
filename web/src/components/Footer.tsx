@@ -1,4 +1,4 @@
-import { mockSource } from "../data/mockSource";
+import { isMockActive } from "../data/activeSource";
 
 // Shown when running on real sensor data.
 export const DISCLAIMER =
@@ -9,7 +9,7 @@ export const MOCK_DISCLAIMER =
   "Sample data for demonstration. Alerts and severity are estimates, not engineering ratings.";
 
 export default function Footer() {
-  const text = mockSource.isMock ? MOCK_DISCLAIMER : DISCLAIMER;
+  const text = isMockActive() ? MOCK_DISCLAIMER : DISCLAIMER;
   return (
     <footer className="app-footer" role="contentinfo">
       <p>{text}</p>

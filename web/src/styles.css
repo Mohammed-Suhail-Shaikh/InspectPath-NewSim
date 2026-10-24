@@ -586,3 +586,35 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+.data-warnings {
+  background: #3a2c00;
+  color: #ffd23f;
+  border: 1px solid #5c4a00;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+}
+
+.data-warnings ul {
+  margin: 0.4rem 0 0;
+  padding-left: 1.2rem;
+}
+
+.data-warning-piece {
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+}
+
+.finding-mock-note {
+  background: #3a2c00;
+  color: #ffd23f;
+  border: 1px solid #5c4a00;
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.78rem;
+  margin: 0 0 0.75rem;
+}

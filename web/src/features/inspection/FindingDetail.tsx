@@ -66,6 +66,13 @@ export default function FindingDetail({
         {TIER_LABEL[finding.tier]} priority
       </div>
 
+      {finding.defect_source === "mock" && (
+        <p className="finding-mock-note">
+          Defect result is a mock (the defect model was unavailable for this
+          capture).
+        </p>
+      )}
+
       <div className="finding-images">
         <figure>
           <ImageWithFallback src={fullSrc} alt={`Capture at ${finding.image_key}`} />
