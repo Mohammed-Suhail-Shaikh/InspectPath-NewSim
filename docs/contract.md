@@ -40,21 +40,24 @@ File: `data/trigger/replay_<dataset>.json`, a JSON array, one record per measure
 [
   {
     "node_id": "node-1",
-    "timestamp": "1998-01-17T10:00:00Z",
+    "timestamp": "2019-06-25T10:00:00Z",
     "temperature_c": -2.4,
     "frequency_hz": 3.91,
     "predicted_frequency_hz": 4.05,
     "residual_pct": -3.5,
     "alert_level": "watch",
     "quality": "ok",
-    "source": "Z24 replay"
+    "source": "KW51 replay"
   }
 ]
 ```
 
 - `alert_level`: `normal` | `watch` | `warning` | `alarm`
-- Demo thresholds on absolute residual: 2% watch, 5% warning, 8% alarm.
+- Thresholds on absolute residual: 0.75% watch, 1.5% warning, 2.0% alarm. Tuned to KW51, where healthy variation is about 0.2 to 0.3% and the structural change is about 2%; with 2/5/8 nothing would pass watch.
 - `quality`: `ok` | `degraded`. Degraded windows are shown as "node degraded", never as "bridge unsafe".
+- Files: `replay_kw51.json` (full) and `replay_kw51_demo.json` (June 22 to 29, 2019, normal to alarm).
+- `node-1` corresponds to the structure’s `alert_zone` (section 3).
+- Timestamps are the dataset’s recorded times; this is replayed historical data, not live.
 
 ## 3. Structure input (owner: Varun, data/structures/)
 

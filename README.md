@@ -70,14 +70,21 @@ macro-F1 (0.829).
 | **macro average** | 0.822 | 0.872 | **0.844** | 749 |
 
 ### Trigger model — KW51 (`ml/trigger/results.md`)
-- Compensation model: slope -0.001, intercept 2.934, R-squared 0.409.
+- Compensation model: slope -0.001, intercept 2.934, R-squared 0.409. The
+  R-squared of 0.409 means temperature explains part, but not all, of the
+  variation in natural frequency, so a residual remains after compensation.
 - Healthy-period false alarms: naive baseline 129, compensation model 67.
-- After-period detections (compensation model): 2546.
+  Temperature compensation roughly halved the false alarms raised during a
+  period known to be healthy (from 129 down to 67).
+- After-period detections (compensation model): 2546. This counts readings after
+  the known retrofit that the compensation model flagged above normal — i.e. how
+  often it alerted once the bridge's behavior had changed.
 
-Note: the trigger model uses alert thresholds of 0.75 / 1.5 / 2.0 on absolute
-residual, which differ from the shared contract's 2.0 / 5.0 / 8.0. This is
-recorded as an open decision in `ml/trigger/results.md`; the contract is
-unchanged pending team agreement.
+Alert thresholds on absolute residual are the team-calibrated values now in the
+shared contract: **0.75% watch, 1.5% warning, 2.0% alarm**. They are tuned to
+KW51, where healthy variation is about 0.2–0.3% and the structural change is
+about 2%; the earlier 2/5/8 values would never have passed watch. These remain
+demonstration values, not engineering limits.
 
 ## 5. How we used Kiro
 
