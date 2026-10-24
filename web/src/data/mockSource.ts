@@ -21,6 +21,8 @@ import reportDemo from "../mocks/report_demo.json";
 // Field names match docs/contract.md so the same files would validate
 // against the real producers' output.
 export const mockSource: DataSource = {
+  isMock: true,
+
   async getReplay(dataset: string): Promise<TriggerRecord[]> {
     // Only one dataset shipped for the demo; dataset arg reserved for future sets.
     void dataset;
