@@ -6,6 +6,7 @@ import GridMap from "./GridMap";
 import RobotMarker from "./RobotMarker";
 import CoverageLayer from "./CoverageLayer";
 import StatsPanel from "./StatsPanel";
+import PlanToggle from "./PlanToggle";
 import { useRobotRun } from "./useRobotRun";
 import { cellCenter } from "./mapLayout";
 
@@ -86,8 +87,9 @@ export default function InspectionView() {
         </div>
 
         <aside className="inspection-side">
+          <PlanToggle />
           {plan && <StatsPanel stats={plan.stats} />}
-          {/* Plan toggle (task 14), findings (tasks 16-17) added next. */}
+          {/* Findings (tasks 16-17) added next. */}
         </aside>
       </div>
     </div>

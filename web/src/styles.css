@@ -335,3 +335,38 @@ body {
   height: 100%;
   background: #3ddc84;
 }
+
+.plan-toggle {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+.plan-toggle-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.plan-btn {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-align: left;
+}
+
+.plan-btn.active {
+  background: #5aa9ff;
+  color: #06213f;
+  border-color: #5aa9ff;
+  font-weight: 700;
+}
+
+.plan-btn:hover {
+  border-color: #5aa9ff;
+}
