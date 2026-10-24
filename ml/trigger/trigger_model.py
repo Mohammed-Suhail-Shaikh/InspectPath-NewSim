@@ -120,7 +120,7 @@ def load_modes(path):
     ``loadmat(path, squeeze_me=True, struct_as_record=False)["modes"]`` and build
     a tidy DataFrame with columns ``timestamp`` (datetime64), ``temperature_c``
     (float), and ``frequency_hz`` (float). The MATLAB datenum field ``sdn`` is
-    converted to timestamps with ``pd.to_datetime(sdn - 719529, unit="D")``
+    converted to timestamps with ``pd.to_datetime(sdn - 719529, unit="D").round("s")``
     (Requirement 3.2); mode-6 natural frequency is taken from ``f[:, 5]``
     (Requirement 3.3) and steel temperature from ``env[:, 0]`` (Requirement 3.4).
 
@@ -161,7 +161,7 @@ def load_modes(path):
     )
 
     # Convert MATLAB datenum to timestamps (Requirement 3.2).
-    timestamps = pd.to_datetime(sdn - MATLAB_DATENUM_EPOCH_OFFSET, unit="D")
+    timestamps = pd.to_datetime(sdn - MATLAB_DATENUM_EPOCH_OFFSET, unit="D").round("s")
 
     return pd.DataFrame(
         {
@@ -634,7 +634,7 @@ def _write_text_preserving(text, path):
 
 
 def write_results(stats, counts, path):
-    """Write ``results.md`` with measured stats, counts, and the open-decision note.
+    """Write ``results.md`` with measured stats, counts, and the contract note.
 
     Render the measured-numbers Results_Report to ``path``
     (``RESULTS_PATH = "ml/trigger/results.md"``; Requirement 11.1) from values
@@ -667,17 +667,12 @@ def write_results(stats, counts, path):
     The two false-alarm counts (Requirement 11.3) and the detection count
     (Requirement 11.4) are written as non-negative integers.
 
-    The report also carries an **Open Decisions** section with the Requirement
-    15 note: Data_Contract section 2 specifies absolute-residual thresholds of
-    2.0 watch / 5.0 warning / 8.0 alarm while this feature uses 0.75 watch /
-    1.5 warning / 2.0 alarm (Requirement 15.2); the contract shows the example
-    source label ``"Z24 replay"`` while this feature uses ``"KW51 replay"``
-    (Requirement 15.3); and both are a working assumption pending team
-    confirmation, with the shared contract left unchanged (Requirement 15.4).
-    This function only ever writes to ``path``; it never touches
-    ``docs/contract.md`` or any path outside the owned set (Requirements 15.4,
-    15.5). If ``path`` cannot be written, abort with an error identifying the
-    target and preserve its existing state (Requirement 1.6).
+    The report also carries a **Contract** section recording that the team
+    confirmed this feature's thresholds (0.75 watch / 1.5 warning / 2.0 alarm)
+    and source label ("KW51 replay"), which are now reflected in
+    ``docs/contract.md`` section 2 (Requirement 15). This function only ever
+    writes to ``path``. If ``path`` cannot be written, abort with an error
+    identifying the target and preserve its existing state (Requirement 1.6).
     """
     slope = stats["slope"]
     intercept = stats["intercept"]
@@ -704,21 +699,13 @@ def write_results(stats, counts, path):
         f"- Healthy-period false alarms (compensation model): {corrected_false_alarms}",
         f"- After-period detections (compensation model): {after_detections}",
         "",
-        "## Open Decisions",
+        "## Contract",
         "",
-        "The following discrepancies with the shared data contract "
-        "(`docs/contract.md` section 2) are recorded here as an open decision; "
-        "the shared contract is left unchanged.",
+        "The team confirmed this feature's alert thresholds and source label, and "
+        "`docs/contract.md` section 2 now reflects them:",
         "",
-        "- Alert thresholds: the data contract section 2 specifies absolute-residual "
-        "thresholds of 2.0 watch / 5.0 warning / 8.0 alarm, while this feature uses "
-        "0.75 watch / 1.5 warning / 2.0 alarm.",
-        '- Source label: the data contract section 2 shows the example source label '
-        '"Z24 replay", while this feature uses "KW51 replay".',
-        "- These feature values (thresholds 0.75 / 1.5 / 2.0 and source "
-        '"KW51 replay") are a working assumption pending team confirmation; the '
-        "shared contract (`docs/contract.md`) is not modified until the team "
-        "confirms the change.",
+        "- Alert thresholds on absolute residual: 0.75 watch / 1.5 warning / 2.0 alarm.",
+        '- Source label: "KW51 replay".',
         "",
     ]
 
@@ -820,13 +807,14 @@ def build_replay_records(df):
 DEMO_WINDOW_MIN_SPAN = pd.Timedelta(days=1)
 DEMO_WINDOW_MAX_SPAN = pd.Timedelta(days=7)
 
-# Alert levels that count as the "crossed into alert" endpoint of a demo window
-# (Requirement 13.3). The earlier endpoint must be "normal".
-DEMO_WINDOW_ALERT_LEVELS = {"warning", "alarm"}
+# The demo window must end at an "alarm" reading (Requirement 13.3); the earlier
+# endpoint must be "normal". Intermediate "watch"/"warning" readings are kept by
+# the contiguous slice, showing the progression into alarm.
+DEMO_WINDOW_END_LEVEL = "alarm"
 
 
 def select_demo_window(records):
-    """Select a contiguous 1-7 day window transitioning normal -> warning/alarm.
+    """Select a contiguous 1-7 day window ending at the first alarm reading.
 
     Pick, from the ascending-timestamp ``records`` produced by
     :func:`build_replay_records`, a Demo_Replay_File window that is a contiguous
@@ -839,52 +827,52 @@ def select_demo_window(records):
     The window must span at least 1 day and at most 7 days inclusive, measured as
     the time difference between the window's first and last reading (Requirement
     13.2), and must transition from an earlier reading at ``alert_level ==
-    "normal"`` to a later reading at ``alert_level`` in ``{"warning", "alarm"}``
-    (Requirement 13.3).
+    "normal"`` to a later reading at ``alert_level == "alarm"`` (Requirement
+    13.3).
 
-    The search walks each possible start index ``i`` that sits at a ``normal``
-    reading, extends the end ``j`` forward while the span stays within 7 days,
-    and returns the first slice whose span is also at least 1 day and that
-    reaches a ``warning``/``alarm`` reading after the ``normal`` start. Returning
-    the first qualifying window keeps the result deterministic and the shortest
-    qualifying window for the earliest eligible start, which suits a short demo.
+    The window is anchored on the earliest ``alarm`` reading: that reading is the
+    window's end, and the start is the earliest ``normal`` reading no more than 7
+    days before it (and at least 1 day before it). Anchoring on the first alarm
+    and reaching back as far as possible lets the slice show the full progression
+    through ``watch`` and ``warning`` before the ``alarm`` endpoint. Because the
+    slice is contiguous, every intermediate reading is retained.
 
-    If no contiguous window satisfies both the span and the transition criteria,
-    abort with a ``ValueError`` indicating that no qualifying demo window was
-    found (Requirement 13.4), following the fail-fast ``ValueError`` abort
-    pattern used elsewhere in the pipeline.
+    If no alarm reading has a qualifying ``normal`` start within 1 to 7 days
+    before it, abort with a ``ValueError`` indicating that no qualifying demo
+    window was found (Requirement 13.4), following the fail-fast ``ValueError``
+    abort pattern used elsewhere in the pipeline.
     """
     # Parse each timestamp once so span checks are cheap. The records carry
     # ISO-8601 UTC strings ending in "Z"; pandas parses them back to the instant.
     timestamps = [pd.Timestamp(record["timestamp"]) for record in records]
 
-    for i, start_record in enumerate(records):
-        # A qualifying window opens at an earlier "normal" reading (13.3).
-        if start_record["alert_level"] != "normal":
+    for j, end_record in enumerate(records):
+        # Anchor on the first reading that reached "alarm" (13.3). This is the
+        # window's end; earlier alarms are preferred by iterating in order.
+        if end_record["alert_level"] != DEMO_WINDOW_END_LEVEL:
             continue
 
-        start_time = timestamps[i]
-        for j in range(i + 1, len(records)):
-            span = timestamps[j] - start_time
+        end_time = timestamps[j]
 
-            # Once the span exceeds 7 days, no later end for this start can
-            # satisfy the upper bound either, so stop extending (13.2).
+        # Reach back for the earliest "normal" start whose span to this alarm is
+        # within [1 day, 7 days], so the window shows the longest run up to 7
+        # days ending at the alarm (13.2, 13.3). Walking i upward from the start
+        # and taking the first qualifying normal keeps the earliest such start.
+        for i in range(j):
+            if records[i]["alert_level"] != "normal":
+                continue
+            span = end_time - timestamps[i]
             if span > DEMO_WINDOW_MAX_SPAN:
-                break
-
-            # The later reading must cross into warning/alarm (13.3) and the
-            # window must be at least 1 day wide (13.2).
-            if (
-                span >= DEMO_WINDOW_MIN_SPAN
-                and records[j]["alert_level"] in DEMO_WINDOW_ALERT_LEVELS
-            ):
+                # Too far back for this alarm; a later start may still qualify.
+                continue
+            if span >= DEMO_WINDOW_MIN_SPAN:
                 return records[i:j + 1]
 
-    # No contiguous 1-7 day normal -> warning/alarm window exists (13.4).
+    # No alarm reading has a 1-7 day "normal" start before it (13.4).
     raise ValueError(
         "No qualifying demo window found: no contiguous run of readings spanning "
-        "1 to 7 days transitions from an earlier 'normal' to a later "
-        "'warning'/'alarm' alert level."
+        "1 to 7 days transitions from an earlier 'normal' to a later 'alarm' "
+        "alert level."
     )
 
 

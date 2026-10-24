@@ -14,10 +14,9 @@ All values below are measured from the current analysis run.
 - Healthy-period false alarms (compensation model): 67
 - After-period detections (compensation model): 2546
 
-## Open Decisions
+## Contract
 
-The following discrepancies with the shared data contract (`docs/contract.md` section 2) are recorded here as an open decision; the shared contract is left unchanged.
+The team confirmed this feature's alert thresholds and source label, and `docs/contract.md` section 2 now reflects them:
 
-- Alert thresholds: the data contract section 2 specifies absolute-residual thresholds of 2.0 watch / 5.0 warning / 8.0 alarm, while this feature uses 0.75 watch / 1.5 warning / 2.0 alarm.
-- Source label: the data contract section 2 shows the example source label "Z24 replay", while this feature uses "KW51 replay".
-- These feature values (thresholds 0.75 / 1.5 / 2.0 and source "KW51 replay") are a working assumption pending team confirmation; the shared contract (`docs/contract.md`) is not modified until the team confirms the change.
+- Alert thresholds on absolute residual: 0.75 watch / 1.5 warning / 2.0 alarm.
+- Source label: "KW51 replay".
