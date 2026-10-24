@@ -28,10 +28,15 @@ const PREDICT_URL =
 // import.meta.glob keeps the build green when the folder doesn't exist yet.
 const plannerModules = import.meta.glob("../planner/index.*");
 
+// Fetches JSON, treating a non-OK status OR a non-JSON content-type as "missing".
+// The Vite dev server returns 200 + text/html (its SPA fallback) for files that
+// don't exist, so res.ok alone is not enough to conclude the file is present.
 async function fetchJson(path: string): Promise<unknown | null> {
   try {
     const res = await fetch(path, { method: "GET" });
     if (!res.ok) return null;
+    const contentType = res.headers.get("content-type") ?? "";
+    if (!contentType.includes("application/json")) return null;
     return await res.json();
   } catch {
     return null;

@@ -12,15 +12,22 @@ import { realSource } from "./realSource";
 const DATA_BASE =
   (import.meta.env.VITE_DATA_BASE_URL as string | undefined) ?? "/data";
 
+// The replay file used to detect a real deployment. Matches the default dataset.
+const PROBE_FILE = "replay_kw51_demo.json";
+
 let active: DataSource = mockSource;
 let initialized = false;
 
-// A real deployment is detected if any expected data/ entry point is reachable.
-// We probe the image map (small, always present once data/ exists).
+// A real deployment is detected if an expected data/ entry point is reachable
+// AND returns JSON. The Vite dev server answers missing files with 200 + an
+// HTML SPA fallback, so we must check the content-type, not just res.ok.
+// We probe a trigger replay file (the piece that currently ships real data).
 async function realDataPresent(): Promise<boolean> {
   try {
-    const res = await fetch(`${DATA_BASE}/image_map.json`, { method: "GET" });
-    return res.ok;
+    const res = await fetch(`${DATA_BASE}/trigger/${PROBE_FILE}`, { method: "GET" });
+    if (!res.ok) return false;
+    const contentType = res.headers.get("content-type") ?? "";
+    return contentType.includes("application/json");
   } catch {
     return false;
   }

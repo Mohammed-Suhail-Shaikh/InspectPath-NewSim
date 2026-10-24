@@ -11,6 +11,10 @@ import type { AlertHistoryEntry, PlanType } from "../data/types";
 export type ActiveView = "monitor" | "inspection";
 export type ReplaySpeed = 1 | 5 | 20;
 
+// Selectable replay source. "kw51_demo"/"kw51" load real data/trigger files;
+// "mock" forces the built-in sample replay.
+export type ReplayDataset = "kw51_demo" | "kw51" | "mock";
+
 interface ViewStateValue {
   activeView: ActiveView;
   setActiveView: (v: ActiveView) => void;
@@ -23,6 +27,9 @@ interface ViewStateValue {
 
   replaySpeed: ReplaySpeed;
   setReplaySpeed: (s: ReplaySpeed) => void;
+
+  replayDataset: ReplayDataset;
+  setReplayDataset: (d: ReplayDataset) => void;
 
   selectedPlan: PlanType;
   setSelectedPlan: (p: PlanType) => void;
@@ -43,6 +50,7 @@ export function ViewStateProvider({ children }: { children: ReactNode }) {
   const [replayCursor, setReplayCursor] = useState(0);
   const [replayRunning, setReplayRunning] = useState(true);
   const [replaySpeed, setReplaySpeed] = useState<ReplaySpeed>(1);
+  const [replayDataset, setReplayDataset] = useState<ReplayDataset>("kw51_demo");
   const [selectedPlan, setSelectedPlan] = useState<PlanType>("optimized");
   const [selectedFindingId, setSelectedFindingId] = useState<string | null>(null);
   const [alertHistory, setAlertHistory] = useState<AlertHistoryEntry[]>([]);
@@ -57,6 +65,8 @@ export function ViewStateProvider({ children }: { children: ReactNode }) {
       setReplayRunning,
       replaySpeed,
       setReplaySpeed,
+      replayDataset,
+      setReplayDataset,
       selectedPlan,
       setSelectedPlan,
       selectedFindingId,
@@ -69,6 +79,7 @@ export function ViewStateProvider({ children }: { children: ReactNode }) {
       replayCursor,
       replayRunning,
       replaySpeed,
+      replayDataset,
       selectedPlan,
       selectedFindingId,
       alertHistory,
