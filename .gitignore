@@ -1,0 +1,22 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Dependencies and build output
+node_modules/
+dist/
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# ML artifacts and raw data (link to the dataset in the README instead)
+ml/artifacts/
+data/raw/
+*.pt
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
