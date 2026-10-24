@@ -1,25 +1,33 @@
 import { useEffect, useState } from "react";
 import { mockSource } from "../../data/mockSource";
-import type { Plan, Structure } from "../../data/types";
+import type { Finding, Plan, Structure } from "../../data/types";
 import { useViewState } from "../../app/viewState";
 import GridMap from "./GridMap";
 import RobotMarker from "./RobotMarker";
 import CoverageLayer from "./CoverageLayer";
 import StatsPanel from "./StatsPanel";
 import PlanToggle from "./PlanToggle";
+import FindingPin from "./FindingPin";
 import { useRobotRun } from "./useRobotRun";
 import { cellCenter } from "./mapLayout";
 
+const STRUCTURE_ID = "bridge-a";
+
 export default function InspectionView() {
-  const { setActiveView, selectedPlan } = useViewState();
+  const { setActiveView, selectedPlan, selectedFindingId, setSelectedFindingId } =
+    useViewState();
   const [structure, setStructure] = useState<Structure | null>(null);
   const [plan, setPlan] = useState<Plan | null>(null);
+  const [findings, setFindings] = useState<Finding[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let active = true;
-    mockSource.getStructure("bridge-a").then((s) => {
+    mockSource.getStructure(STRUCTURE_ID).then((s) => {
       if (active) setStructure(s);
+    });
+    mockSource.getFindings(STRUCTURE_ID).then((f) => {
+      if (active) setFindings(f);
     });
     return () => {
       active = false;
@@ -83,6 +91,14 @@ export default function InspectionView() {
               />
             )}
             <RobotMarker waypoint={robotWaypoint} />
+            {findings.map((f) => (
+              <FindingPin
+                key={f.id}
+                finding={f}
+                selected={f.id === selectedFindingId}
+                onSelect={setSelectedFindingId}
+              />
+            ))}
           </GridMap>
         </div>
 
