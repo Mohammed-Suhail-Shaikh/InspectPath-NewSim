@@ -1,0 +1,7 @@
+# Wokwi library manager
+Adafruit MPU6050
+Adafruit Unified Sensor
+Adafruit BusIO
+DHT sensor library
+HX711
+PubSubClient

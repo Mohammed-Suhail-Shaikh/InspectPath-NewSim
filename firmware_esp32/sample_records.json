@@ -1,0 +1,101 @@
+[
+  {
+    "node_id": "node-1",
+    "timestamp": "2026-10-24T14:00:00Z",
+    "temperature_c": 18.0,
+    "frequency_hz": 4.162,
+    "predicted_frequency_hz": 4.15,
+    "residual_pct": 0.3,
+    "alert_level": "normal",
+    "quality": "ok",
+    "source": "Synthetic test data"
+  },
+  {
+    "node_id": "node-1",
+    "timestamp": "2026-10-24T14:01:00Z",
+    "temperature_c": 18.0,
+    "frequency_hz": 4.133,
+    "predicted_frequency_hz": 4.15,
+    "residual_pct": -0.4,
+    "alert_level": "normal",
+    "quality": "ok",
+    "source": "Synthetic test data"
+  },
+  {
+    "node_id": "node-1",
+    "timestamp": "2026-10-24T14:02:00Z",
+    "temperature_c": 18.0,
+    "frequency_hz": 4.158,
+    "predicted_frequency_hz": 4.15,
+    "residual_pct": 0.2,
+    "alert_level": "normal",
+    "quality": "ok",
+    "source": "Synthetic test data"
+  },
+  {
+    "node_id": "node-1",
+    "timestamp": "2026-10-24T14:03:00Z",
+    "temperature_c": 18.0,
+    "frequency_hz": 4.104,
+    "predicted_frequency_hz": 4.15,
+    "residual_pct": -1.1,
+    "alert_level": "normal",
+    "quality": "ok",
+    "source": "Synthetic test data"
+  },
+  {
+    "node_id": "node-1",
+    "timestamp": "2026-10-24T14:04:00Z",
+    "temperature_c": 18.0,
+    "frequency_hz": 4.05,
+    "predicted_frequency_hz": 4.15,
+    "residual_pct": -2.4,
+    "alert_level": "watch",
+    "quality": "ok",
+    "source": "Synthetic test data"
+  },
+  {
+    "node_id": "node-1",
+    "timestamp": "2026-10-24T14:04:30Z",
+    "temperature_c": 18.0,
+    "frequency_hz": 4.021,
+    "predicted_frequency_hz": 4.15,
+    "residual_pct": -9.0,
+    "alert_level": "alarm",
+    "quality": "degraded",
+    "source": "Synthetic test data"
+  },
+  {
+    "node_id": "node-1",
+    "timestamp": "2026-10-24T14:05:00Z",
+    "temperature_c": 18.0,
+    "frequency_hz": 4.021,
+    "predicted_frequency_hz": 4.15,
+    "residual_pct": -3.1,
+    "alert_level": "watch",
+    "quality": "ok",
+    "source": "Synthetic test data"
+  },
+  {
+    "node_id": "node-1",
+    "timestamp": "2026-10-24T14:06:00Z",
+    "temperature_c": 18.0,
+    "frequency_hz": 3.918,
+    "predicted_frequency_hz": 4.15,
+    "residual_pct": -5.6,
+    "alert_level": "warning",
+    "quality": "ok",
+    "source": "Synthetic test data"
+  },
+  {
+    "node_id": "node-1",
+    "timestamp": "2026-10-24T14:07:00Z",
+    "temperature_c": 18.0,
+    "frequency_hz": 3.901,
+    "predicted_frequency_hz": 4.15,
+    "residual_pct": -6.0,
+    "alert_level": "warning",
+    "quality": "ok",
+    "source": "Synthetic test data"
+  }
+]

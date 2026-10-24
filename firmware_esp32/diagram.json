@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "author": "Varun Tushar Gharat",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "board-esp32-devkit-c-v4", "id": "esp", "top": -28.8, "left": 4.84, "attrs": {} },
+    { "type": "wokwi-mpu6050", "id": "imu1", "top": -72.98, "left": -141.68, "attrs": {} },
+    { "type": "wokwi-dht22", "id": "dht1", "top": -105.3, "left": 177, "attrs": {} },
+    { "type": "wokwi-hc-sr04", "id": "ultrasonic1", "top": 222.3, "left": -176.9, "attrs": {} },
+    { "type": "wokwi-hx711", "id": "cell1", "top": 233, "left": 69.8, "attrs": { "type": "5kg" } }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+
+    [ "imu1:VCC", "esp:3V3", "red", [] ],
+    [ "imu1:GND", "esp:GND.1", "black", [] ],
+    [ "imu1:SDA", "esp:21", "green", [] ],
+    [ "imu1:SCL", "esp:22", "blue", [] ],
+
+    [ "dht1:VCC", "esp:3V3", "red", [] ],
+    [ "dht1:GND", "esp:GND.1", "black", [] ],
+    [ "dht1:SDA", "esp:4", "orange", [] ],
+
+    [ "ultrasonic1:VCC", "esp:5V", "red", [] ],
+    [ "ultrasonic1:GND", "esp:GND.1", "black", [] ],
+    [ "ultrasonic1:TRIG", "esp:26", "purple", [] ],
+    [ "ultrasonic1:ECHO", "esp:27", "yellow", [] ],
+
+    [ "cell1:VCC", "esp:3V3", "red", [] ],
+    [ "cell1:GND", "esp:GND.1", "black", [] ],
+    [ "cell1:DT", "esp:32", "cyan", [] ],
+    [ "cell1:SCK", "esp:33", "magenta", [] ]
+  ],
+  "dependencies": {}
+}
