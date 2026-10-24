@@ -459,3 +459,58 @@ body {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
+
+.report-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.report-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.report-generate {
+  background: #5aa9ff;
+  color: #06213f;
+  border-color: #5aa9ff;
+}
+
+.report-generate:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.report-notice {
+  color: #ffd23f;
+  font-size: 0.85rem;
+  margin: 0.5rem 0 0;
+}
+
+.report-body {
+  margin-top: 0.75rem;
+}
+
+.report-text {
+  white-space: pre-wrap;
+  font-family: inherit;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.85rem;
+  margin: 0;
+}
+
+.report-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}

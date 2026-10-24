@@ -9,6 +9,7 @@ import StatsPanel from "./StatsPanel";
 import PlanToggle from "./PlanToggle";
 import FindingPin from "./FindingPin";
 import FindingDetail from "./FindingDetail";
+import ReportPanel from "../report/ReportPanel";
 import { useRobotRun } from "./useRobotRun";
 import { cellCenter } from "./mapLayout";
 
@@ -123,6 +124,8 @@ export default function InspectionView() {
           )}
         </aside>
       </div>
+
+      <ReportPanel />
     </div>
   );
 }
