@@ -1,0 +1,317 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1.2 Create the script skeleton with top-of-file named constants": [
+      {
+        "executionId": "285f1a94-a8aa-4006-a84a-1fb5fc371ac4",
+        "chatSessionId": "sess_a0669163-ebf9-4a2f-ac1d-02581ad24df6",
+        "timestamp": 1792866790298
+      },
+      {
+        "executionId": "285f1a94-a8aa-4006-a84a-1fb5fc371ac4",
+        "chatSessionId": "sess_a0669163-ebf9-4a2f-ac1d-02581ad24df6",
+        "timestamp": 1792866865735
+      }
+    ],
+    "1.1 Create pinned runtime dependency file": [
+      {
+        "executionId": "4ee5b178-743c-4ec7-ab8d-92349eb33ad1",
+        "chatSessionId": "sess_8b8567fb-8e1e-45b9-a09c-2097d7c6ab51",
+        "timestamp": 1792866890982
+      },
+      {
+        "executionId": "4ee5b178-743c-4ec7-ab8d-92349eb33ad1",
+        "chatSessionId": "sess_8b8567fb-8e1e-45b9-a09c-2097d7c6ab51",
+        "timestamp": 1792867120963
+      }
+    ],
+    "1.3 Create the test module skeleton and synthetic fixtures": [
+      {
+        "executionId": "4ee5b178-743c-4ec7-ab8d-92349eb33ad1",
+        "chatSessionId": "sess_8b8567fb-8e1e-45b9-a09c-2097d7c6ab51",
+        "timestamp": 1792866891587
+      },
+      {
+        "executionId": "4ee5b178-743c-4ec7-ab8d-92349eb33ad1",
+        "chatSessionId": "sess_8b8567fb-8e1e-45b9-a09c-2097d7c6ab51",
+        "timestamp": 1792867120142
+      }
+    ],
+    "1. Scaffold project files, constants, and the test harness": [
+      {
+        "executionId": "4ee5b178-743c-4ec7-ab8d-92349eb33ad1",
+        "chatSessionId": "sess_8b8567fb-8e1e-45b9-a09c-2097d7c6ab51",
+        "timestamp": 1792867121092
+      }
+    ],
+    "2.1 Implement `ensure_gitignore(path, entries)`": [
+      {
+        "executionId": "4142d14d-e87d-489e-bc00-f569a1802af4",
+        "chatSessionId": "sess_33c0cec7-dfd3-452d-a5c7-8518bd21e433",
+        "timestamp": 1792867155472
+      },
+      {
+        "executionId": "4142d14d-e87d-489e-bc00-f569a1802af4",
+        "chatSessionId": "sess_33c0cec7-dfd3-452d-a5c7-8518bd21e433",
+        "timestamp": 1792867259164
+      }
+    ],
+    "2. Implement `.gitignore` configuration": [
+      {
+        "executionId": "4142d14d-e87d-489e-bc00-f569a1802af4",
+        "chatSessionId": "sess_33c0cec7-dfd3-452d-a5c7-8518bd21e433",
+        "timestamp": 1792867259305
+      }
+    ],
+    "3.1 Implement `load_modes(path)` and `clean(df)`": [
+      {
+        "executionId": "e72d5fe8-613b-48a1-a6fa-acb6ba2e41c6",
+        "chatSessionId": "sess_f95fe0f2-8937-4a95-af12-1b4878b2e7f7",
+        "timestamp": 1792867393841
+      },
+      {
+        "executionId": "e72d5fe8-613b-48a1-a6fa-acb6ba2e41c6",
+        "chatSessionId": "sess_f95fe0f2-8937-4a95-af12-1b4878b2e7f7",
+        "timestamp": 1792868327981
+      }
+    ],
+    "3. Implement dataset loading, extraction, and cleaning": [
+      {
+        "executionId": "e72d5fe8-613b-48a1-a6fa-acb6ba2e41c6",
+        "chatSessionId": "sess_f95fe0f2-8937-4a95-af12-1b4878b2e7f7",
+        "timestamp": 1792868328106
+      }
+    ],
+    "4.1 Implement `segment(df)`": [
+      {
+        "executionId": "0160f515-4525-4240-9078-15d1580a50d3",
+        "chatSessionId": "sess_9921f771-4bbc-40c5-b296-c49de6cea080",
+        "timestamp": 1792868431845
+      },
+      {
+        "executionId": "0160f515-4525-4240-9078-15d1580a50d3",
+        "chatSessionId": "sess_9921f771-4bbc-40c5-b296-c49de6cea080",
+        "timestamp": 1792868526852
+      }
+    ],
+    "4. Implement period segmentation": [
+      {
+        "executionId": "0160f515-4525-4240-9078-15d1580a50d3",
+        "chatSessionId": "sess_9921f771-4bbc-40c5-b296-c49de6cea080",
+        "timestamp": 1792868527019
+      }
+    ],
+    "5.1 Implement `fit_compensation(healthy_df)` and `predict(df, slope, intercept)`": [
+      {
+        "executionId": "c06a8101-1b3a-4e88-b184-ea6817b561b4",
+        "chatSessionId": "sess_798e0691-afbc-43c5-9ac5-d23414e8c951",
+        "timestamp": 1792868630791
+      },
+      {
+        "executionId": "c06a8101-1b3a-4e88-b184-ea6817b561b4",
+        "chatSessionId": "sess_798e0691-afbc-43c5-9ac5-d23414e8c951",
+        "timestamp": 1792868687874
+      }
+    ],
+    "5.3 Implement `compute_residual_pct(df)`": [
+      {
+        "executionId": "b75c305c-e749-41f1-bbcb-fd7d65dd653e",
+        "chatSessionId": "sess_7023d06a-5847-466f-a309-7ab292e4bcaf",
+        "timestamp": 1792868767612
+      },
+      {
+        "executionId": "b75c305c-e749-41f1-bbcb-fd7d65dd653e",
+        "chatSessionId": "sess_7023d06a-5847-466f-a309-7ab292e4bcaf",
+        "timestamp": 1792868844161
+      }
+    ],
+    "5. Implement the compensation model, prediction, and residual": [
+      {
+        "executionId": "b75c305c-e749-41f1-bbcb-fd7d65dd653e",
+        "chatSessionId": "sess_7023d06a-5847-466f-a309-7ab292e4bcaf",
+        "timestamp": 1792868844287
+      }
+    ],
+    "6.1 Implement `classify(abs_metric)`": [
+      {
+        "executionId": "e9c1b533-7073-46bc-a0dc-297363e2fe7a",
+        "chatSessionId": "sess_35417b60-4e48-434d-a181-4e3c4490f526",
+        "timestamp": 1792868875861
+      },
+      {
+        "executionId": "e9c1b533-7073-46bc-a0dc-297363e2fe7a",
+        "chatSessionId": "sess_35417b60-4e48-434d-a181-4e3c4490f526",
+        "timestamp": 1792868930215
+      }
+    ],
+    "6.4 Implement `compute_naive(df, healthy_mean)`": [
+      {
+        "executionId": "69b5f4b5-7ae1-4327-86be-4eecf49867e7",
+        "chatSessionId": "sess_af5b31c1-b19b-4df7-a266-0bc73364f35d",
+        "timestamp": 1792868958509
+      },
+      {
+        "executionId": "69b5f4b5-7ae1-4327-86be-4eecf49867e7",
+        "chatSessionId": "sess_af5b31c1-b19b-4df7-a266-0bc73364f35d",
+        "timestamp": 1792869082389
+      }
+    ],
+    "6. Implement classification and the naive baseline": [
+      {
+        "executionId": "69b5f4b5-7ae1-4327-86be-4eecf49867e7",
+        "chatSessionId": "sess_af5b31c1-b19b-4df7-a266-0bc73364f35d",
+        "timestamp": 1792869082496
+      }
+    ],
+    "7. Checkpoint - Ensure all tests pass": [
+      {
+        "executionId": "7012f473-414d-4b73-afef-55cb273603f7",
+        "chatSessionId": "sess_1c27214f-f64f-4f3f-9a43-dd6d1c58b97c",
+        "timestamp": 1792869102070
+      },
+      {
+        "executionId": "7012f473-414d-4b73-afef-55cb273603f7",
+        "chatSessionId": "sess_1c27214f-f64f-4f3f-9a43-dd6d1c58b97c",
+        "timestamp": 1792869481032
+      }
+    ],
+    "8.1 Implement `count_false_alarms(df, method)` and `count_detections(df)`": [
+      {
+        "executionId": "93295fd8-08b8-42b0-aae6-a6ec6efb5b67",
+        "chatSessionId": "sess_f8383a0d-d86c-49a6-95db-3f080adeeb70",
+        "timestamp": 1792869518431
+      },
+      {
+        "executionId": "93295fd8-08b8-42b0-aae6-a6ec6efb5b67",
+        "chatSessionId": "sess_f8383a0d-d86c-49a6-95db-3f080adeeb70",
+        "timestamp": 1792869621835
+      }
+    ],
+    "8. Implement comparison metrics": [
+      {
+        "executionId": "93295fd8-08b8-42b0-aae6-a6ec6efb5b67",
+        "chatSessionId": "sess_f8383a0d-d86c-49a6-95db-3f080adeeb70",
+        "timestamp": 1792869621951
+      }
+    ],
+    "9.1 Implement `make_comparison_plot(df, path)`": [
+      {
+        "executionId": "a5e8779c-bcff-4a1d-8f11-be4ac84c4280",
+        "chatSessionId": "sess_fc1d7d62-9be9-48c3-9a92-26b9a6caab78",
+        "timestamp": 1792869632670
+      },
+      {
+        "executionId": "a5e8779c-bcff-4a1d-8f11-be4ac84c4280",
+        "chatSessionId": "sess_fc1d7d62-9be9-48c3-9a92-26b9a6caab78",
+        "timestamp": 1792869768283
+      }
+    ],
+    "9.2 Implement `make_fit_plot(healthy_df, slope, intercept, path)`": [
+      {
+        "executionId": "a9e5e2d1-e205-4ca4-b2bb-522b7cb91e6e",
+        "chatSessionId": "sess_7b8d68ca-76d9-48fa-94ac-7612d5a5e010",
+        "timestamp": 1792869783417
+      },
+      {
+        "executionId": "a9e5e2d1-e205-4ca4-b2bb-522b7cb91e6e",
+        "chatSessionId": "sess_7b8d68ca-76d9-48fa-94ac-7612d5a5e010",
+        "timestamp": 1792869899413
+      }
+    ],
+    "9. Implement the diagnostic plots": [
+      {
+        "executionId": "a9e5e2d1-e205-4ca4-b2bb-522b7cb91e6e",
+        "chatSessionId": "sess_7b8d68ca-76d9-48fa-94ac-7612d5a5e010",
+        "timestamp": 1792869899523
+      }
+    ],
+    "10.1 Implement `write_results(stats, counts, path)`": [
+      {
+        "executionId": "57754e2f-8120-4de8-a9e1-d7f45a1c63d3",
+        "chatSessionId": "sess_73d78b59-f2a1-4427-b64b-8b7152e341f3",
+        "timestamp": 1792869995434
+      },
+      {
+        "executionId": "57754e2f-8120-4de8-a9e1-d7f45a1c63d3",
+        "chatSessionId": "sess_73d78b59-f2a1-4427-b64b-8b7152e341f3",
+        "timestamp": 1792870115956
+      }
+    ],
+    "10. Implement the measured results report": [
+      {
+        "executionId": "57754e2f-8120-4de8-a9e1-d7f45a1c63d3",
+        "chatSessionId": "sess_73d78b59-f2a1-4427-b64b-8b7152e341f3",
+        "timestamp": 1792870116055
+      }
+    ],
+    "11.1 Implement `build_replay_records(df)` and `write_json(records, path)`": [
+      {
+        "executionId": "e2c566bb-08a8-40e8-932d-e1909cdf1dd9",
+        "chatSessionId": "sess_6f37da01-b7a0-4400-b34c-241512869dc1",
+        "timestamp": 1792870140184
+      },
+      {
+        "executionId": "e2c566bb-08a8-40e8-932d-e1909cdf1dd9",
+        "chatSessionId": "sess_6f37da01-b7a0-4400-b34c-241512869dc1",
+        "timestamp": 1792870265618
+      }
+    ],
+    "11. Implement replay record construction and serialization": [
+      {
+        "executionId": "e2c566bb-08a8-40e8-932d-e1909cdf1dd9",
+        "chatSessionId": "sess_6f37da01-b7a0-4400-b34c-241512869dc1",
+        "timestamp": 1792870265775
+      }
+    ],
+    "12.1 Implement `select_demo_window(records)`": [
+      {
+        "executionId": "0893021c-f1f5-4d10-82c7-8cd5bb6171a7",
+        "chatSessionId": "sess_1b9bf6b7-c72c-4a24-ac38-3d8cb8022120",
+        "timestamp": 1792870312611
+      },
+      {
+        "executionId": "0893021c-f1f5-4d10-82c7-8cd5bb6171a7",
+        "chatSessionId": "sess_1b9bf6b7-c72c-4a24-ac38-3d8cb8022120",
+        "timestamp": 1792870398718
+      }
+    ],
+    "12. Implement demo-window selection": [
+      {
+        "executionId": "0893021c-f1f5-4d10-82c7-8cd5bb6171a7",
+        "chatSessionId": "sess_1b9bf6b7-c72c-4a24-ac38-3d8cb8022120",
+        "timestamp": 1792870398820
+      }
+    ],
+    "13. Checkpoint - Ensure all tests pass": [
+      {
+        "executionId": "d4412b4b-b5dc-4f3a-a542-e73b80802622",
+        "chatSessionId": "sess_efaf6454-c325-4eb3-a425-af4981d1dd0e",
+        "timestamp": 1792870430815
+      },
+      {
+        "executionId": "d4412b4b-b5dc-4f3a-a542-e73b80802622",
+        "chatSessionId": "sess_efaf6454-c325-4eb3-a425-af4981d1dd0e",
+        "timestamp": 1792870682512
+      }
+    ],
+    "14.1 Implement `main()`": [
+      {
+        "executionId": "e821055f-fd7e-4b87-8d14-a36d89ccb1b1",
+        "chatSessionId": "sess_61f4e882-a7ad-47d8-ab2f-eb081f11c8ff",
+        "timestamp": 1792870713183
+      },
+      {
+        "executionId": "e821055f-fd7e-4b87-8d14-a36d89ccb1b1",
+        "chatSessionId": "sess_61f4e882-a7ad-47d8-ab2f-eb081f11c8ff",
+        "timestamp": 1792870821647
+      }
+    ],
+    "14. Implement `main()` orchestration and wire the pipeline together": [
+      {
+        "executionId": "e821055f-fd7e-4b87-8d14-a36d89ccb1b1",
+        "chatSessionId": "sess_61f4e882-a7ad-47d8-ab2f-eb081f11c8ff",
+        "timestamp": 1792870821774
+      }
+    ]
+  }
+}
