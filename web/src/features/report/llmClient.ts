@@ -11,6 +11,17 @@ const API_BASE_URL =
   (import.meta.env.VITE_API_BASE_URL as string | undefined) ??
   "http://localhost:8000";
 
+// Returns true if the report backend is reachable and reports healthy.
+// Used to decide whether to offer the optional "AI summary" toggle.
+export async function isBackendReachable(): Promise<boolean> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/health`, { method: "GET" });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
 // Calls our backend /report endpoint, which holds the LLM credential
 // server-side. On any failure (endpoint unavailable, no credential, error),
 // falls back to the mock report so the feature works without a backend.

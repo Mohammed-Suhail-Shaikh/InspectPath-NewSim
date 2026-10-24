@@ -487,6 +487,19 @@ body {
   cursor: default;
 }
 
+.report-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.report-source {
+  font-size: 0.75rem;
+  margin: 0 0 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
 .report-notice {
   color: #ffd23f;
   font-size: 0.85rem;

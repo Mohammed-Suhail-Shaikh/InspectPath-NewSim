@@ -104,5 +104,5 @@ export interface AlertHistoryEntry {
 export interface InspectionReport {
   text: string;
   generatedAt: string; // ISO 8601
-  source: "llm" | "mock";
+  source: "llm" | "mock" | "rule-based";
 }
