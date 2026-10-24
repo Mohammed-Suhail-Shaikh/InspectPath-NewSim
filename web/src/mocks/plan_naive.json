@@ -1,0 +1,40 @@
+{
+  "plan_type": "naive",
+  "waypoints": [
+    { "id": "n1", "x": 0, "y": 0, "capture": true, "closeup": false },
+    { "id": "n2", "x": 1, "y": 0, "capture": false, "closeup": false },
+    { "id": "n3", "x": 2, "y": 0, "capture": true, "closeup": false },
+    { "id": "n4", "x": 3, "y": 0, "capture": false, "closeup": false },
+    { "id": "n5", "x": 4, "y": 0, "capture": true, "closeup": false },
+    { "id": "n6", "x": 5, "y": 0, "capture": false, "closeup": false },
+    { "id": "n7", "x": 6, "y": 0, "capture": true, "closeup": false },
+    { "id": "n8", "x": 7, "y": 0, "capture": true, "closeup": false, "zone": "priority" },
+    { "id": "n9", "x": 7, "y": 1, "capture": true, "closeup": false, "zone": "priority" },
+    { "id": "n10", "x": 6, "y": 1, "capture": false, "closeup": false },
+    { "id": "n11", "x": 5, "y": 1, "capture": true, "closeup": false },
+    { "id": "n12", "x": 4, "y": 1, "capture": false, "closeup": false },
+    { "id": "n13", "x": 3, "y": 1, "capture": true, "closeup": false },
+    { "id": "n14", "x": 0, "y": 2, "capture": true, "closeup": false },
+    { "id": "n15", "x": 1, "y": 2, "capture": false, "closeup": false },
+    { "id": "n16", "x": 2, "y": 2, "capture": true, "closeup": false },
+    { "id": "n17", "x": 3, "y": 2, "capture": false, "closeup": false },
+    { "id": "n18", "x": 5, "y": 2, "capture": true, "closeup": false },
+    { "id": "n19", "x": 6, "y": 2, "capture": false, "closeup": false },
+    { "id": "n20", "x": 7, "y": 2, "capture": true, "closeup": false },
+    { "id": "n21", "x": 7, "y": 3, "capture": false, "closeup": false },
+    { "id": "n22", "x": 6, "y": 3, "capture": true, "closeup": false },
+    { "id": "n23", "x": 5, "y": 3, "capture": false, "closeup": false },
+    { "id": "n24", "x": 4, "y": 3, "capture": true, "closeup": false },
+    { "id": "n25", "x": 3, "y": 3, "capture": false, "closeup": false },
+    { "id": "n26", "x": 2, "y": 3, "capture": true, "closeup": false },
+    { "id": "n27", "x": 1, "y": 3, "capture": false, "closeup": false },
+    { "id": "n28", "x": 0, "y": 3, "capture": true, "closeup": false }
+  ],
+  "stats": {
+    "coverage_pct": 1.0,
+    "priority_coverage_pct": 1.0,
+    "path_length": 60,
+    "battery_used": 60,
+    "battery_budget": 60
+  }
+}
