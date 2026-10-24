@@ -2,6 +2,7 @@ import { useReplay } from "./useReplay";
 import ReadingsPanel from "./ReadingsPanel";
 import FrequencyChart from "./FrequencyChart";
 import ReplayControls from "./ReplayControls";
+import EscalationBanner from "./EscalationBanner";
 import { useViewState } from "../../app/viewState";
 
 export default function MonitorView() {
@@ -30,11 +31,11 @@ export default function MonitorView() {
         <ReplayControls atEnd={atEnd} />
       </div>
 
+      <EscalationBanner level={current.alert_level} />
+
       <ReadingsPanel record={current} />
 
       <FrequencyChart records={records} upToIndex={index} />
-
-      {/* Escalation banner added in task 8 */}
     </div>
   );
 }

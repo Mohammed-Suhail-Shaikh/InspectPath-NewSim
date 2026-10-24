@@ -209,3 +209,35 @@ body {
   margin: 0 0 0.5rem;
   font-size: 1rem;
 }
+
+.escalation-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  margin-top: 1rem;
+  font-weight: 600;
+}
+
+.escalation-text {
+  flex: 1;
+  min-width: 200px;
+}
+
+.dispatch-btn {
+  background: rgba(0, 0, 0, 0.25);
+  color: inherit;
+  border: 1px solid rgba(0, 0, 0, 0.35);
+  border-radius: 6px;
+  padding: 0.45rem 0.9rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.dispatch-btn:hover {
+  background: rgba(0, 0, 0, 0.4);
+}
