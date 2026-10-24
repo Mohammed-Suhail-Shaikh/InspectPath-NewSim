@@ -78,7 +78,8 @@ rule-based inspection report from the findings, plan stats, and alert history.
 An optional LLM "AI summary" is available only when its backend is reachable.
 
 ### The Circuit Diagram
-![Uploading image.png…]()
+<img width="1152" height="971" alt="image" src="https://github.com/user-attachments/assets/4afccc9e-e074-431f-b674-a60b70e9584a" />
+
 
 ## 4. Results
 
