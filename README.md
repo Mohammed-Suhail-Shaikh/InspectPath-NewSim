@@ -48,9 +48,12 @@ as **degraded** rather than the bridge being called unsafe. It raises **graded
 alerts** (Normal / Watch / Warning / Alarm), combining parameters so that, for
 example, a frequency drop with rising strain and new tilt is treated differently
 from a frequency drop during a heat wave. All node thresholds are demonstration
-values relative to its own baseline, not engineering limits. Full detail:
+values relative to its own baseline, not engineering limits. 
+
+Full detail:
 [`docs/hardware-spec.md`](docs/hardware-spec.md). Live simulation:
 [Varun's ESP32 sensor node simulation in Wokwi](https://wokwi.com/projects/478798310961586177).
+<img width="1152" height="971" alt="image" src="https://github.com/user-attachments/assets/4afccc9e-e074-431f-b674-a60b70e9584a" />
 
 Motivation (from Varun's analysis of the 2022 National Bridge Inventory,
 Massachusetts, counting each bridge by its lowest condition rating): **435**
@@ -76,9 +79,6 @@ level, dispatches the inspection view (grid map, animated route, coverage and
 battery stats), pins defect findings by tier, and generates a deterministic,
 rule-based inspection report from the findings, plan stats, and alert history.
 An optional LLM "AI summary" is available only when its backend is reachable.
-
-### The Circuit Diagram
-<img width="1152" height="971" alt="image" src="https://github.com/user-attachments/assets/4afccc9e-e074-431f-b674-a60b70e9584a" />
 
 
 ## 4. Results
