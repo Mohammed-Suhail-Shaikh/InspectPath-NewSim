@@ -28,9 +28,33 @@ InspectPath links continuous monitoring to a focused inspection:
 ## 3. How it works
 
 ### Sensor node (Varun)
-A low-cost node that measures vibration, tilt, strain, water level, and
-temperature. In this project the node is simulated, not deployed. Detailed
-firmware/hardware spec: TBD (not in this repo).
+A low-cost ESP32-based node (simulated in Wokwi; not physically deployed) that
+measures the four failure-relevant quantities and reports whether the structure
+is behaving as it did at install. Sensors:
+
+- **MPU6050** (accelerometer + gyroscope) — vibration for natural frequency, and
+  tilt for pier settlement.
+- **DHT22** — air temperature and humidity; the temperature is used to correct
+  the frequency and ultrasonic readings.
+- **HC-SR04** — ultrasonic distance to the water surface, for water level and
+  scour risk.
+- **HX711 + strain gauge** — beam strain under traffic (a load cell stands in
+  under simulation).
+
+The node runs **on-device data-quality checks** (range, stuck value, rate of
+change, dropout, timing jitter, and a temperature cross-check) on every reading;
+a window with more than 5% flagged samples is excluded and the node is reported
+as **degraded** rather than the bridge being called unsafe. It raises **graded
+alerts** (Normal / Watch / Warning / Alarm), combining parameters so that, for
+example, a frequency drop with rising strain and new tilt is treated differently
+from a frequency drop during a heat wave. All node thresholds are demonstration
+values relative to its own baseline, not engineering limits. Full detail:
+[`docs/hardware-spec.md`](docs/hardware-spec.md).
+
+Motivation (from Varun's analysis of the 2022 National Bridge Inventory,
+Massachusetts, counting each bridge by its lowest condition rating): **435**
+bridges rated poor or worse, **179+** of which cross a river or brook, a median
+build year of **1954** for the poor bridges, and **293** of the 435 being steel.
 
 ### Trigger model on KW51 (Komal)
 Fits a linear model of mode-6 natural frequency against steel temperature on a
