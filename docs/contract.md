@@ -201,6 +201,12 @@ and never computes a route.
   does not gate either real KW51 plan. There is no "naive runs out / optimized
   finishes" demonstration, because forcing one on KW51 would require tuning the
   numbers.
+- **`battery_used`, `battery_budget`, `energy_per_meter`, and `within_budget` are
+  NOT displayed in the UI or the report.** With `energy_per_meter = 1.0`,
+  `battery_used` just equals `route_length_m`, and "battery" implies drone
+  hardware this simulation does not have. The planner still computes and writes
+  these fields; they are reserved for future multi-flight planning under real
+  energy limits. The dashboard shows route length instead.
 - Each plan file carries the same `provenance` block as the layout plus
   `"derivation": "derived"`, since the plan is derived from the KU Leuven model.
 - No stat depends on an alert location. "Priority coverage" from v1 is removed and

@@ -8,12 +8,12 @@ const OPTIONS: { value: PlanType; label: string }[] = [
 
 // Switches the active plan. The map, robot path, coverage, and stats all
 // re-derive from the selected plan via view state. Shows each plan's route
-// length and battery used (passed in) so the honest comparison is visible, and
-// a plain-language note on when planning actually helps.
+// length (passed in) so the honest comparison is visible, and a plain-language
+// note on when planning actually helps. No battery figure (see StatsPanel).
 export default function PlanToggle({
   lengths,
 }: {
-  lengths?: Partial<Record<PlanType, { route_length_m: number; battery_used: number }>>;
+  lengths?: Partial<Record<PlanType, { route_length_m: number }>>;
 }) {
   const { selectedPlan, setSelectedPlan } = useViewState();
 
@@ -31,11 +31,7 @@ export default function PlanToggle({
               aria-pressed={o.value === selectedPlan}
             >
               <span className="plan-btn-label">{o.label}</span>
-              {l && (
-                <span className="plan-btn-sub">
-                  {l.route_length_m} m · {l.battery_used} battery
-                </span>
-              )}
+              {l && <span className="plan-btn-sub">{l.route_length_m} m</span>}
             </button>
           );
         })}
