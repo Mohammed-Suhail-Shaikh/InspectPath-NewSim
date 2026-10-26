@@ -19,7 +19,7 @@ export default function MonitorView() {
           <div>
             <h2 className="view-title">Bridge monitor</h2>
           </div>
-          <DatasetPicker />
+          <DatasetPicker isMock={isMock} />
         </div>
         <p className="placeholder">Loading monitor…</p>
       </div>
@@ -52,7 +52,7 @@ export default function MonitorView() {
           <p className="muted">{subtitle}</p>
         </div>
         <div className="monitor-controls">
-          <DatasetPicker />
+          <DatasetPicker isMock={isMock} />
           <ReplayControls atEnd={atEnd} />
         </div>
       </div>

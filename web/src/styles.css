@@ -988,3 +988,12 @@ body {
   border: 1px solid #5b6676;
   background: var(--surface);
 }
+
+/* Dataset picker fallback note: shown when a real dataset is selected but the
+   active source fell back to the mock (so the picker never lies). */
+.dataset-fallback-note {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: var(--text-label);
+  color: #7a3f00;
+}
