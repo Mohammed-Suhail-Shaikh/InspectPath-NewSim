@@ -5,13 +5,13 @@ import type {
   DefectTier,
   Finding,
   InspectionReport,
-  PlanStats,
-  Structure,
+  MetricPlanStats,
+  MetricStructure,
 } from "../../data/types";
 
 export interface RuleBasedReportInput {
-  structure: Structure;
-  stats: PlanStats;
+  structure: MetricStructure;
+  stats: MetricPlanStats;
   findings: Finding[];
   alertHistory: AlertHistoryEntry[];
 }
@@ -97,10 +97,17 @@ export function buildRuleBasedReport(
   lines.push(`Inspection report — ${structure.name}`);
   lines.push("");
   lines.push("Summary");
-  lines.push(`- Area covered: ${pct(stats.coverage_pct)}`);
-  lines.push(`- Priority area covered: ${pct(stats.priority_coverage_pct)}`);
   lines.push(
-    `- Battery used: ${stats.battery_used} of ${stats.battery_budget} units`
+    `- Connections inspected: ${stats.locations_visited} of ` +
+      `${stats.locations_total} (${pct(stats.coverage_pct)})`
+  );
+  lines.push(
+    `- Route length: ${stats.route_length_m} m ` +
+      `(straight-line 3D estimate, ignores obstacles)`
+  );
+  lines.push(
+    `- Battery used: ${stats.battery_used} of ${stats.battery_budget} units ` +
+      `(demonstration value)`
   );
 
   const peak = highestAlert(alertHistory);
@@ -108,6 +115,10 @@ export function buildRuleBasedReport(
     lines.push(
       `- Highest alert level reached: ${ALERT_LABEL[peak.level]} ` +
         `(difference from expected frequency: ${peak.residual_pct.toFixed(1)}%)`
+    );
+    lines.push(
+      "- The frequency shift is a global measurement and does not identify a " +
+        "location, so all connection locations were inspected."
     );
   } else {
     lines.push("- Highest alert level reached: none recorded");
@@ -131,7 +142,7 @@ export function buildRuleBasedReport(
         ? "close-up confirmed"
         : "no close-up";
       lines.push(
-        `- Location (x ${f.x}, y ${f.y}): ${detected}; ` +
+        `- Connection ${f.location_id} (side ${f.side}): ${detected}; ` +
           `top score ${top.value.toFixed(2)} (${top.label}); ${closeup}.`
       );
     }

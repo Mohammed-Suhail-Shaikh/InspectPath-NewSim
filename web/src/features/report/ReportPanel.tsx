@@ -1,20 +1,25 @@
 import { useEffect, useState } from "react";
 import { getDataSource } from "../../data/activeSource";
-import type { Finding, InspectionReport, Plan, Structure } from "../../data/types";
+import type {
+  Finding,
+  InspectionReport,
+  MetricPlan,
+  MetricStructure,
+} from "../../data/types";
 import { useViewState } from "../../app/viewState";
 import { buildRuleBasedReport } from "./ruleBasedReport";
 import { isBackendReachable } from "./llmClient";
 import { useReport } from "./useReport";
 
-const STRUCTURE_ID = "bridge-a";
+const STRUCTURE_ID = "kw51";
 
 // Builds the inspection report. The default path is a deterministic,
 // rule-based summary built entirely from the data (no LLM, no network).
 // An optional "AI summary" appears only when the backend is reachable.
 export default function ReportPanel() {
   const { alertHistory, selectedPlan } = useViewState();
-  const [structure, setStructure] = useState<Structure | null>(null);
-  const [plan, setPlan] = useState<Plan | null>(null);
+  const [structure, setStructure] = useState<MetricStructure | null>(null);
+  const [plan, setPlan] = useState<MetricPlan | null>(null);
   const [findings, setFindings] = useState<Finding[]>([]);
 
   const [report, setReport] = useState<InspectionReport | null>(null);
@@ -28,7 +33,7 @@ export default function ReportPanel() {
   useEffect(() => {
     let active = true;
     const src = getDataSource();
-    src.getStructure(STRUCTURE_ID).then((s) => {
+    src.getMetricStructure().then((s) => {
       if (active) setStructure(s);
     });
     src.getFindings(STRUCTURE_ID).then((f) => {
@@ -44,7 +49,7 @@ export default function ReportPanel() {
 
   useEffect(() => {
     let active = true;
-    getDataSource().getPlan(selectedPlan).then((p) => {
+    getDataSource().getMetricPlan(selectedPlan).then((p) => {
       if (active) setPlan(p);
     });
     return () => {
