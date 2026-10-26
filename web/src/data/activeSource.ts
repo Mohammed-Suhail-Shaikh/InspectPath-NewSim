@@ -34,22 +34,51 @@ let initialized = false;
 // AND returns JSON. The Vite dev server answers missing files with 200 + an
 // HTML SPA fallback, so we must check the content-type, not just res.ok.
 // We probe a trigger replay file (the piece that currently ships real data).
-async function realDataPresent(): Promise<boolean> {
+// Returns ok=true when real data is present, or ok=false with a human reason
+// naming the probed URL and what went wrong, so the fallback is never silent.
+interface ProbeResult {
+  ok: boolean;
+  url: string;
+  reason?: string;
+}
+
+async function realDataPresent(): Promise<ProbeResult> {
+  const url = `${DATA_BASE}/trigger/${PROBE_FILE}`;
   try {
-    const res = await fetch(`${DATA_BASE}/trigger/${PROBE_FILE}`, { method: "GET" });
-    if (!res.ok) return false;
+    const res = await fetch(url, { method: "GET" });
+    if (!res.ok) {
+      return { ok: false, url, reason: `HTTP ${res.status}` };
+    }
     const contentType = res.headers.get("content-type") ?? "";
-    return contentType.includes("application/json");
-  } catch {
-    return false;
+    if (!contentType.includes("application/json")) {
+      // Vite's SPA fallback returns the app HTML for missing files.
+      return {
+        ok: false,
+        url,
+        reason: `expected JSON but got "${contentType || "unknown"}" (file not served)`,
+      };
+    }
+    return { ok: true, url };
+  } catch (e) {
+    return { ok: false, url, reason: `request failed (${String(e)})` };
   }
 }
 
 export async function initDataSource(): Promise<DataSource> {
   if (initialized) return active;
-  const present = await realDataPresent();
-  active = present ? realSource : mockSource;
+  const probe = await realDataPresent();
+  active = probe.ok ? realSource : mockSource;
   initialized = true;
+  if (!probe.ok) {
+    // Step 5: never fall back to mock silently. Name the file the probe could
+    // not reach so the user knows why the whole app is in sample mode.
+    addWarning({
+      piece: "replay",
+      message:
+        `Real data not found at ${probe.url} (${probe.reason}). ` +
+        `Showing sample data for the whole app.`,
+    });
+  }
   return active;
 }
 
