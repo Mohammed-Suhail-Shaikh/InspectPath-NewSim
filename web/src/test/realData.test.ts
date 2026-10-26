@@ -45,6 +45,13 @@ describe("real data — validators accept the committed files", () => {
     const res = validateMetricPlan(optimizedRaw, "kw51_optimized.json");
     expect(res.ok).toBe(true);
   });
+
+  it("carries the KW51 provenance credit the map shows (DOI + CC BY-NC-SA 4.0)", () => {
+    const s = layoutRaw as unknown as MetricStructure;
+    expect(s.provenance.doi).toContain("zenodo");
+    expect(s.provenance.license).toBe("CC BY-NC-SA 4.0");
+    expect(s.provenance.source.length).toBeGreaterThan(0);
+  });
 });
 
 describe("real data — structure/plan consistency", () => {
@@ -70,6 +77,39 @@ describe("real data — structure/plan consistency", () => {
       expect(plan.stops.length).toBe(34);
       expect(new Set(plan.stops.map((s) => s.location_id)).size).toBe(34);
       expect(structure.diagonal_connections.distinct_location_count).toBe(34);
+    });
+  }
+});
+
+describe("real data — plan stats are internally consistent", () => {
+  for (const [name, raw] of [
+    ["naive", naiveRaw],
+    ["optimized", optimizedRaw],
+  ] as const) {
+    const plan = raw as unknown as MetricPlan;
+    const s = plan.stats;
+
+    it(`${name}: coverage_pct equals visited / total (4-decimal)`, () => {
+      expect(s.coverage_pct).toBeCloseTo(
+        s.locations_visited / s.locations_total,
+        4
+      );
+      // reachable stop count matches locations_visited
+      const reachable = plan.stops.filter((st) => st.reachable).length;
+      expect(reachable).toBe(s.locations_visited);
+    });
+
+    it(`${name}: battery_used equals route_length_m x energy_per_meter`, () => {
+      expect(s.battery_used).toBeCloseTo(
+        s.route_length_m * s.energy_per_meter,
+        1
+      );
+    });
+
+    it(`${name}: within_budget reflects battery_used vs battery_budget`, () => {
+      expect(s.within_budget).toBe(s.battery_used <= s.battery_budget);
+      // both real KW51 plans finish under the demonstration cap
+      expect(s.within_budget).toBe(true);
     });
   }
 });
