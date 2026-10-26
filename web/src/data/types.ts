@@ -20,44 +20,8 @@ export interface TriggerRecord {
 // [contract §2] alert levels
 export type AlertLevel = "normal" | "watch" | "warning" | "alarm";
 
-// [contract §3] structure input
-export interface Structure {
-  id: string;
-  name: string;
-  width: number;
-  height: number;
-  grid: number[][]; // 0 surface, 1 obstacle/no-fly, 2 priority
-  start: { x: number; y: number };
-  battery_budget: number;
-  capture_spacing: number;
-  alert_zone?: { x: number; y: number; radius: number };
-}
-
-// [contract §4] planner output
-export interface Waypoint {
-  id: string;
-  x: number;
-  y: number;
-  capture: boolean;
-  closeup: boolean;
-  zone?: string;
-}
-
-export interface PlanStats {
-  coverage_pct: number;
-  priority_coverage_pct: number;
-  path_length: number;
-  battery_used: number;
-  battery_budget: number;
-}
-
+// [contract §4b] plan type (shared enum for metric plans)
 export type PlanType = "naive" | "optimized";
-
-export interface Plan {
-  plan_type: PlanType;
-  waypoints: Waypoint[];
-  stats: PlanStats;
-}
 
 // ---- Contract metric v2 shapes (docs/contract.md §3b, §4b) ----
 // Real KW51 geometry at true metric scale, consumed by the elevation map and

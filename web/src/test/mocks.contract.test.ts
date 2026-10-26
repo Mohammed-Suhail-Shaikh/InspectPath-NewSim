@@ -1,8 +1,8 @@
 import { describe, it, expect } from "vitest";
 import replay from "../mocks/replay_z24.json";
-import structure from "../mocks/structure_bridge-a.json";
-import planNaive from "../mocks/plan_naive.json";
-import planOptimized from "../mocks/plan_optimized.json";
+import structure from "../mocks/structure_kw51_sample.json";
+import planNaive from "../mocks/plan_kw51_naive_sample.json";
+import planOptimized from "../mocks/plan_kw51_optimized_sample.json";
 import imageMap from "../mocks/image_map.json";
 import defectResponses from "../mocks/defect_responses.json";
 
@@ -44,48 +44,58 @@ describe("contract §2 — trigger replay", () => {
   });
 });
 
-describe("contract §3 — structure", () => {
-  it("has required fields with correct cell values and an alert zone", () => {
+// Changed from grid (cells 0/1/2, alert_zone) to metric. Reason: the mock
+// structure moved to the metric format (contract §3b); the grid mock was removed.
+describe("contract §3b — metric structure", () => {
+  it("has metric fields, units in metres, nodes/members/stops/sensors", () => {
     expect(typeof structure.id).toBe("string");
     expect(typeof structure.name).toBe("string");
-    expect(typeof structure.width).toBe("number");
-    expect(typeof structure.height).toBe("number");
-    expect(Array.isArray(structure.grid)).toBe(true);
-    for (const row of structure.grid) {
-      for (const cell of row) {
-        expect([0, 1, 2]).toContain(cell);
-      }
+    expect(structure.units).toBe("m");
+    expect(typeof structure.coordinate_system).toBe("string");
+    expect(Array.isArray(structure.nodes)).toBe(true);
+    expect(structure.nodes.length).toBeGreaterThan(0);
+    expect(Array.isArray(structure.members)).toBe(true);
+    expect(structure.members.length).toBeGreaterThan(0);
+    const dc = structure.diagonal_connections;
+    expect(dc.distinct_locations.length).toBe(dc.distinct_location_count);
+    for (const l of dc.distinct_locations) {
+      expect(["A", "C"]).toContain(l.side);
+      expect(["deck", "arch"]).toContain(l.end);
+      expect(typeof l.x).toBe("number");
+      expect(typeof l.z).toBe("number");
     }
-    expect(structure.start).toHaveProperty("x");
-    expect(structure.start).toHaveProperty("y");
-    expect(typeof structure.battery_budget).toBe("number");
-    expect(typeof structure.capture_spacing).toBe("number");
-    expect(structure.alert_zone).toBeDefined();
+    expect(structure.sensors.length).toBeGreaterThan(0);
+    expect(typeof structure.provenance.license).toBe("string");
   });
 });
 
-describe("contract §4 — plans", () => {
+// Changed from grid waypoints + priority_coverage to metric stops + stats.
+// Reason: the plan format moved to metric (contract §4b).
+describe("contract §4b — metric plans", () => {
   for (const [name, plan] of [
     ["naive", planNaive],
     ["optimized", planOptimized],
   ] as const) {
-    it(`${name} plan has valid plan_type, waypoints, and stats`, () => {
+    it(`${name} plan has valid plan_type, metric stops, and stats`, () => {
       expect(["naive", "optimized"]).toContain(plan.plan_type);
-      expect(Array.isArray(plan.waypoints)).toBe(true);
-      expect(plan.waypoints.length).toBeGreaterThan(0);
-      for (const w of plan.waypoints) {
-        expect(typeof w.id).toBe("string");
-        expect(typeof w.x).toBe("number");
-        expect(typeof w.y).toBe("number");
-        expect(typeof w.capture).toBe("boolean");
-        expect(typeof w.closeup).toBe("boolean");
+      expect(plan.units).toBe("m");
+      expect(Array.isArray(plan.stops)).toBe(true);
+      expect(plan.stops.length).toBeGreaterThan(0);
+      for (const s of plan.stops) {
+        expect(typeof s.location_id).toBe("string");
+        expect(typeof s.x).toBe("number");
+        expect(typeof s.z).toBe("number");
+        expect(typeof s.order).toBe("number");
+        expect(typeof s.reachable).toBe("boolean");
       }
       const s = plan.stats;
       expect(typeof s.coverage_pct).toBe("number");
-      expect(typeof s.priority_coverage_pct).toBe("number");
-      expect(typeof s.path_length).toBe("number");
+      expect(typeof s.route_length_m).toBe("number");
       expect(typeof s.battery_used).toBe("number");
       expect(typeof s.battery_budget).toBe("number");
+      expect(typeof s.within_budget).toBe("boolean");
+      // priority coverage must be gone
+      expect((s as Record<string, unknown>).priority_coverage_pct).toBeUndefined();
     });
   }
 });

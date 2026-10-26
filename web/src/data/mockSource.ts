@@ -1,8 +1,6 @@
 import type { DataSource } from "./source";
 import type {
   TriggerRecord,
-  Structure,
-  Plan,
   PlanType,
   ImageMap,
   Finding,
@@ -12,9 +10,6 @@ import type {
 } from "./types";
 
 import replayZ24 from "../mocks/replay_z24.json";
-import structureBridgeA from "../mocks/structure_bridge-a.json";
-import planNaive from "../mocks/plan_naive.json";
-import planOptimized from "../mocks/plan_optimized.json";
 import structureKw51Sample from "../mocks/structure_kw51_sample.json";
 import planKw51NaiveSample from "../mocks/plan_kw51_naive_sample.json";
 import planKw51OptimizedSample from "../mocks/plan_kw51_optimized_sample.json";
@@ -32,15 +27,6 @@ export const mockSource: DataSource = {
     // Only one dataset shipped for the demo; dataset arg reserved for future sets.
     void dataset;
     return replayZ24 as TriggerRecord[];
-  },
-
-  async getStructure(id: string): Promise<Structure> {
-    void id;
-    return structureBridgeA as Structure;
-  },
-
-  async getPlan(type: PlanType): Promise<Plan> {
-    return (type === "optimized" ? planOptimized : planNaive) as Plan;
   },
 
   async getMetricStructure(): Promise<MetricStructure> {

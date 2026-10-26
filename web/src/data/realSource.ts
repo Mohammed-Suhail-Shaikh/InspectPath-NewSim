@@ -7,18 +7,14 @@ import type {
   InspectionReport,
   MetricPlan,
   MetricStructure,
-  Plan,
   PlanType,
-  Structure,
   TriggerRecord,
 } from "./types";
 import { mockSource } from "./mockSource";
 import {
   validateMetricPlan,
   validateMetricStructure,
-  validatePlan,
   validateReplay,
-  validateStructure,
 } from "./validators";
 import { addWarning } from "./dataWarnings";
 
@@ -30,10 +26,6 @@ const DATA_BASE =
 const PREDICT_URL =
   (import.meta.env.VITE_PREDICT_URL as string | undefined) ??
   "http://localhost:8001";
-
-// Discover planner module if a teammate has added web/src/planner/.
-// import.meta.glob keeps the build green when the folder doesn't exist yet.
-const plannerModules = import.meta.glob("../planner/index.*");
 
 // Fetches JSON, treating a non-OK status OR a non-JSON content-type as "missing".
 // The Vite dev server returns 200 + text/html (its SPA fallback) for files that
@@ -65,67 +57,6 @@ async function getReplay(dataset: string): Promise<TriggerRecord[]> {
     return mockSource.getReplay(dataset);
   }
   return res.value;
-}
-
-// ---- Structure (contract §3) ----
-
-async function getStructure(id: string): Promise<Structure> {
-  const fileName = `${id}.json`;
-  const raw = await fetchJson(`${DATA_BASE}/structures/${fileName}`);
-  if (raw === null) {
-    return mockSource.getStructure(id);
-  }
-  const res = validateStructure(raw, fileName);
-  if (!res.ok) {
-    addWarning({ piece: "structure", message: `${res.error}. Falling back to mock structure.` });
-    return mockSource.getStructure(id);
-  }
-  return res.value;
-}
-
-// ---- Plan (contract §4) ----
-
-interface PlannerModule {
-  naive?: (structure: Structure) => Plan;
-  optimized?: (structure: Structure) => Plan;
-  addInspection?: (plan: Plan, currentIndex: number, x: number, y: number) => Plan;
-}
-
-async function loadPlanner(): Promise<PlannerModule | null> {
-  const keys = Object.keys(plannerModules);
-  if (keys.length === 0) return null;
-  try {
-    const mod = (await plannerModules[keys[0]]()) as PlannerModule;
-    return mod;
-  } catch {
-    return null;
-  }
-}
-
-async function getPlan(type: PlanType): Promise<Plan> {
-  const planner = await loadPlanner();
-  if (!planner) {
-    // Planner not present yet: use mock plans.
-    return mockSource.getPlan(type);
-  }
-  try {
-    const structure = await getStructure("bridge-a");
-    const fn = type === "optimized" ? planner.optimized : planner.naive;
-    if (!fn) return mockSource.getPlan(type);
-    const plan = fn(structure);
-    const res = validatePlan(plan, `planner:${type}`);
-    if (!res.ok) {
-      addWarning({ piece: "plan", message: `${res.error}. Falling back to mock plan.` });
-      return mockSource.getPlan(type);
-    }
-    return res.value;
-  } catch (e) {
-    addWarning({
-      piece: "plan",
-      message: `planner threw an error (${String(e)}). Falling back to mock plan.`,
-    });
-    return mockSource.getPlan(type);
-  }
 }
 
 // ---- Metric structure (contract §3b) ----
@@ -300,8 +231,6 @@ async function getDemoReport(): Promise<InspectionReport> {
 export const realSource: DataSource = {
   isMock: false,
   getReplay,
-  getStructure,
-  getPlan,
   getMetricStructure,
   getMetricPlan,
   getImageMap,
