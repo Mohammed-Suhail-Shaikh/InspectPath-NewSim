@@ -184,12 +184,13 @@ export type DefectTier = "high" | "medium" | "low" | "none";
 
 // ---- Dashboard-internal shapes (NOT part of the shared contract) ----
 
-// [dashboard-internal] joins a map location to a captured image and its defect result
+// [dashboard-internal] joins a map location to a captured image and its defect result.
+// Positioned on the metric elevation by location_id/side; the geometry is real
+// but the defect result itself is simulated (see defect_source).
 export interface Finding {
   id: string;
-  waypoint_id: string; // references Waypoint.id [contract §4]
-  x: number;
-  y: number;
+  location_id: string; // references MetricStop.location_id [contract §4b]
+  side: BridgeSide; // which elevation the pin belongs on
   tier: DefectTier; // value set per [contract §1]
   scores: DefectScores; // field set per [contract §1]
   detected: string[]; // per [contract §1]

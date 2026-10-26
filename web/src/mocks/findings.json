@@ -1,9 +1,8 @@
 [
   {
     "id": "f1",
-    "waypoint_id": "w8",
-    "x": 7,
-    "y": 0,
+    "location_id": "A-deck-105020",
+    "side": "A",
     "tier": "high",
     "scores": {
       "crack": 0.74,
@@ -13,14 +12,13 @@
       "corrosion_stain": 0.4
     },
     "detected": ["crack", "spallation", "exposed_bars"],
-    "image_key": "w8",
+    "image_key": "A-deck-105020",
     "has_closeup": true
   },
   {
     "id": "f2",
-    "waypoint_id": "w9",
-    "x": 7,
-    "y": 1,
+    "location_id": "A-arch-103029",
+    "side": "A",
     "tier": "medium",
     "scores": {
       "crack": 0.3,
@@ -30,14 +28,13 @@
       "corrosion_stain": 0.73
     },
     "detected": ["corrosion_stain"],
-    "image_key": "w9",
+    "image_key": "A-arch-103029",
     "has_closeup": true
   },
   {
     "id": "f3",
-    "waypoint_id": "w13",
-    "x": 3,
-    "y": 1,
+    "location_id": "C-deck-106020",
+    "side": "C",
     "tier": "low",
     "scores": {
       "crack": 0.68,
@@ -47,14 +44,13 @@
       "corrosion_stain": 0.21
     },
     "detected": ["crack", "efflorescence"],
-    "image_key": "w13",
+    "image_key": "C-deck-106020",
     "has_closeup": false
   },
   {
     "id": "f4",
-    "waypoint_id": "w19",
-    "x": 4,
-    "y": 3,
+    "location_id": "C-arch-104023",
+    "side": "C",
     "tier": "low",
     "scores": {
       "crack": 0.59,
@@ -64,7 +60,7 @@
       "corrosion_stain": 0.13
     },
     "detected": ["crack"],
-    "image_key": "w19",
+    "image_key": "C-arch-104023",
     "has_closeup": false
   }
 ]

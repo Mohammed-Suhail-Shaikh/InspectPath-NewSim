@@ -11,7 +11,6 @@ import type {
   PlanType,
   Structure,
   TriggerRecord,
-  Waypoint,
 } from "./types";
 import { mockSource } from "./mockSource";
 import {
@@ -249,56 +248,36 @@ async function predict(imagePath: string): Promise<PredictResponse | null> {
 }
 
 async function getFindings(structureId: string): Promise<Finding[]> {
-  const planner = await loadPlanner();
   const imageMap = await getImageMap();
   const images = imageMap[structureId] ?? {};
 
-  // Determine capture waypoints from the real/optimized plan.
-  let waypoints: Waypoint[] = [];
-  try {
-    const plan = await getPlan("optimized");
-    waypoints = plan.waypoints.filter((w) => w.capture);
-  } catch {
-    waypoints = [];
-  }
-
-  // If we have no planner and no capture waypoints, use mock findings wholesale.
-  if (!planner && waypoints.length === 0) {
-    return mockSource.getFindings(structureId);
-  }
-
+  // Findings are simulated, so the set of inspected locations comes from the
+  // mock findings (which are keyed to real KW51 connection locations). For each,
+  // try the real defect model on its image; fall back to the mock score if the
+  // model is unavailable, marking the result as mock.
   const mockFindings = await mockSource.getFindings(structureId);
-  const mockByWaypoint = new Map(mockFindings.map((f) => [f.waypoint_id, f]));
+  if (mockFindings.length === 0) return mockFindings;
 
   const findings: Finding[] = [];
   let usedMockFallback = false;
 
-  for (const wp of waypoints) {
-    const imageKey = wp.id;
-    const imagePath = images[imageKey];
+  for (const mf of mockFindings) {
+    const imagePath = images[mf.image_key];
     const result = imagePath ? await predict(imagePath) : null;
 
     if (result) {
       const tier = result.tier ?? tierFromDetected(result.detected);
       findings.push({
-        id: `f-${wp.id}`,
-        waypoint_id: wp.id,
-        x: wp.x,
-        y: wp.y,
+        ...mf,
         tier,
         scores: result.scores,
         detected: result.detected,
-        image_key: imageKey,
-        has_closeup: Boolean(images[`${imageKey}_closeup`]),
+        has_closeup: Boolean(images[`${mf.image_key}_closeup`]),
         defect_source: "predict",
       });
     } else {
-      // Per-waypoint fallback to the mock result, marked as mock.
       usedMockFallback = true;
-      const fallback = mockByWaypoint.get(wp.id);
-      if (fallback) {
-        findings.push({ ...fallback, defect_source: "mock" });
-      }
+      findings.push({ ...mf, defect_source: "mock" });
     }
   }
 
@@ -306,15 +285,11 @@ async function getFindings(structureId: string): Promise<Finding[]> {
     addWarning({
       piece: "defects",
       message:
-        "Defect model unavailable for one or more waypoints. Mock results used " +
+        "Defect model unavailable for one or more locations. Mock results used " +
         "(marked 'mock' in pin detail).",
     });
   }
 
-  // If the real plan produced nothing usable, fall back to mock findings.
-  if (findings.length === 0) {
-    return mockFindings;
-  }
   return findings;
 }
 

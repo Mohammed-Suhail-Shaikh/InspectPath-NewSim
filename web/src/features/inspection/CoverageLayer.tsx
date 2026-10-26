@@ -1,39 +1,23 @@
-import type { Waypoint } from "../../data/types";
-import { CELL, PAD } from "./mapLayout";
-
-// Shades cells covered by the route up to (and including) the robot's current
-// position. Updates as the robot advances.
+// Highlights the connection stops already visited by the robot (up to and
+// including its current position) on the displayed side. The caller supplies
+// the screen coordinates of the visited stops for this side.
 export default function CoverageLayer({
-  waypoints,
-  upToIndex,
+  points,
+  r,
 }: {
-  waypoints: Waypoint[];
-  upToIndex: number;
+  points: { cx: number; cy: number }[];
+  r: number;
 }) {
-  if (waypoints.length === 0) return null;
-
-  const end = Math.min(upToIndex + 1, waypoints.length);
-  // De-duplicate covered cells so overlapping visits don't stack opacity.
-  const seen = new Set<string>();
-  const covered: { x: number; y: number }[] = [];
-  for (let i = 0; i < end; i++) {
-    const w = waypoints[i];
-    const key = `${w.x}-${w.y}`;
-    if (!seen.has(key)) {
-      seen.add(key);
-      covered.push({ x: w.x, y: w.y });
-    }
-  }
+  if (points.length === 0) return null;
 
   return (
     <g className="coverage-layer" aria-hidden="true">
-      {covered.map((c) => (
-        <rect
-          key={`cov-${c.x}-${c.y}`}
-          x={PAD + c.x * CELL}
-          y={PAD + c.y * CELL}
-          width={CELL}
-          height={CELL}
+      {points.map((p, i) => (
+        <circle
+          key={`cov-${i}`}
+          cx={p.cx}
+          cy={p.cy}
+          r={r}
           fill="var(--route-soft)"
         />
       ))}

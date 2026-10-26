@@ -1,6 +1,5 @@
 import type { Finding, DefectTier } from "../../data/types";
 import { TIER_COLOR, TIER_LABEL } from "../../data/tiers";
-import { cellCenter, CELL } from "./mapLayout";
 
 // Letter per tier so a pin never relies on color alone.
 const TIER_LETTER: Record<DefectTier, string> = {
@@ -10,22 +9,28 @@ const TIER_LETTER: Record<DefectTier, string> = {
   none: "",
 };
 
-// A map pin for a single finding, colored by tier AND marked with a letter.
-// Clicking selects it.
+// A map pin for a single simulated finding, colored by tier AND marked with a
+// letter. Positioned at the screen px/py of its connection stop (computed by
+// the caller from the metric geometry). Clicking selects it.
 export default function FindingPin({
   finding,
+  cx,
+  cy,
+  r,
   selected,
   onSelect,
 }: {
   finding: Finding;
+  cx: number;
+  cy: number;
+  r: number;
   selected: boolean;
   onSelect: (id: string) => void;
 }) {
   const color = TIER_COLOR[finding.tier];
   if (!color) return null; // tier "none" is not pinned
 
-  const { cx, cy } = cellCenter(finding.x, finding.y);
-  const r = CELL * (selected ? 0.34 : 0.28);
+  const radius = r * (selected ? 1.2 : 1);
 
   // Low tier uses the pale-yellow treatment (light fill, dark-yellow letter and
   // outline) to match Watch. High and medium stay solid with a white letter.
@@ -40,7 +45,7 @@ export default function FindingPin({
       onClick={() => onSelect(finding.id)}
       style={{ cursor: "pointer" }}
       role="button"
-      aria-label={`${TIER_LABEL[finding.tier]} priority finding at column ${finding.x}, row ${finding.y}`}
+      aria-label={`${TIER_LABEL[finding.tier]} priority finding at connection ${finding.location_id}`}
       tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") onSelect(finding.id);
@@ -49,7 +54,7 @@ export default function FindingPin({
       <circle
         cx={cx}
         cy={cy}
-        r={r}
+        r={radius}
         fill={fillColor}
         stroke={selected ? "#1e293b" : baseStroke}
         strokeWidth={selected ? 3 : 2}
@@ -59,7 +64,7 @@ export default function FindingPin({
         y={cy}
         textAnchor="middle"
         dominantBaseline="central"
-        fontSize={r}
+        fontSize={radius}
         fontWeight="700"
         fill={letterColor}
         aria-hidden="true"
