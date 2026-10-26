@@ -1,0 +1,27 @@
+{
+  "plan_type": "optimized",
+  "units": "m",
+  "stops": [
+    { "location_id": "C-arch-4", "x": 20.0, "y": 11.75, "z": 10.0, "order": 0, "reachable": true },
+    { "location_id": "A-deck-2", "x": 40.0, "y": 0.0, "z": 0.27, "order": 1, "reachable": true }
+  ],
+  "stats": {
+    "locations_total": 2,
+    "locations_visited": 2,
+    "coverage_pct": 1.0,
+    "route_length_m": 62.8,
+    "route_length_note": "straight-line 3D estimate, ignores obstacles (deck, bracing)",
+    "energy_per_meter": 1.0,
+    "battery_used": 62.8,
+    "battery_budget": 600.0,
+    "battery_budget_note": "demonstration cap, not an engineering limit; set so both plans finish",
+    "within_budget": true
+  },
+  "provenance": {
+    "source": "Synthetic metric sample for the dashboard fallback (not the KU Leuven model)",
+    "doi": "n/a",
+    "license": "n/a",
+    "note": "fallback sample only; the real plans are data/plans/kw51_naive.json and kw51_optimized.json",
+    "derivation": "derived"
+  }
+}

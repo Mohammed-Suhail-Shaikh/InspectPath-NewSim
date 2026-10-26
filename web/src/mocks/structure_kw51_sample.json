@@ -1,0 +1,51 @@
+{
+  "id": "kw51-sample",
+  "name": "KW51 metric sample (fallback, not the real geometry)",
+  "units": "m",
+  "coordinate_system": "x longitudinal (Brussels ~0, Leuven ~115); y transverse, side A=0, side C=11.750; z up",
+  "nodes": [
+    { "id": 1, "part": "girder_A", "x": 0.0, "y": 0.0, "z": 0.27 },
+    { "id": 2, "part": "girder_A", "x": 40.0, "y": 0.0, "z": 0.27 },
+    { "id": 3, "part": "arch_A", "x": 20.0, "y": 0.0, "z": 10.0 },
+    { "id": 4, "part": "girder_C", "x": 20.0, "y": 11.75, "z": 0.27 }
+  ],
+  "members": [
+    { "id": 1, "part": "girder_A", "element_type": "beam", "nodes": [1, 2] },
+    { "id": 2, "part": "arch_A", "element_type": "beam", "nodes": [1, 3] }
+  ],
+  "diagonal_connections": {
+    "distinct_location_count": 2,
+    "distinct_locations": [
+      {
+        "location_id": "A-deck-2",
+        "node_id": 2,
+        "side": "A",
+        "end": "deck",
+        "x": 40.0,
+        "y": 0.0,
+        "z": 0.27,
+        "diagonal_ends": [{ "diagonal": 1, "end": "deck" }]
+      },
+      {
+        "location_id": "C-arch-4",
+        "node_id": 4,
+        "side": "C",
+        "end": "arch",
+        "x": 20.0,
+        "y": 11.75,
+        "z": 10.0,
+        "diagonal_ends": [{ "diagonal": 2, "end": "arch" }]
+      }
+    ]
+  },
+  "sensors": [
+    { "label": "sample-strain-A", "type": "strain", "part": "girder_A", "x": 10.0, "y": 0.0, "z": 0.27 },
+    { "label": "sample-accel-C", "type": "acceleration", "part": "girder_C", "x": 20.0, "y": 11.75, "z": 0.27 }
+  ],
+  "provenance": {
+    "source": "Synthetic metric sample for the dashboard fallback (not the KU Leuven model)",
+    "doi": "n/a",
+    "license": "n/a",
+    "note": "fallback sample only; the real geometry is data/structures/kw51_layout.json"
+  }
+}
