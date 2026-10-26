@@ -22916,8 +22916,28 @@
       "30xx": "track A, bottom (deck end), diagonal xx",
       "40xx": "track A, top (arch end), diagonal xx"
     },
-    "note": "The track A/B to side A/C (South/North, y=0 / y=11.750) correspondence is defined in overview.pdf and is NOT reproduced here; it is not stated in model_kw51.m. Diagonal connections in this file are derived by geometry (side A/C and end deck/arch), not from the diags_box track codes."
+    "note": "Track-to-side mapping, read from the plan view in overview.pdf: Track B runs along side A (South, y=0) and Track A along side C (North, y=11.750). Therefore diags_box 10xx/20xx (track B) = side A, and 30xx/40xx (track A) = side C. This correspondence is from overview.pdf; it is not stated in model_kw51.m. Diagonal connections in this file are derived by geometry (side A/C, end deck/arch); the diags_box codes map to them via this note."
   },
+  "cross_checks": [
+    {
+      "quantity": "bearing span",
+      "extracted_m": 114.198,
+      "drawing_label": "Overspanning 11419.8 cm",
+      "drawing_m": 114.198,
+      "note": "matches: bearing nodes N1 (x=1.059) to N3 (x=115.257)."
+    },
+    {
+      "quantity": "arch crown height above model zero line",
+      "extracted_m": 19.513,
+      "drawing_m": 19.634,
+      "drawing_note": "from drawing: 44.728 minus 25.094 = 19.634 m.",
+      "note": "about 19.5 m extracted vs 19.63 m on the drawing; the model uses the arch centerline (neutral axis), so a small offset from the drawing's reference is expected."
+    },
+    {
+      "quantity": "diagonal numbering direction",
+      "note": "overview.pdf numbers diagonal 1 at the Leuven end (high x) and 16 at the Brussels end (low x). Confirmed: diagonal 1 deck end x=105.058 m, diagonal 16 deck end x=11.258 m."
+    }
+  ],
   "provenance": {
     "source": "Finite element model of railway bridge KW51, KU Leuven (K. Maes, M. van de Velde, G. Lombaert)",
     "doi": "https://doi.org/10.5281/zenodo.17366772",

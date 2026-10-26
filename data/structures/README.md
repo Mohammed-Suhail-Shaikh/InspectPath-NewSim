@@ -21,3 +21,18 @@ reproduced. Units are metres.
 The original model files are kept locally under `data/external/kw51_fem/`
 (gitignored, not redistributed). If you use this geometry, cite the KU Leuven
 model and the Stabil toolbox as requested in the model's readme.
+
+## Verified against overview.pdf
+
+The extracted geometry was compared by eye against `overview.pdf` (side and plan
+views) and matches. Recorded cross-checks (see `cross_checks` in the JSON):
+
+- Track-to-side mapping (from the plan view): Track B runs along side A (South,
+  y=0), Track A along side C (North, y=11.750). So `diags_box` codes 10xx/20xx =
+  side A, 30xx/40xx = side C.
+- Diagonal numbering: diagonal 1 is at the Leuven end (high x, ~105 m) and 16 at
+  the Brussels end (low x, ~11 m), matching overview.pdf.
+- Bearing span 114.198 m matches the drawing label "Overspanning 11419.8 cm".
+- Arch crown ~19.5 m (arch centerline) vs 19.63 m on the drawing
+  (44.728 - 25.094); small offset expected because the model uses the arch
+  neutral axis.
