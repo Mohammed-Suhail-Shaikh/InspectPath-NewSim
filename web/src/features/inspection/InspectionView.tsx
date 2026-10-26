@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { getDataSource } from "../../data/activeSource";
+import { getDataSource, getInspectionData } from "../../data/activeSource";
 import type {
   AlertLevel,
   Finding,
@@ -34,12 +34,6 @@ const ALERT_RANK: Record<AlertLevel, number> = {
   alarm: 3,
 };
 
-// The real KW51 geometry carries this id; anything else means the metric
-// SAMPLE fallback is in use, which the map must disclose.
-function isRealKw51(s: MetricStructure | null): boolean {
-  return s?.id === "kw51";
-}
-
 export default function InspectionView() {
   const {
     setActiveView,
@@ -51,10 +45,8 @@ export default function InspectionView() {
   } = useViewState();
 
   const [structure, setStructure] = useState<MetricStructure | null>(null);
-  const [plan, setPlan] = useState<MetricPlan | null>(null);
-  const [planLengths, setPlanLengths] = useState<
-    Partial<Record<PlanType, { route_length_m: number; battery_used: number }>>
-  >({});
+  const [plans, setPlans] = useState<Record<PlanType, MetricPlan> | null>(null);
+  const [isSample, setIsSample] = useState(false);
   const [findings, setFindings] = useState<Finding[]>([]);
   const [imageMap, setImageMap] = useState<ImageMap>({});
   const [loading, setLoading] = useState(true);
@@ -62,8 +54,13 @@ export default function InspectionView() {
   useEffect(() => {
     let active = true;
     const src = getDataSource();
-    src.getMetricStructure().then((s) => {
-      if (active) setStructure(s);
+    // One coherent bundle: structure + both plans, real or sample together.
+    getInspectionData().then((d) => {
+      if (!active) return;
+      setStructure(d.structure);
+      setPlans(d.plans);
+      setIsSample(d.isSample);
+      setLoading(false);
     });
     src.getFindings(STRUCTURE_ID).then((f) => {
       if (active) setFindings(f);
@@ -71,41 +68,26 @@ export default function InspectionView() {
     src.getImageMap().then((m) => {
       if (active) setImageMap(m);
     });
-    // Load both plans once so the toggle can show both route lengths.
-    Promise.all([src.getMetricPlan("naive"), src.getMetricPlan("optimized")]).then(
-      ([naive, optimized]) => {
-        if (!active) return;
-        setPlanLengths({
-          naive: {
-            route_length_m: naive.stats.route_length_m,
-            battery_used: naive.stats.battery_used,
-          },
-          optimized: {
-            route_length_m: optimized.stats.route_length_m,
-            battery_used: optimized.stats.battery_used,
-          },
-        });
-      }
-    );
     return () => {
       active = false;
     };
   }, []);
 
-  useEffect(() => {
-    let active = true;
-    setLoading(true);
-    getDataSource()
-      .getMetricPlan(selectedPlan)
-      .then((p) => {
-        if (!active) return;
-        setPlan(p);
-        setLoading(false);
-      });
-    return () => {
-      active = false;
-    };
-  }, [selectedPlan]);
+  const plan = plans?.[selectedPlan] ?? null;
+  const planLengths: Partial<
+    Record<PlanType, { route_length_m: number; battery_used: number }>
+  > = plans
+    ? {
+        naive: {
+          route_length_m: plans.naive.stats.route_length_m,
+          battery_used: plans.naive.stats.battery_used,
+        },
+        optimized: {
+          route_length_m: plans.optimized.stats.route_length_m,
+          battery_used: plans.optimized.stats.battery_used,
+        },
+      }
+    : {};
 
   const robotIndex = useRobotRun(plan);
 
@@ -124,7 +106,7 @@ export default function InspectionView() {
   if (!structure)
     return <p className="placeholder">No structure data available.</p>;
 
-  const usingSample = !isRealKw51(structure);
+  const usingSample = isSample;
   const bounds = elevationBounds(structure);
   const stopR = Math.max(4, ELEV_SCALE * 0.6);
 
@@ -174,10 +156,13 @@ export default function InspectionView() {
   const selectedFinding =
     findings.find((f) => f.id === selectedFindingId) ?? null;
 
-  const credit =
-    structure.provenance.doi && structure.provenance.doi !== "n/a"
-      ? `${structure.provenance.source} — ${structure.provenance.license} (${structure.provenance.doi})`
-      : structure.provenance.source;
+  const hasRealCredit =
+    !usingSample &&
+    structure.provenance.doi &&
+    structure.provenance.doi !== "n/a";
+  const credit = hasRealCredit
+    ? `${structure.provenance.source} — ${structure.provenance.license} (${structure.provenance.doi})`
+    : null;
 
   return (
     <div className="inspection">
@@ -257,10 +242,11 @@ export default function InspectionView() {
           </ul>
 
           <p className="map-caption muted">
-            Geometry: real KW51 (KU Leuven FEM, CC BY-NC-SA 4.0). Defect findings
-            and images: simulated.
+            {usingSample
+              ? "Geometry: sample placeholder, not the real KW51 bridge (the KW51 layout could not be loaded). Defect findings and images: simulated."
+              : "Geometry: real KW51 (KU Leuven FEM, CC BY-NC-SA 4.0). Defect findings and images: simulated."}
           </p>
-          <p className="map-credit muted">{credit}</p>
+          {credit && <p className="map-credit muted">{credit}</p>}
         </div>
 
         <aside className="inspection-side">

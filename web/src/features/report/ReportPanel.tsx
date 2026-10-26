@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getDataSource } from "../../data/activeSource";
+import { getDataSource, getInspectionData } from "../../data/activeSource";
 import type {
   Finding,
   InspectionReport,
@@ -33,8 +33,8 @@ export default function ReportPanel() {
   useEffect(() => {
     let active = true;
     const src = getDataSource();
-    src.getMetricStructure().then((s) => {
-      if (active) setStructure(s);
+    getInspectionData().then((d) => {
+      if (active) setStructure(d.structure);
     });
     src.getFindings(STRUCTURE_ID).then((f) => {
       if (active) setFindings(f);
@@ -49,8 +49,8 @@ export default function ReportPanel() {
 
   useEffect(() => {
     let active = true;
-    getDataSource().getMetricPlan(selectedPlan).then((p) => {
-      if (active) setPlan(p);
+    getInspectionData().then((d) => {
+      if (active) setPlan(d.plans[selectedPlan]);
     });
     return () => {
       active = false;
