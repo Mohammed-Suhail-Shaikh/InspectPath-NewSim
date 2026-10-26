@@ -59,6 +59,111 @@ export interface Plan {
   stats: PlanStats;
 }
 
+// ---- Contract metric v2 shapes (docs/contract.md §3b, §4b) ----
+// Real KW51 geometry at true metric scale, consumed by the elevation map and
+// the metric planner output. These live ALONGSIDE the grid shapes above during
+// the migration; the grid shapes are removed once no caller remains.
+
+export type BridgeSide = "A" | "C";
+export type ConnectionEnd = "deck" | "arch";
+
+// [contract §3b] provenance for derived geometry / plans
+export interface Provenance {
+  source: string;
+  doi: string;
+  license: string;
+  note?: string;
+  derivation?: string; // "derived" on plan files
+}
+
+// [contract §3b] a structural node (girder/arch/diagonal vertex)
+export interface MetricNode {
+  id: number;
+  part: string;
+  x: number;
+  y: number;
+  z: number;
+}
+
+// [contract §3b] a structural member joining two nodes
+export interface MetricMember {
+  id: number;
+  part: string;
+  element_type: string;
+  nodes: [number, number];
+}
+
+// [contract §3b] one of the 34 distinct diagonal-connection inspection stops
+export interface DistinctLocation {
+  location_id: string;
+  node_id: number;
+  side: BridgeSide;
+  end: ConnectionEnd;
+  x: number;
+  y: number;
+  z: number;
+  diagonal_ends: { diagonal: number; end: ConnectionEnd }[];
+}
+
+// [contract §3b] a real sensor on the structure
+export interface MetricSensor {
+  label: string;
+  type: "strain" | "acceleration" | "displacement";
+  part: string;
+  x: number;
+  y: number;
+  z: number;
+}
+
+// [contract §3b] structure input (metric)
+export interface MetricStructure {
+  id: string;
+  name: string;
+  units: "m";
+  coordinate_system: string;
+  nodes: MetricNode[];
+  members: MetricMember[];
+  diagonal_connections: {
+    distinct_location_count: number;
+    distinct_locations: DistinctLocation[];
+  };
+  sensors: MetricSensor[];
+  provenance: Provenance;
+}
+
+// [contract §4b] one ordered stop in a metric plan
+export interface MetricStop {
+  location_id: string;
+  x: number;
+  y: number;
+  z: number;
+  order: number;
+  reachable: boolean;
+}
+
+// [contract §4b] metric plan stats (no priority coverage, no alert-dependent stat)
+export interface MetricPlanStats {
+  locations_total: number;
+  locations_visited: number;
+  coverage_pct: number;
+  route_length_m: number;
+  route_length_note: string;
+  energy_per_meter: number;
+  battery_used: number;
+  battery_budget: number;
+  battery_budget_note: string;
+  within_budget: boolean;
+}
+
+// [contract §4b] planner output (metric)
+export interface MetricPlan {
+  plan_type: PlanType;
+  units: "m";
+  stops: MetricStop[];
+  stats: MetricPlanStats;
+  provenance: Provenance;
+}
+
 // [contract §5] image map
 export type ImageMap = {
   [structureId: string]: {
