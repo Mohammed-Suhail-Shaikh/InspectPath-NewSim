@@ -41,10 +41,16 @@ describe("rule-based report — summary numbers", () => {
   // Changed from grid "Area covered 83% / Priority area covered 100%" to the
   // metric stats (connections inspected + route length). Reason: the plan moved
   // from grid to metric and priority coverage was removed (contract §4b).
-  it("includes connections inspected and route length from plan stats", () => {
-    expect(report.text).toContain("Connections inspected: 2 of 2 (100%)");
+  // Changed "Connections inspected" -> "Connections visited" with an imaged
+  // count. Reason (honesty fix 2): "inspected" implied all visited connections
+  // were assessed; only the imaged ones are.
+  it("reports connections visited plus how many were imaged, and route length", () => {
+    expect(report.text).toContain(
+      "Connections visited: 2 of 2 (100%); 4 imaged for demonstration, the rest have no image."
+    );
     expect(report.text).toContain("Route length: 62.8 m");
     expect(report.text).not.toContain("Priority area covered");
+    expect(report.text).not.toContain("Connections inspected:");
   });
 
   it("includes battery used vs budget (62.8 of 600)", () => {
@@ -56,12 +62,18 @@ describe("rule-based report — summary numbers", () => {
     expect(report.text).toContain("-8.5%");
   });
 
-  // New wording (Requirement 8): the frequency shift is global, so all
-  // connection locations were inspected (no located alert).
-  it("states the frequency shift is global and all connections were inspected", () => {
+  // Requirement 8 (global shift) plus honesty fix 2: the route visits all
+  // connections, but only the imaged ones are assessed; the rest are not
+  // cleared. Reason: the old wording "all connection locations were inspected"
+  // implied the un-imaged connections were assessed.
+  it("states the shift is global and that only imaged connections were assessed", () => {
     expect(report.text).toContain(
       "frequency shift is a global measurement and does not identify a location"
     );
+    expect(report.text).toContain(
+      "the rest were not imaged and are neither assessed nor cleared"
+    );
+    expect(report.text).not.toContain("so all connection locations were inspected");
   });
 });
 

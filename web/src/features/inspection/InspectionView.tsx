@@ -257,7 +257,7 @@ export default function InspectionView() {
 
         <aside className="inspection-side">
           <PlanToggle lengths={planLengths} />
-          {plan && <StatsPanel stats={plan.stats} />}
+          {plan && <StatsPanel stats={plan.stats} imagedCount={findings.length} />}
           {selectedFinding && (
             <FindingDetail
               finding={selectedFinding}

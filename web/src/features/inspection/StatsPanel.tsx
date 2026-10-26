@@ -7,7 +7,13 @@ function pct(v: number) {
 // Plain-language coverage, route length, and battery used vs budget. Every
 // figure is labeled honestly: the route length is a straight-line estimate and
 // the battery budget is a demonstration value.
-export default function StatsPanel({ stats }: { stats: MetricPlanStats }) {
+export default function StatsPanel({
+  stats,
+  imagedCount,
+}: {
+  stats: MetricPlanStats;
+  imagedCount: number;
+}) {
   const batteryPctOfBudget =
     stats.battery_budget > 0
       ? Math.round((stats.battery_used / stats.battery_budget) * 100)
@@ -18,12 +24,16 @@ export default function StatsPanel({ stats }: { stats: MetricPlanStats }) {
       <h3 className="stats-title">Inspection stats</h3>
 
       <div className="stat">
-        <span className="stat-label">Connections inspected</span>
+        <span className="stat-label">Connections visited</span>
         <span className="stat-value">
           {stats.locations_visited} / {stats.locations_total}
           <span className="stat-sub"> ({pct(stats.coverage_pct)})</span>
         </span>
       </div>
+      <p className="stat-note muted">
+        {imagedCount} imaged for demonstration; the rest have no image and are
+        not assessed.
+      </p>
 
       <div className="stat">
         <span className="stat-label">Route length</span>

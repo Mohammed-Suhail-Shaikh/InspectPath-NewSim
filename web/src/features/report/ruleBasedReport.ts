@@ -94,12 +94,14 @@ export function buildRuleBasedReport(
   const lines: string[] = [];
 
   // 1. Summary
+  const imagedCount = findings.length;
   lines.push(`Inspection report — ${structure.name}`);
   lines.push("");
   lines.push("Summary");
   lines.push(
-    `- Connections inspected: ${stats.locations_visited} of ` +
-      `${stats.locations_total} (${pct(stats.coverage_pct)})`
+    `- Connections visited: ${stats.locations_visited} of ` +
+      `${stats.locations_total} (${pct(stats.coverage_pct)}); ` +
+      `${imagedCount} imaged for demonstration, the rest have no image.`
   );
   lines.push(
     `- Route length: ${stats.route_length_m} m ` +
@@ -118,7 +120,9 @@ export function buildRuleBasedReport(
     );
     lines.push(
       "- The frequency shift is a global measurement and does not identify a " +
-        "location, so all connection locations were inspected."
+        "location, so the route visits all connection locations. Only the " +
+        `${imagedCount} imaged connections below were assessed; the rest were ` +
+        "not imaged and are neither assessed nor cleared."
     );
   } else {
     lines.push("- Highest alert level reached: none recorded");
