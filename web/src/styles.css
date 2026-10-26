@@ -899,6 +899,17 @@ body {
   margin: 0 0 0.75rem;
 }
 
+/* Honest provenance note for real model scores (neutral, not an alert). */
+.finding-real-note {
+  background: #eef1f4;
+  color: #3a424d;
+  border: 1px solid #c2c9d2;
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.78rem;
+  margin: 0 0 0.75rem;
+}
+
 /* ---- KW51 inspection: banners, side toggle, elevation map extras ---- */
 
 .dispatch-banner,

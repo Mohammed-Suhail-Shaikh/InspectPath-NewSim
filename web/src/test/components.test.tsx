@@ -103,6 +103,36 @@ describe("FindingDetail", () => {
     expect(screen.queryByText("Close-up")).not.toBeInTheDocument();
   });
 
+  it("shows the real-scores CODEBRIM note when defect_source is predict", () => {
+    render(
+      <FindingDetail
+        finding={{ ...highWithCloseup, defect_source: "predict" }}
+        imageMap={imageMap}
+        structureId="kw51"
+        onClose={() => {}}
+      />
+    );
+    expect(
+      screen.getByText(/CODEBRIM held-out test set; not photographs of KW51/i)
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/is a mock/i)).not.toBeInTheDocument();
+  });
+
+  it("shows the mock note (not the real note) when defect_source is mock", () => {
+    render(
+      <FindingDetail
+        finding={{ ...lowNoCloseup, defect_source: "mock" }}
+        imageMap={imageMap}
+        structureId="kw51"
+        onClose={() => {}}
+      />
+    );
+    expect(screen.getByText(/is a mock/i)).toBeInTheDocument();
+    expect(
+      screen.queryByText(/CODEBRIM held-out test set/i)
+    ).not.toBeInTheDocument();
+  });
+
   it("calls onClose when the close button is clicked", () => {
     const onClose = vi.fn();
     render(

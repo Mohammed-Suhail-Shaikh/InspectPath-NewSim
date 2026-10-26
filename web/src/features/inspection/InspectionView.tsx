@@ -153,6 +153,10 @@ export default function InspectionView() {
   // Finding pins on the displayed side, positioned at their connection stop.
   const sideFindings = findings.filter((f) => f.side === selectedSide);
 
+  // Whether any finding carries real model scores (vs. all mock). Drives the
+  // honest caption wording about where the defect scores/images come from.
+  const anyRealScores = findings.some((f) => f.defect_source === "predict");
+
   const selectedFinding =
     findings.find((f) => f.id === selectedFindingId) ?? null;
 
@@ -244,6 +248,8 @@ export default function InspectionView() {
           <p className="map-caption muted">
             {usingSample
               ? "Geometry: sample placeholder, not the real KW51 bridge (the KW51 layout could not be loaded). Defect findings and images: simulated."
+              : anyRealScores
+              ? "Geometry: real KW51 (KU Leuven FEM, CC BY-NC-SA 4.0). Defect scores: real model on representative concrete images from the CODEBRIM held-out test set, not photographs of KW51."
               : "Geometry: real KW51 (KU Leuven FEM, CC BY-NC-SA 4.0). Defect findings and images: simulated."}
           </p>
           {credit && <p className="map-credit muted">{credit}</p>}

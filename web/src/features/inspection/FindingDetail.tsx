@@ -77,6 +77,13 @@ export default function FindingDetail({
         </p>
       )}
 
+      {finding.defect_source === "predict" && (
+        <p className="finding-real-note">
+          Real model scores on representative concrete images from the CODEBRIM
+          held-out test set; not photographs of KW51.
+        </p>
+      )}
+
       <div className="finding-images">
         <figure>
           <ImageWithFallback src={fullSrc} alt={`Capture at ${finding.image_key}`} />
