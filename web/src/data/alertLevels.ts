@@ -8,11 +8,13 @@ interface AlertLevelStyle {
 
 // Distinct, clearly distinguishable color per level.
 // Colors are a dashboard presentation choice; the level values are from contract §2.
+// Hex values match the design tokens in .kiro/steering/design.md. `bg` is the
+// meaning color, `color` is the text color that meets AA on that background.
 export const ALERT_LEVELS: Record<AlertLevel, AlertLevelStyle> = {
-  normal: { label: "Normal", color: "#0b3d1f", bg: "#3ddc84" },
-  watch: { label: "Watch", color: "#3d2f00", bg: "#ffd23f" },
-  warning: { label: "Warning", color: "#3d1f00", bg: "#ff8c42" },
-  alarm: { label: "Alarm", color: "#ffffff", bg: "#e5484d" },
+  normal: { label: "Normal", color: "#ffffff", bg: "#2e7d32" },
+  watch: { label: "Watch", color: "#ffffff", bg: "#806500" },
+  warning: { label: "Warning", color: "#ffffff", bg: "#9e5200" },
+  alarm: { label: "Alarm", color: "#ffffff", bg: "#c62828" },
 };
 
 export function alertStyle(level: AlertLevel): AlertLevelStyle {

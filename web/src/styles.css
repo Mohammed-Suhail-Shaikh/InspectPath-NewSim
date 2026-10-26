@@ -1,10 +1,57 @@
 :root {
-  --bg: #0f1419;
-  --panel: #1a2029;
-  --text: #e6e9ef;
-  --muted: #9aa4b2;
-  --border: #2a323d;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* Base (neutral, cool) */
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --text: #1e293b;
+  --muted: #5b6676;
+  --border: #d8dde3;
+  --border-strong: #b9c0c9;
+
+  /* Backwards-compatible alias: some view rules still reference --panel.
+     Maps to the raised surface so nothing breaks before each view is redone. */
+  --panel: #ffffff;
+
+  /* Alert levels (meaning only; all AA on white text and as text on --bg) */
+  --normal: #2e7d32;
+  --watch: #806500;
+  --warning: #9e5200;
+  --alarm: #c62828;
+  --normal-band: #2e7d3214;
+  --watch-band: #80650022;
+  --warning-band: #9e520022;
+  --alarm-band: #c6282822;
+
+  /* Finding tiers (reuse alert hues) */
+  --tier-high: #c62828;
+  --tier-medium: #9e5200;
+  --tier-low: #806500;
+
+  /* Route and robot (the one purple) */
+  --route: #6d28d9;
+  --route-soft: #6d28d91f;
+
+  /* Typography */
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --text-hero: 3rem;
+  --text-page: 1.5rem;
+  --text-section: 1.05rem;
+  --text-body: 0.95rem;
+  --text-label: 0.8rem;
+
+  /* Spacing */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+
+  /* Radius */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+
+  font-family: var(--font-sans);
+  color: var(--text);
 }
 
 * {
@@ -15,6 +62,33 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
+  font-size: var(--text-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Tabular numerals for readings and numeric values everywhere. */
+.reading-value,
+.stat-value,
+.score-num,
+.alert-hero-value {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Visible keyboard focus: dark slate, no saturated color. */
+:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+/* Motion only for state changes / user actions; respect reduced-motion. */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 .app {
@@ -24,18 +98,24 @@ body {
 }
 
 .app-header {
-  padding: 0.75rem 1.25rem;
+  padding: var(--sp-3) var(--sp-5);
   border-bottom: 1px solid var(--border);
+  background: var(--surface);
 }
 
 .app-header h1 {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: var(--text-page);
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .app-main {
   flex: 1;
-  padding: 1.25rem;
+  padding: var(--sp-5);
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 .placeholder {
@@ -44,13 +124,13 @@ body {
 
 .app-footer {
   border-top: 1px solid var(--border);
-  padding: 0.75rem 1.25rem;
-  background: var(--panel);
+  padding: var(--sp-3) var(--sp-5);
+  background: var(--surface);
 }
 
 .app-footer p {
   margin: 0;
-  font-size: 0.8rem;
+  font-size: var(--text-label);
   color: var(--muted);
   text-align: center;
   line-height: 1.4;
@@ -58,7 +138,7 @@ body {
 
 @media (max-width: 600px) {
   .app-main {
-    padding: 0.75rem;
+    padding: var(--sp-3);
   }
   .app-footer p {
     font-size: 0.75rem;
