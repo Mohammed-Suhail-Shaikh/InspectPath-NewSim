@@ -5,7 +5,8 @@ import AlertBadge from "../features/monitor/AlertBadge";
 import { alertStyle } from "../data/alertLevels";
 import { TIER_COLOR } from "../data/tiers";
 import FindingDetail from "../features/inspection/FindingDetail";
-import type { Finding, ImageMap } from "../data/types";
+import StatsPanel from "../features/inspection/StatsPanel";
+import type { Finding, ImageMap, MetricPlanStats } from "../data/types";
 import { generateReport } from "../features/report/llmClient";
 
 describe("QualityBadge", () => {
@@ -145,6 +146,43 @@ describe("FindingDetail", () => {
     );
     fireEvent.click(screen.getByRole("button", { name: /close finding detail/i }));
     expect(onClose).toHaveBeenCalledOnce();
+  });
+});
+
+describe("StatsPanel", () => {
+  const stats: MetricPlanStats = {
+    locations_total: 34,
+    locations_visited: 34,
+    coverage_pct: 1.0,
+    route_length_m: 399.8,
+    route_length_note: "straight-line 3D estimate",
+    energy_per_meter: 1.0,
+    battery_used: 399.8,
+    battery_budget: 600.0,
+    battery_budget_note: "demo",
+    within_budget: true,
+  };
+  const findings = [
+    { tier: "high" },
+    { tier: "medium" },
+    { tier: "low" },
+    { tier: "low" },
+  ] as Finding[];
+
+  it("shows connections visited, a findings tier summary, and route length", () => {
+    render(<StatsPanel stats={stats} findings={findings} />);
+    expect(screen.getByText("Connections visited")).toBeInTheDocument();
+    expect(screen.getByText("Findings")).toBeInTheDocument();
+    expect(
+      screen.getByText("1 high, 1 medium, 2 low (4 imaged for demonstration)")
+    ).toBeInTheDocument();
+    expect(screen.getByText("399.8 m")).toBeInTheDocument();
+  });
+
+  it("does not show any battery figure", () => {
+    const { container } = render(<StatsPanel stats={stats} findings={findings} />);
+    expect(container.textContent).not.toMatch(/battery/i);
+    expect(container.querySelector(".battery-bar")).toBeNull();
   });
 });
 

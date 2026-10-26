@@ -74,18 +74,10 @@ export default function InspectionView() {
   }, []);
 
   const plan = plans?.[selectedPlan] ?? null;
-  const planLengths: Partial<
-    Record<PlanType, { route_length_m: number; battery_used: number }>
-  > = plans
+  const planLengths: Partial<Record<PlanType, { route_length_m: number }>> = plans
     ? {
-        naive: {
-          route_length_m: plans.naive.stats.route_length_m,
-          battery_used: plans.naive.stats.battery_used,
-        },
-        optimized: {
-          route_length_m: plans.optimized.stats.route_length_m,
-          battery_used: plans.optimized.stats.battery_used,
-        },
+        naive: { route_length_m: plans.naive.stats.route_length_m },
+        optimized: { route_length_m: plans.optimized.stats.route_length_m },
       }
     : {};
 
@@ -257,7 +249,7 @@ export default function InspectionView() {
 
         <aside className="inspection-side">
           <PlanToggle lengths={planLengths} />
-          {plan && <StatsPanel stats={plan.stats} imagedCount={findings.length} />}
+          {plan && <StatsPanel stats={plan.stats} findings={findings} />}
           {selectedFinding && (
             <FindingDetail
               finding={selectedFinding}

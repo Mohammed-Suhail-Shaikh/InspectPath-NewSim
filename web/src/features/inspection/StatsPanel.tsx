@@ -1,24 +1,22 @@
-import type { MetricPlanStats } from "../../data/types";
+import type { Finding, MetricPlanStats } from "../../data/types";
+import { findingsSummaryText } from "../../data/tiers";
 
 function pct(v: number) {
   return `${Math.round(v * 100)}%`;
 }
 
-// Plain-language coverage, route length, and battery used vs budget. Every
-// figure is labeled honestly: the route length is a straight-line estimate and
-// the battery budget is a demonstration value.
+// Plain-language connection coverage, a tier breakdown of the imaged findings,
+// and the route length. No battery figure: battery_used equals route length at
+// 1.0 energy/metre and "battery" implies drone hardware this demo does not have
+// (the planner keeps the fields for future multi-flight planning; they are not
+// shown). Every figure is labeled honestly.
 export default function StatsPanel({
   stats,
-  imagedCount,
+  findings,
 }: {
   stats: MetricPlanStats;
-  imagedCount: number;
+  findings: Finding[];
 }) {
-  const batteryPctOfBudget =
-    stats.battery_budget > 0
-      ? Math.round((stats.battery_used / stats.battery_budget) * 100)
-      : 0;
-
   return (
     <section className="stats-panel">
       <h3 className="stats-title">Inspection stats</h3>
@@ -31,37 +29,22 @@ export default function StatsPanel({
         </span>
       </div>
       <p className="stat-note muted">
-        {imagedCount} imaged for demonstration; the rest have no image and are
-        not assessed.
+        {findings.length} imaged for demonstration; the rest have no image and
+        are not assessed.
       </p>
+
+      <div className="stat">
+        <span className="stat-label">Findings</span>
+        <span className="stat-value">{findingsSummaryText(findings)}</span>
+      </div>
 
       <div className="stat">
         <span className="stat-label">Route length</span>
-        <span className="stat-value">
-          {stats.route_length_m} m
-        </span>
+        <span className="stat-value">{stats.route_length_m} m</span>
       </div>
       <p className="stat-note muted">
         Straight-line 3D estimate; ignores obstacles like the deck and bracing.
-      </p>
-
-      <div className="stat">
-        <span className="stat-label">Battery used</span>
-        <span className="stat-value">
-          {stats.battery_used} / {stats.battery_budget}
-          <span className="stat-sub"> ({batteryPctOfBudget}% of budget)</span>
-        </span>
-      </div>
-
-      <div className="battery-bar" aria-hidden="true">
-        <div
-          className="battery-fill"
-          style={{ width: `${Math.min(100, batteryPctOfBudget)}%` }}
-        />
-      </div>
-      <p className="stat-note muted">
-        Battery budget is a demonstration value, not an engineering limit. Launch
-        is from an assumed position off the south side.
+        Measured from an assumed launch position off the south side.
       </p>
     </section>
   );

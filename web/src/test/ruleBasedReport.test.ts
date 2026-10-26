@@ -53,8 +53,16 @@ describe("rule-based report — summary numbers", () => {
     expect(report.text).not.toContain("Connections inspected:");
   });
 
-  it("includes battery used vs budget (62.8 of 600)", () => {
-    expect(report.text).toContain("Battery used: 62.8 of 600 units");
+  // Changed: the report no longer prints a battery line (battery_used just
+  // mirrors route length at 1.0 energy/m, and "battery" implies hardware we do
+  // not have). It now prints a findings tier summary instead. Reason: stats
+  // cleanup — remove the meaningless/misleading battery figure from the report.
+  it("includes the findings tier summary and no battery line", () => {
+    expect(report.text).toContain(
+      "Findings: 1 high, 1 medium, 2 low (4 imaged for demonstration)"
+    );
+    expect(report.text).not.toContain("Battery used");
+    expect(report.text).not.toContain("battery");
   });
 
   it("includes the highest alert level Alarm with residual -8.5%", () => {

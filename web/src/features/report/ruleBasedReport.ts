@@ -8,6 +8,7 @@ import type {
   MetricPlanStats,
   MetricStructure,
 } from "../../data/types";
+import { findingsSummaryText } from "../../data/tiers";
 
 export interface RuleBasedReportInput {
   structure: MetricStructure;
@@ -103,13 +104,10 @@ export function buildRuleBasedReport(
       `${stats.locations_total} (${pct(stats.coverage_pct)}); ` +
       `${imagedCount} imaged for demonstration, the rest have no image.`
   );
+  lines.push(`- Findings: ${findingsSummaryText(findings)}`);
   lines.push(
     `- Route length: ${stats.route_length_m} m ` +
       `(straight-line 3D estimate, ignores obstacles)`
-  );
-  lines.push(
-    `- Battery used: ${stats.battery_used} of ${stats.battery_budget} units ` +
-      `(demonstration value)`
   );
 
   const peak = highestAlert(alertHistory);
