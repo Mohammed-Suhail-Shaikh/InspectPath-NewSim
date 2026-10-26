@@ -64,6 +64,14 @@ async function realDataPresent(): Promise<ProbeResult> {
   }
 }
 
+// Reset the init-once state so tests can re-run the probe. Harmless in the app
+// (never called there).
+export function resetDataSourceForTest(): void {
+  initialized = false;
+  active = mockSource;
+  inspectionDataPromise = null;
+}
+
 export async function initDataSource(): Promise<DataSource> {
   if (initialized) return active;
   const probe = await realDataPresent();
