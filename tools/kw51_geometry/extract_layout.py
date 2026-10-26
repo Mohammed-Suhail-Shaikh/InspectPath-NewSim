@@ -165,23 +165,17 @@ def build_nodes(xn: np.ndarray):
             nodes["brace"].append((nid, float(xbr[b]), y, z))
 
     # Transverse beams: one line of x-positions (model_kw51.m lines 443-453),
-    # replicated across the transverse y-grid. We only need positions/count.
-    xtr = [0.0, 2313.0]
-    xtr.append(xtr[-1] + 1878)
-    xtr.append(xtr[-1] + 3534)
-    xtr.append(xtr[-1] + 3533)
-    xtr.append(xtr[-1] + 3833)
-    xtr.append(xtr[-1] + 3834)
-    xtr.append(xtr[-1] + 3833)
-    for _ in range(3):
-        xtr.append(xtr[-1] + 3933)
-        xtr.append(xtr[-1] + 3934)
-        xtr.append(xtr[-1] + 3933)
-    last = xtr[-1]
-    xtr = xtr + [last + (last - v) for v in reversed(xtr[:-1])]
-    xtr = np.array(xtr) / 1000.0
-    for i, x in enumerate(xtr, start=1):
-        nodes["transverse_beam"].append((141000 + i, float(x), None, 0.2539))
+    # replicated across the transverse y-grid.
+    #
+    # OMITTED. In model_kw51.m the transverse beams form a full y-grid at each
+    # of the 33 longitudinal x-stations (ytr = repmat([0, yu, 11.75]', 1, 33)),
+    # plus a reference (orientation) node per station at z=20 that is not a
+    # physical point. A single x-line cannot faithfully represent that grid, and
+    # the inspection elevation map does not draw transverse beams (it draws the
+    # girders, arches, diagonals, connection stops, and sensors). Rather than
+    # emit nodes with an unresolved y coordinate, the transverse beams are
+    # omitted and recorded in omitted_parts. See build_layout().
+    # (nodes["transverse_beam"] is intentionally left empty.)
 
     # Deck U-beams (121xxx-132xxx): 12 longitudinal lines across the deck width.
     yu = (11750 / 2 - 375 - 5 * 750 + np.arange(0, 12) * 750) / 1000.0
@@ -285,7 +279,9 @@ def build_members(nodes, conns):
             members.append({"id": mid, "part": f"diagonal_{side}", "element_type": "beam",
                             "nodes": [deck["node_id"], arch["node_id"]]})
 
-    # Transverse beams: one per transverse x-station (count only).
+    # Transverse beams are omitted (see node extraction above), so there are no
+    # transverse_beam members. The loop below is a no-op while the list is empty
+    # and is kept only so the structure is obvious if the part is ever restored.
     for i in range(len(nodes["transverse_beam"]) - 1):
         mid += 1
         members.append({"id": mid, "part": "transverse_beam", "element_type": "beam",
@@ -478,7 +474,18 @@ def main():
                 "part": "orthotropic deck plate (shell4 elements, plate nodes 181xxx-196xxx)",
                 "reason": "deck surface plates (Type 3 'shell4'); not needed for "
                           "the inspection-map geometry (girders, arches, "
-                          "diagonals, braces, transverse and deck beams).",
+                          "diagonals, braces, and deck beams).",
+            },
+            {
+                "part": "transverse beams (nodes 141xxx-173xxx, incl. reference nodes)",
+                "reason": "In model_kw51.m the transverse beams span the bridge "
+                          "width at each of 33 longitudinal x-stations "
+                          "(ytr = repmat([0, yu, 11.75]', 1, 33)), plus one "
+                          "orientation reference node per station at z=20 that is "
+                          "not a physical point. A single x-line cannot faithfully "
+                          "represent that y-grid, and the side elevation (x-z) "
+                          "does not draw transverse beams. Omitted rather than "
+                          "emitting nodes with an unresolved y coordinate.",
             },
         ],
         "sensors": sensors,
@@ -657,6 +664,16 @@ def _validate(xn, flat_nodes, members, conns, sensors):
     # sensors reference parts/coords, not node ids directly; skip id check for them.
     ref_ok = len(missing) == 0
 
+    # Every node must have numeric x, y, z (no None/NaN). This is the check that
+    # would have caught the transverse-beam reference nodes with y=None.
+    def _num(v):
+        return isinstance(v, (int, float)) and v == v  # v==v rejects NaN
+    bad_coord_nodes = [
+        n["id"] for n in flat_nodes
+        if not (_num(n.get("x")) and _num(n.get("y")) and _num(n.get("z")))
+    ]
+    coords_ok = len(bad_coord_nodes) == 0
+
     rows = []
     rows.append(("Node extent (first-last girder node)", f"{length:.3f} m", abs(length - 115) < 2.0))
     rows.append(("Bearing span (N1-N3)", f"{bearing_span:.3f} m", abs(bearing_span - 115) < 2.0))
@@ -675,6 +692,7 @@ def _validate(xn, flat_nodes, members, conns, sensors):
     rows.append(("Every sensor on node/member (<=0.01 m)",
                  f"max {max_sensor_dist*1000:.2f} mm ({worst_label})", sensors_on_geom))
     rows.append(("All referenced node ids exist", f"{len(missing)} missing", ref_ok))
+    rows.append(("Every node has numeric x, y, z", f"{len(bad_coord_nodes)} bad", coords_ok))
 
     # Node / member counts per part
     from collections import Counter
