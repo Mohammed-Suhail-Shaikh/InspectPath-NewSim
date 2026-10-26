@@ -34,7 +34,7 @@ export default function CoverageLayer({
           y={PAD + c.y * CELL}
           width={CELL}
           height={CELL}
-          fill="rgba(90, 169, 255, 0.28)"
+          fill="var(--route-soft)"
         />
       ))}
     </g>

@@ -417,46 +417,46 @@ body {
 
 .inspection-body {
   display: flex;
-  gap: 1rem;
+  gap: var(--sp-5);
   flex-wrap: wrap;
-  margin-top: 1rem;
+  margin-top: var(--sp-4);
   align-items: flex-start;
 }
 
+/* The map is the main element: give it the dominant width. */
 .map-wrap {
-  flex: 1 1 420px;
-  min-width: 280px;
-  background: var(--panel);
+  flex: 3 1 520px;
+  min-width: 300px;
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 0.75rem;
+  border-radius: var(--radius-sm);
+  padding: var(--sp-3);
 }
 
 .grid-map {
   display: block;
-  max-width: 640px;
+  max-width: 760px;
   height: auto;
   margin: 0 auto;
 }
 
+/* Compact side column. */
 .inspection-side {
   flex: 1 1 240px;
   min-width: 220px;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--sp-4);
 }
 
 .stats-panel {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 1rem;
+  padding-top: var(--sp-2);
 }
 
 .stats-title {
-  margin: 0 0 0.75rem;
-  font-size: 1rem;
+  margin: 0 0 var(--sp-2);
+  font-size: var(--text-section);
+  font-weight: 600;
 }
 
 .stat {
@@ -464,7 +464,7 @@ body {
   justify-content: space-between;
   align-items: baseline;
   gap: 0.5rem;
-  padding: 0.35rem 0;
+  padding: 0.3rem 0;
   border-bottom: 1px solid var(--border);
 }
 
@@ -474,17 +474,17 @@ body {
 
 .stat-label {
   color: var(--muted);
-  font-size: 0.85rem;
+  font-size: var(--text-label);
 }
 
 .stat-value {
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .stat-sub {
   font-weight: 400;
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: var(--text-label);
 }
 
 .battery-bar {
@@ -498,14 +498,12 @@ body {
 
 .battery-fill {
   height: 100%;
-  background: #3ddc84;
+  background: var(--text);
 }
 
 .plan-toggle {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 1rem;
+  padding-top: var(--sp-2);
+  border-top: 1px solid var(--border);
 }
 
 .plan-toggle-group {
@@ -515,32 +513,30 @@ body {
 }
 
 .plan-btn {
-  background: var(--bg);
+  background: var(--surface);
   color: var(--text);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   padding: 0.5rem 0.75rem;
-  font-size: 0.85rem;
+  font-size: var(--text-label);
   cursor: pointer;
   text-align: left;
 }
 
 .plan-btn.active {
-  background: #5aa9ff;
-  color: #06213f;
-  border-color: #5aa9ff;
-  font-weight: 700;
+  background: var(--text);
+  color: var(--surface);
+  border-color: var(--text);
+  font-weight: 600;
 }
 
 .plan-btn:hover {
-  border-color: #5aa9ff;
+  border-color: var(--border-strong);
 }
 
 .finding-detail {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 1rem;
+  padding-top: var(--sp-2);
+  border-top: 1px solid var(--border);
 }
 
 .finding-detail-head {
@@ -549,9 +545,71 @@ body {
   align-items: center;
 }
 
+/* Tier shown as a labeled chip, not color-only. */
 .finding-tier {
-  font-weight: 700;
-  margin: 0.25rem 0 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-weight: 600;
+  font-size: var(--text-label);
+  margin: 0.4rem 0 0.75rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+}
+
+/* Low tier: pale-yellow fill to match the Watch treatment. Text/border stay
+   dark yellow (#806500) via the inline color; letter contrast 5.0:1. */
+.finding-tier-low {
+  background: #fbf3d6;
+}
+
+/* ---- Inspection: map legend ---- */
+.map-legend {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3) var(--sp-4);
+  margin: var(--sp-3) 0 0;
+  padding: var(--sp-3) 0 0;
+  border-top: 1px solid var(--border);
+  font-size: var(--text-label);
+  color: var(--muted);
+}
+
+.map-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.legend-swatch {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  border-radius: 2px;
+  background: var(--surface);
+}
+
+.legend-priority {
+  border: 1px dotted #5b6676;
+}
+
+.legend-obstacle {
+  background: #e9edf2;
+  border: 1px solid #b9c0c9;
+  background-image: linear-gradient(135deg, transparent 45%, #b9c0c9 45%, #b9c0c9 55%, transparent 55%);
+}
+
+.legend-covered {
+  background: var(--route-soft);
+  border: 1px solid var(--route);
+}
+
+.legend-alert-zone {
+  border: 1px dashed #c62828;
+  background: rgba(198, 40, 40, 0.10);
+  border-radius: 999px;
 }
 
 .finding-images {
@@ -617,7 +675,7 @@ body {
 
 .score-fill {
   height: 100%;
-  background: #5aa9ff;
+  background: var(--text);
 }
 
 .score-num {
@@ -721,7 +779,7 @@ body {
     justify-content: space-between;
   }
 
-  /* Map and side panels stack vertically. */
+  /* Map and side panels stack vertically: map first, then the side column. */
   .inspection-body {
     flex-direction: column;
   }
@@ -730,6 +788,21 @@ body {
   .inspection-side {
     flex: 1 1 100%;
     min-width: 0;
+  }
+
+  /* Side column order on mobile: stats, then plan toggle, then finding detail. */
+  .inspection-side {
+    display: flex;
+    flex-direction: column;
+  }
+  .inspection-side .stats-panel {
+    order: 1;
+  }
+  .inspection-side .plan-toggle {
+    order: 2;
+  }
+  .inspection-side .finding-detail {
+    order: 3;
   }
 
   .readings-grid {
