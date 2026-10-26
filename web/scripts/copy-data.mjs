@@ -49,26 +49,38 @@ async function main() {
   const stripPrefix = (p) => p.replace(/^\\\\\?\\/, "");
   const srcNorm = stripPrefix(SRC);
 
-  // Filter excludes the images/ subtree when PUBLIC_DEPLOY=true.
+  // Never serve local-only subtrees. data/external/ (KU Leuven FEM source,
+  // CC BY-NC-SA) and data/datasets/ are gitignored and must not be published,
+  // even in local dev. data/images/ (CODEBRIM) is additionally skipped on a
+  // public deploy. The derived geometry (data/structures/) and generated plans
+  // (data/plans/) ARE served.
+  const alwaysSkipTop = new Set(["external", "datasets"]);
   const filter = (source) => {
-    if (!skipImages) return true;
     const rel = path.relative(srcNorm, stripPrefix(source));
-    // rel is "" for SRC itself, "images" for the dir, "images/<...>" below it.
-    const segments = rel.split(path.sep);
-    return segments[0] !== "images";
+    // rel is "" for SRC itself, "<name>" for a top dir, "<name>/<...>" below it.
+    const top = rel.split(path.sep)[0];
+    if (alwaysSkipTop.has(top)) return false;
+    if (skipImages && top === "images") return false;
+    return true;
   };
 
   await cp(SRC, DEST, { recursive: true, filter });
 
   if (skipImages) {
     console.log(
-      "[copy-data] PUBLIC_DEPLOY=true: copied JSON only, skipped data/images/ " +
-        "(CODEBRIM images are not published)."
+      "[copy-data] PUBLIC_DEPLOY=true: copied JSON only; skipped data/external/, " +
+        "data/datasets/, and data/images/ (local-only / not published)."
     );
   } else if (await isDir(path.join(SRC, "images"))) {
-    console.log("[copy-data] Copied data/ (including images) to web/public/data/.");
+    console.log(
+      "[copy-data] Copied data/ (including images) to web/public/data/; " +
+        "skipped data/external/ and data/datasets/ (local-only)."
+    );
   } else {
-    console.log("[copy-data] Copied data/ to web/public/data/.");
+    console.log(
+      "[copy-data] Copied data/ to web/public/data/; skipped data/external/ " +
+        "and data/datasets/ (local-only)."
+    );
   }
 }
 
