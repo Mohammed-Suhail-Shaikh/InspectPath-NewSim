@@ -5,14 +5,17 @@ import type {
   Finding,
   ImageMap,
   InspectionReport,
-  Plan,
+  MetricPlan,
+  MetricStructure,
   PlanType,
-  Structure,
   TriggerRecord,
-  Waypoint,
 } from "./types";
 import { mockSource } from "./mockSource";
-import { validatePlan, validateReplay, validateStructure } from "./validators";
+import {
+  validateMetricPlan,
+  validateMetricStructure,
+  validateReplay,
+} from "./validators";
 import { addWarning } from "./dataWarnings";
 
 // Base path where the shared data/ outputs are served from. Defaults to "/data".
@@ -23,10 +26,6 @@ const DATA_BASE =
 const PREDICT_URL =
   (import.meta.env.VITE_PREDICT_URL as string | undefined) ??
   "http://localhost:8001";
-
-// Discover planner module if a teammate has added web/src/planner/.
-// import.meta.glob keeps the build green when the folder doesn't exist yet.
-const plannerModules = import.meta.glob("../planner/index.*");
 
 // Fetches JSON, treating a non-OK status OR a non-JSON content-type as "missing".
 // The Vite dev server returns 200 + text/html (its SPA fallback) for files that
@@ -60,65 +59,50 @@ async function getReplay(dataset: string): Promise<TriggerRecord[]> {
   return res.value;
 }
 
-// ---- Structure (contract §3) ----
+// ---- Metric structure (contract §3b) ----
+// Real KW51 geometry. The dashboard reads it; it never computes geometry.
+// The layout file is served at /data/structures/kw51_layout.json.
 
-async function getStructure(id: string): Promise<Structure> {
-  const fileName = `${id}.json`;
+async function getMetricStructure(): Promise<MetricStructure> {
+  const fileName = "kw51_layout.json";
   const raw = await fetchJson(`${DATA_BASE}/structures/${fileName}`);
   if (raw === null) {
-    return mockSource.getStructure(id);
+    // Not present yet: fall back to the metric sample. This is expected before
+    // the geometry is deployed, so warn (it affects what the map shows).
+    addWarning({
+      piece: "structure",
+      message: `${fileName} not found under ${DATA_BASE}/structures/. Using the metric sample.`,
+    });
+    return mockSource.getMetricStructure();
   }
-  const res = validateStructure(raw, fileName);
+  const res = validateMetricStructure(raw, fileName);
   if (!res.ok) {
-    addWarning({ piece: "structure", message: `${res.error}. Falling back to mock structure.` });
-    return mockSource.getStructure(id);
+    addWarning({ piece: "structure", message: `${res.error}. Falling back to the metric sample.` });
+    return mockSource.getMetricStructure();
   }
   return res.value;
 }
 
-// ---- Plan (contract §4) ----
+// ---- Metric plan (contract §4b) ----
+// Produced only by firmware_esp32/planner.py and served as JSON files; the
+// dashboard reads them and never computes a plan.
 
-interface PlannerModule {
-  naive?: (structure: Structure) => Plan;
-  optimized?: (structure: Structure) => Plan;
-  addInspection?: (plan: Plan, currentIndex: number, x: number, y: number) => Plan;
-}
-
-async function loadPlanner(): Promise<PlannerModule | null> {
-  const keys = Object.keys(plannerModules);
-  if (keys.length === 0) return null;
-  try {
-    const mod = (await plannerModules[keys[0]]()) as PlannerModule;
-    return mod;
-  } catch {
-    return null;
-  }
-}
-
-async function getPlan(type: PlanType): Promise<Plan> {
-  const planner = await loadPlanner();
-  if (!planner) {
-    // Planner not present yet: use mock plans.
-    return mockSource.getPlan(type);
-  }
-  try {
-    const structure = await getStructure("bridge-a");
-    const fn = type === "optimized" ? planner.optimized : planner.naive;
-    if (!fn) return mockSource.getPlan(type);
-    const plan = fn(structure);
-    const res = validatePlan(plan, `planner:${type}`);
-    if (!res.ok) {
-      addWarning({ piece: "plan", message: `${res.error}. Falling back to mock plan.` });
-      return mockSource.getPlan(type);
-    }
-    return res.value;
-  } catch (e) {
+async function getMetricPlan(type: PlanType): Promise<MetricPlan> {
+  const fileName = `kw51_${type}.json`;
+  const raw = await fetchJson(`${DATA_BASE}/plans/${fileName}`);
+  if (raw === null) {
     addWarning({
       piece: "plan",
-      message: `planner threw an error (${String(e)}). Falling back to mock plan.`,
+      message: `${fileName} not found under ${DATA_BASE}/plans/. Using the metric sample plan.`,
     });
-    return mockSource.getPlan(type);
+    return mockSource.getMetricPlan(type);
   }
+  const res = validateMetricPlan(raw, fileName);
+  if (!res.ok) {
+    addWarning({ piece: "plan", message: `${res.error}. Falling back to the metric sample plan.` });
+    return mockSource.getMetricPlan(type);
+  }
+  return res.value;
 }
 
 // ---- Image map (contract §5) ----
@@ -195,56 +179,36 @@ async function predict(imagePath: string): Promise<PredictResponse | null> {
 }
 
 async function getFindings(structureId: string): Promise<Finding[]> {
-  const planner = await loadPlanner();
   const imageMap = await getImageMap();
   const images = imageMap[structureId] ?? {};
 
-  // Determine capture waypoints from the real/optimized plan.
-  let waypoints: Waypoint[] = [];
-  try {
-    const plan = await getPlan("optimized");
-    waypoints = plan.waypoints.filter((w) => w.capture);
-  } catch {
-    waypoints = [];
-  }
-
-  // If we have no planner and no capture waypoints, use mock findings wholesale.
-  if (!planner && waypoints.length === 0) {
-    return mockSource.getFindings(structureId);
-  }
-
+  // Findings are simulated, so the set of inspected locations comes from the
+  // mock findings (which are keyed to real KW51 connection locations). For each,
+  // try the real defect model on its image; fall back to the mock score if the
+  // model is unavailable, marking the result as mock.
   const mockFindings = await mockSource.getFindings(structureId);
-  const mockByWaypoint = new Map(mockFindings.map((f) => [f.waypoint_id, f]));
+  if (mockFindings.length === 0) return mockFindings;
 
   const findings: Finding[] = [];
   let usedMockFallback = false;
 
-  for (const wp of waypoints) {
-    const imageKey = wp.id;
-    const imagePath = images[imageKey];
+  for (const mf of mockFindings) {
+    const imagePath = images[mf.image_key];
     const result = imagePath ? await predict(imagePath) : null;
 
     if (result) {
       const tier = result.tier ?? tierFromDetected(result.detected);
       findings.push({
-        id: `f-${wp.id}`,
-        waypoint_id: wp.id,
-        x: wp.x,
-        y: wp.y,
+        ...mf,
         tier,
         scores: result.scores,
         detected: result.detected,
-        image_key: imageKey,
-        has_closeup: Boolean(images[`${imageKey}_closeup`]),
+        has_closeup: Boolean(images[`${mf.image_key}_closeup`]),
         defect_source: "predict",
       });
     } else {
-      // Per-waypoint fallback to the mock result, marked as mock.
       usedMockFallback = true;
-      const fallback = mockByWaypoint.get(wp.id);
-      if (fallback) {
-        findings.push({ ...fallback, defect_source: "mock" });
-      }
+      findings.push({ ...mf, defect_source: "mock" });
     }
   }
 
@@ -252,15 +216,11 @@ async function getFindings(structureId: string): Promise<Finding[]> {
     addWarning({
       piece: "defects",
       message:
-        "Defect model unavailable for one or more waypoints. Mock results used " +
+        "Defect model unavailable for one or more locations. Mock results used " +
         "(marked 'mock' in pin detail).",
     });
   }
 
-  // If the real plan produced nothing usable, fall back to mock findings.
-  if (findings.length === 0) {
-    return mockFindings;
-  }
   return findings;
 }
 
@@ -271,8 +231,8 @@ async function getDemoReport(): Promise<InspectionReport> {
 export const realSource: DataSource = {
   isMock: false,
   getReplay,
-  getStructure,
-  getPlan,
+  getMetricStructure,
+  getMetricPlan,
   getImageMap,
   getFindings,
   getDemoReport,

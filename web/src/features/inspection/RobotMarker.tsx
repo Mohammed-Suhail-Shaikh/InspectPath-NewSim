@@ -1,15 +1,19 @@
-import type { Waypoint } from "../../data/types";
-import { cellCenter, CELL } from "./mapLayout";
-
-// Robot icon positioned at the current waypoint. CSS transition on cx/cy
-// gives smooth movement between grid cells.
-export default function RobotMarker({ waypoint }: { waypoint: Waypoint | null }) {
-  if (!waypoint) return null;
-  const { cx, cy } = cellCenter(waypoint.x, waypoint.y);
-  const r = CELL * 0.32;
+// Robot icon positioned at the current stop's screen coordinates. The caller
+// computes px/py from the metric geometry. Returns null when the current stop
+// is not on the displayed side.
+export default function RobotMarker({
+  cx,
+  cy,
+  r,
+}: {
+  cx: number | null;
+  cy: number | null;
+  r: number;
+}) {
+  if (cx === null || cy === null) return null;
 
   return (
-    <g className="robot" style={{ transition: "transform 0.4s linear" }}>
+    <g className="robot">
       <circle cx={cx} cy={cy} r={r} fill="var(--route)" stroke="#ffffff" strokeWidth={2} />
       {/* simple "scanner" dot */}
       <circle cx={cx} cy={cy} r={r * 0.35} fill="#ffffff" />

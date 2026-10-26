@@ -197,3 +197,61 @@ def readings_with_nans_df():
         }
     )
     return df
+
+
+# --------------------------------------------------------------------------- #
+# Behavior documentation: the trigger uses the ABSOLUTE residual, so a shift in
+# EITHER direction can raise an alert. These tests document existing behavior;
+# they do not change the trigger.
+# --------------------------------------------------------------------------- #
+
+class TestAbsoluteResidualBehavior:
+    """classify() scores the magnitude of the residual, so a frequency INCREASE
+    above a threshold raises the same alert as an equal decrease. Documents the
+    temperature-corrected residual sign convention + classify() together."""
+
+    def test_classify_is_symmetric_about_zero(self):
+        # Same magnitude, opposite signs -> same alert level.
+        for magnitude, expected in [
+            (0.5, "normal"),
+            (0.75, "watch"),    # lower bound inclusive
+            (1.0, "watch"),
+            (1.5, "warning"),   # lower bound inclusive
+            (1.8, "warning"),
+            (2.0, "alarm"),     # lower bound inclusive
+            (3.0, "alarm"),
+        ]:
+            # classify takes abs() internally; pass the raw signed value to show
+            # a positive (frequency-increase) residual is treated like the
+            # negative one.
+            assert trigger_model.classify(+magnitude) == expected
+            assert trigger_model.classify(-magnitude) == expected
+
+    def test_frequency_increase_above_threshold_raises_an_alert(self):
+        # A measured frequency ABOVE the prediction gives a POSITIVE residual.
+        # 10.25 vs 10.0 is +2.5%, clear of the alarm boundary (2.0) so there is
+        # no floating-point ambiguity at the threshold.
+        df = pd.DataFrame(
+            {
+                "frequency_hz": [10.25],           # measured, higher than predicted
+                "predicted_frequency_hz": [10.0],  # fitted prediction
+            }
+        )
+        residual = trigger_model.compute_residual_pct(df)
+        # Residual keeps its sign: an increase is positive, ~ +2.5%.
+        assert residual.iloc[0] > 0
+        assert residual.iloc[0] == pytest.approx(2.5, abs=1e-9)
+        # The absolute-residual classifier raises an alert (above normal) for a
+        # frequency INCREASE, and here specifically alarm (+2.5% >= 2.0).
+        level = trigger_model.classify(residual.iloc[0])
+        assert level in trigger_model.ABOVE_NORMAL_LEVELS
+        assert level == "alarm"
+
+    def test_increase_and_equal_decrease_classify_the_same(self):
+        up = pd.DataFrame({"frequency_hz": [10.15], "predicted_frequency_hz": [10.0]})
+        down = pd.DataFrame({"frequency_hz": [9.85], "predicted_frequency_hz": [10.0]})
+        r_up = trigger_model.compute_residual_pct(up).iloc[0]
+        r_down = trigger_model.compute_residual_pct(down).iloc[0]
+        assert r_up > 0 and r_down < 0
+        # +1.5% and -1.5% both land at the warning level.
+        assert trigger_model.classify(r_up) == trigger_model.classify(r_down) == "warning"

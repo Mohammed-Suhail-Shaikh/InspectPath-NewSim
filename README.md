@@ -119,8 +119,9 @@ Prerequisites: Python 3, Node.js and npm. The datasets are not in the repo; you 
    - Report backend (optional): `pip install -r api/requirements.txt`
 2. Get the datasets and place them.
    - KW51: download the tracked-modes file from Zenodo 3745914 to `ml/trigger/raw/trackedmodes.mat`.
-   - CODEBRIM: download into `datasets/codebrim/`, then place the demo crops under `data/images/` so the dashboard can serve them. Both locations are kept out of git.
+   - CODEBRIM: download into `datasets/codebrim/`, then place the demo crops under `data/images/` so the dashboard can serve them. `python ml/defect/demo/build_demo_pool.py` builds the held-out demo pool, and `python ml/defect/demo/assign_to_kw51.py` writes `data/image_map.json` and selects which held-out patches to copy into `data/images/`. Both dataset locations are kept out of git. Defect scores are real model output on CODEBRIM held-out images placed at chosen connections for the demo; the placements are not detections, and only a few of the 34 connections are imaged.
 3. Run the trigger model: `python ml/trigger/trigger_model.py`. This writes `data/trigger/replay_kw51.json` and `replay_kw51_demo.json` and the plots under `ml/trigger/plots/`.
+   - The KW51 inspection plans are committed (`data/plans/kw51_naive.json` and `data/plans/kw51_optimized.json`). To regenerate them from the real geometry: `python firmware_esp32/planner.py --kw51-plans --layout data/structures/kw51_layout.json --out-dir data/plans`. The planner is the only thing that writes plans; the dashboard reads them. Naive is a per-level manual sweep (405.9 m); optimized is nearest-neighbor + 2-opt (399.8 m), a good short route, not guaranteed shortest.
 4. Start the defect API from `ml/defect/`. The dashboard expects it on port 8001.
    - Real model (bash): `MODEL_PATH=artifacts/best.pt uvicorn api.main:app --port 8001`
    - Real model (PowerShell): `$env:MODEL_PATH="artifacts/best.pt"; uvicorn api.main:app --port 8001`
@@ -134,7 +135,7 @@ The optional report backend runs from `api/` with `uvicorn main:app --port 8000`
 
 ## 8. Testing
 
-- Dashboard: from `web/`, `npm run build` and `npm test`. 49 tests run against mock data and need no dataset. This is the main test suite.
+- Dashboard: from `web/`, `npm run build` and `npm test`. 74 tests run against the sample and the committed real KW51 geometry/plans; none need the image datasets. This is the main test suite.
 - Defect tier rule: `python -m pytest ml/defect/tests/test_tier.py` (14 tests, no model or dataset needed). The 8 API tests in `ml/defect/tests/test_api.py` also need `torch`, `fastapi`, and `pillow` installed to collect, since the API module imports the model stack at load time.
 
 A judge without the datasets can still see the system work: start the defect API in mock mode and run the dashboard, which falls back to mock structure, plan, and findings while replaying the real KW51 demo window. The monitor labels whether it is showing real or sample data, so what is real stays clear.
@@ -174,8 +175,17 @@ Concrete things it did on this build:
 - A linear temperature baseline underfits below freezing, where the bridge stiffens, so most remaining false alarms come from one cold spell.
 - The defect model is trained on one dataset, sees cropped patches rather than full photos, and has to learn from patches that often show several defects at once.
 - Alert thresholds and urgency tiers are demonstration values, not engineering limits. The system helps prioritize; it never states that a bridge is safe or unsafe.
-- The planner's metric layout and the dashboard's grid contract do not match yet, so the dashboard runs on a sample layout rather than the planner's output.
 - The trained weights (`ml/defect/artifacts/best.pt`, about 43 MB) are shared for non-commercial use under the CODEBRIM license; they are derived weights and contain no images.
+
+## Known limitations
+
+Specific honesty caveats for the KW51 inspection path:
+
+- The trigger detects a change in natural frequency in either direction (it classifies the absolute residual), and it does not localize the change. A Warning or Alarm says something changed, not where, so the inspection route visits all connection locations rather than a pinpointed zone. Localizing a change would need distributed sensor nodes.
+- The June 2019 demo window falls inside KW51's retrofit period (roughly May to September 2019), so frequency shifts in that window may reflect the retrofit work itself rather than damage. The demo shows the method, not a diagnosis.
+- The temperature correction is a modest linear fit (R-squared 0.409). It explains part of the frequency-temperature relationship, not most of it, which is why some false alarms remain.
+- Defect scores are real model output run on CODEBRIM concrete images from the held-out test set. Those images are placed at chosen connections for demonstration; the placements are not detections, and only a few of the 34 connections are imaged. The rest have no image and are neither assessed nor cleared.
+- Route length is a straight-line 3D estimate between connections; it ignores obstacles such as the deck and bracing. Obstacle-aware path planning is future work for the Gazebo stage.
 
 ## 11. Team
 

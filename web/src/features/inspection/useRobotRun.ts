@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import type { Plan } from "../../data/types";
+import type { MetricPlan } from "../../data/types";
 
 const STEP_MS = 450;
 
-// Advances a robot index along the plan's waypoints in order, then holds at the end.
+// Advances a robot index along the plan's ordered stops, then holds at the end.
 // Resets when the plan identity changes (e.g. naive <-> optimized toggle).
-export function useRobotRun(plan: Plan | null): number {
+export function useRobotRun(plan: MetricPlan | null): number {
   const [index, setIndex] = useState(0);
-  const planRef = useRef<Plan | null>(null);
+  const planRef = useRef<MetricPlan | null>(null);
 
   // Reset when the plan reference changes.
   useEffect(() => {
@@ -18,13 +18,13 @@ export function useRobotRun(plan: Plan | null): number {
   }, [plan]);
 
   useEffect(() => {
-    if (!plan || plan.waypoints.length === 0) return;
+    if (!plan || plan.stops.length === 0) return;
     const id = window.setInterval(() => {
       setIndex((prev) => {
         const next = prev + 1;
-        if (next >= plan.waypoints.length) {
+        if (next >= plan.stops.length) {
           window.clearInterval(id);
-          return plan.waypoints.length - 1;
+          return plan.stops.length - 1;
         }
         return next;
       });

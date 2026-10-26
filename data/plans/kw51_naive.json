@@ -1,0 +1,297 @@
+{
+  "plan_type": "naive",
+  "units": "m",
+  "stops": [
+    {
+      "location_id": "A-deck-105012",
+      "x": 11.258,
+      "y": 0.0,
+      "z": 0.773,
+      "order": 0,
+      "reachable": true
+    },
+    {
+      "location_id": "A-deck-105020",
+      "x": 22.758,
+      "y": 0.0,
+      "z": 0.773,
+      "order": 1,
+      "reachable": true
+    },
+    {
+      "location_id": "A-deck-105026",
+      "x": 34.558,
+      "y": 0.0,
+      "z": 0.773,
+      "order": 2,
+      "reachable": true
+    },
+    {
+      "location_id": "A-deck-105033",
+      "x": 46.358,
+      "y": 0.0,
+      "z": 0.773,
+      "order": 3,
+      "reachable": true
+    },
+    {
+      "location_id": "A-deck-105039",
+      "x": 58.158,
+      "y": 0.0,
+      "z": 0.773,
+      "order": 4,
+      "reachable": true
+    },
+    {
+      "location_id": "A-deck-105046",
+      "x": 69.958,
+      "y": 0.0,
+      "z": 0.773,
+      "order": 5,
+      "reachable": true
+    },
+    {
+      "location_id": "A-deck-105053",
+      "x": 81.758,
+      "y": 0.0,
+      "z": 0.773,
+      "order": 6,
+      "reachable": true
+    },
+    {
+      "location_id": "A-deck-105059",
+      "x": 93.558,
+      "y": 0.0,
+      "z": 0.773,
+      "order": 7,
+      "reachable": true
+    },
+    {
+      "location_id": "A-deck-105067",
+      "x": 105.058,
+      "y": 0.0,
+      "z": 0.773,
+      "order": 8,
+      "reachable": true
+    },
+    {
+      "location_id": "A-arch-103063",
+      "x": 99.158,
+      "y": 0.0,
+      "z": 9.9849,
+      "order": 9,
+      "reachable": true
+    },
+    {
+      "location_id": "A-arch-103056",
+      "x": 87.658,
+      "y": 0.0,
+      "z": 14.5803,
+      "order": 10,
+      "reachable": true
+    },
+    {
+      "location_id": "A-arch-103050",
+      "x": 75.858,
+      "y": 0.0,
+      "z": 17.7371,
+      "order": 11,
+      "reachable": true
+    },
+    {
+      "location_id": "A-arch-103043",
+      "x": 64.058,
+      "y": 0.0,
+      "z": 19.3155,
+      "order": 12,
+      "reachable": true
+    },
+    {
+      "location_id": "A-arch-103036",
+      "x": 52.258,
+      "y": 0.0,
+      "z": 19.3155,
+      "order": 13,
+      "reachable": true
+    },
+    {
+      "location_id": "A-arch-103029",
+      "x": 40.458,
+      "y": 0.0,
+      "z": 17.7371,
+      "order": 14,
+      "reachable": true
+    },
+    {
+      "location_id": "A-arch-103023",
+      "x": 28.658,
+      "y": 0.0,
+      "z": 14.5803,
+      "order": 15,
+      "reachable": true
+    },
+    {
+      "location_id": "A-arch-103016",
+      "x": 17.158,
+      "y": 0.0,
+      "z": 9.9849,
+      "order": 16,
+      "reachable": true
+    },
+    {
+      "location_id": "C-arch-104016",
+      "x": 17.158,
+      "y": 11.75,
+      "z": 9.9849,
+      "order": 17,
+      "reachable": true
+    },
+    {
+      "location_id": "C-arch-104023",
+      "x": 28.658,
+      "y": 11.75,
+      "z": 14.5803,
+      "order": 18,
+      "reachable": true
+    },
+    {
+      "location_id": "C-arch-104029",
+      "x": 40.458,
+      "y": 11.75,
+      "z": 17.7371,
+      "order": 19,
+      "reachable": true
+    },
+    {
+      "location_id": "C-arch-104036",
+      "x": 52.258,
+      "y": 11.75,
+      "z": 19.3155,
+      "order": 20,
+      "reachable": true
+    },
+    {
+      "location_id": "C-arch-104043",
+      "x": 64.058,
+      "y": 11.75,
+      "z": 19.3155,
+      "order": 21,
+      "reachable": true
+    },
+    {
+      "location_id": "C-arch-104050",
+      "x": 75.858,
+      "y": 11.75,
+      "z": 17.7371,
+      "order": 22,
+      "reachable": true
+    },
+    {
+      "location_id": "C-arch-104056",
+      "x": 87.658,
+      "y": 11.75,
+      "z": 14.5803,
+      "order": 23,
+      "reachable": true
+    },
+    {
+      "location_id": "C-arch-104063",
+      "x": 99.158,
+      "y": 11.75,
+      "z": 9.9849,
+      "order": 24,
+      "reachable": true
+    },
+    {
+      "location_id": "C-deck-106067",
+      "x": 105.058,
+      "y": 11.75,
+      "z": 0.773,
+      "order": 25,
+      "reachable": true
+    },
+    {
+      "location_id": "C-deck-106059",
+      "x": 93.558,
+      "y": 11.75,
+      "z": 0.773,
+      "order": 26,
+      "reachable": true
+    },
+    {
+      "location_id": "C-deck-106053",
+      "x": 81.758,
+      "y": 11.75,
+      "z": 0.773,
+      "order": 27,
+      "reachable": true
+    },
+    {
+      "location_id": "C-deck-106046",
+      "x": 69.958,
+      "y": 11.75,
+      "z": 0.773,
+      "order": 28,
+      "reachable": true
+    },
+    {
+      "location_id": "C-deck-106039",
+      "x": 58.158,
+      "y": 11.75,
+      "z": 0.773,
+      "order": 29,
+      "reachable": true
+    },
+    {
+      "location_id": "C-deck-106033",
+      "x": 46.358,
+      "y": 11.75,
+      "z": 0.773,
+      "order": 30,
+      "reachable": true
+    },
+    {
+      "location_id": "C-deck-106026",
+      "x": 34.558,
+      "y": 11.75,
+      "z": 0.773,
+      "order": 31,
+      "reachable": true
+    },
+    {
+      "location_id": "C-deck-106020",
+      "x": 22.758,
+      "y": 11.75,
+      "z": 0.773,
+      "order": 32,
+      "reachable": true
+    },
+    {
+      "location_id": "C-deck-106012",
+      "x": 11.258,
+      "y": 11.75,
+      "z": 0.773,
+      "order": 33,
+      "reachable": true
+    }
+  ],
+  "stats": {
+    "locations_total": 34,
+    "locations_visited": 34,
+    "coverage_pct": 1.0,
+    "route_length_m": 405.9,
+    "route_length_note": "straight-line 3D estimate, ignores obstacles (deck, bracing)",
+    "energy_per_meter": 1.0,
+    "battery_used": 405.9,
+    "battery_budget": 600.0,
+    "battery_budget_note": "demonstration cap, not an engineering limit; set so both plans finish",
+    "within_budget": true
+  },
+  "provenance": {
+    "source": "Finite element model of railway bridge KW51, KU Leuven (K. Maes, M. van de Velde, G. Lombaert)",
+    "doi": "https://doi.org/10.5281/zenodo.17366772",
+    "license": "CC BY-NC-SA 4.0",
+    "note": "derived geometry, not the original model. Ported from model_kw51.m and select_sensors.m; no FE analysis reproduced.",
+    "derivation": "derived"
+  }
+}

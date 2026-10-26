@@ -26,7 +26,7 @@ No `ml/defect/requirements.txt` exists yet, so install deps explicitly.
 cd ml\defect
 python -m venv .venv
 .venv\Scripts\Activate.ps1
-pip install fastapi "uvicorn[standard]" pillow torch torchvision numpy
+pip install fastapi "uvicorn[standard]" pillow torch torchvision numpy python-multipart
 # Real model (uses artifacts\best.pt):
 uvicorn api.main:app --port 8001
 # OR no-model fallback (deterministic fake scores, no torch needed):

@@ -1,29 +1,28 @@
 import { describe, it, expect } from "vitest";
 import { buildRuleBasedReport } from "../features/report/ruleBasedReport";
-import structure from "../mocks/structure_bridge-a.json";
-import planOptimized from "../mocks/plan_optimized.json";
+import structure from "../mocks/structure_kw51_sample.json";
+import planOptimized from "../mocks/plan_kw51_optimized_sample.json";
 import findingsMock from "../mocks/findings.json";
 import type {
   AlertHistoryEntry,
   Finding,
-  Plan,
-  Structure,
+  MetricPlan,
+  MetricStructure,
 } from "../data/types";
 
-// Alert history as the monitor would accumulate it: one entry per level change,
-// matching the residual at which each level first appears in replay_z24.json.
+// Alert history as the monitor would accumulate it: one entry per level change.
 const alertHistory: AlertHistoryEntry[] = [
-  { timestamp: "1998-01-17T10:00:00Z", alert_level: "normal", residual_pct: -0.2, quality: "ok" },
-  { timestamp: "1998-01-17T14:00:00Z", alert_level: "watch", residual_pct: -2.2, quality: "ok" },
-  { timestamp: "1998-01-17T17:00:00Z", alert_level: "warning", residual_pct: -5.0, quality: "ok" },
-  { timestamp: "1998-01-17T20:00:00Z", alert_level: "alarm", residual_pct: -8.5, quality: "ok" },
+  { timestamp: "2019-06-22T10:00:00Z", alert_level: "normal", residual_pct: -0.2, quality: "ok" },
+  { timestamp: "2019-06-24T14:00:00Z", alert_level: "watch", residual_pct: -2.2, quality: "ok" },
+  { timestamp: "2019-06-26T17:00:00Z", alert_level: "warning", residual_pct: -5.0, quality: "ok" },
+  { timestamp: "2019-06-28T20:00:00Z", alert_level: "alarm", residual_pct: -8.5, quality: "ok" },
 ];
 
 function buildFromMocks() {
   return buildRuleBasedReport({
-    structure: structure as Structure,
-    stats: (planOptimized as Plan).stats,
-    findings: findingsMock as Finding[],
+    structure: structure as unknown as MetricStructure,
+    stats: (planOptimized as unknown as MetricPlan).stats,
+    findings: findingsMock as unknown as Finding[],
     alertHistory,
   });
 }
@@ -36,21 +35,45 @@ describe("rule-based report — summary numbers", () => {
   });
 
   it("includes the structure name", () => {
-    expect(report.text).toContain("Bridge Section A (underside)");
+    expect(report.text).toContain(structure.name);
   });
 
-  it("includes coverage 83% and priority coverage 100% from plan stats", () => {
-    expect(report.text).toContain("Area covered: 83%");
-    expect(report.text).toContain("Priority area covered: 100%");
+  // Changed from grid "Area covered 83% / Priority area covered 100%" to the
+  // metric stats (connections inspected + route length). Reason: the plan moved
+  // from grid to metric and priority coverage was removed (contract §4b).
+  // Changed "Connections inspected" -> "Connections visited" with an imaged
+  // count. Reason (honesty fix 2): "inspected" implied all visited connections
+  // were assessed; only the imaged ones are.
+  it("reports connections visited plus how many were imaged, and route length", () => {
+    expect(report.text).toContain(
+      "Connections visited: 2 of 2 (100%); 4 imaged for demonstration, the rest have no image."
+    );
+    expect(report.text).toContain("Route length: 62.8 m");
+    expect(report.text).not.toContain("Priority area covered");
+    expect(report.text).not.toContain("Connections inspected:");
   });
 
-  it("includes battery used vs budget (42 of 60)", () => {
-    expect(report.text).toContain("Battery used: 42 of 60 units");
+  it("includes battery used vs budget (62.8 of 600)", () => {
+    expect(report.text).toContain("Battery used: 62.8 of 600 units");
   });
 
   it("includes the highest alert level Alarm with residual -8.5%", () => {
     expect(report.text).toContain("Highest alert level reached: Alarm");
     expect(report.text).toContain("-8.5%");
+  });
+
+  // Requirement 8 (global shift) plus honesty fix 2: the route visits all
+  // connections, but only the imaged ones are assessed; the rest are not
+  // cleared. Reason: the old wording "all connection locations were inspected"
+  // implied the un-imaged connections were assessed.
+  it("states the shift is global and that only imaged connections were assessed", () => {
+    expect(report.text).toContain(
+      "frequency shift is a global measurement and does not identify a location"
+    );
+    expect(report.text).toContain(
+      "the rest were not imaged and are neither assessed nor cleared"
+    );
+    expect(report.text).not.toContain("so all connection locations were inspected");
   });
 });
 
@@ -63,8 +86,10 @@ describe("rule-based report — findings by tier", () => {
     expect(report.text).toContain("Low priority (2):");
   });
 
-  it("reports the high finding location (7,0) with top score 0.81 and close-up confirmed", () => {
-    expect(report.text).toContain("Location (x 7, y 0)");
+  // Changed from grid "(x 7, y 0)" to the connection location id + side.
+  // Reason: findings are positioned on real KW51 connections now.
+  it("reports the high finding by connection id with top score 0.81 and close-up confirmed", () => {
+    expect(report.text).toContain("Connection A-deck-105020 (side A)");
     expect(report.text).toContain("0.81");
     expect(report.text).toContain("spallation");
     expect(report.text).toContain("close-up confirmed");
@@ -105,8 +130,7 @@ describe("rule-based report — actions and limitations", () => {
 describe("rule-based report — no invented numbers", () => {
   it("only uses stat numbers that come from the data", () => {
     const report = buildFromMocks();
-    // Coverage/battery figures present; a made-up value should not appear.
-    expect(report.text).toContain("83%");
+    expect(report.text).toContain("100%");
     expect(report.text).not.toContain("99%");
   });
 });

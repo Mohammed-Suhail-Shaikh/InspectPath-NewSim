@@ -59,7 +59,10 @@ File: `data/trigger/replay_<dataset>.json`, a JSON array, one record per measure
 - `node-1` corresponds to the structure’s `alert_zone` (section 3).
 - Timestamps are the dataset’s recorded times; this is replayed historical data, not live.
 
-## 3. Structure input (owner: Varun, data/structures/)
+## 3. Structure input (grid, v1 — superseded)
+
+Superseded by section 3b (Structure input, metric v2). Kept for history; the grid
+map renderer that consumed it has been removed.
 
 File: `data/structures/<id>.json`
 
@@ -82,7 +85,9 @@ File: `data/structures/<id>.json`
 - Movement is 4-directional. Each move costs 1 battery unit; each image capture costs 1.
 - `alert_zone` is optional: the area near the sensor node that raised the alert. The optimized planner treats it as top priority.
 
-## 4. Planner output (owner: Varun, web/src/planner/)
+## 4. Planner output (grid, v1 — superseded)
+
+Superseded by section 4b (Planner output, metric v2). Kept for history.
 
 ```json
 {
@@ -106,6 +111,100 @@ File: `data/structures/<id>.json`
   - Inserts 2 to 4 close-up capture waypoints at or near (x, y), marked `"closeup": true`.
   - Re-routes the remaining mission within the battery budget, dropping lowest-priority non-priority waypoints first if needed.
   - Returns the same format as above.
+
+## 3b. Structure input (metric, v2) (owner: Suhail)
+
+File: `data/structures/kw51_layout.json` (real KW51 geometry, derived from the KU
+Leuven FEM). Units are meters; coordinates are true metric, never quantized to a
+grid. The dashboard renders a side elevation (x-z) at equal scale.
+
+```jsonc
+{
+  "id": "kw51",
+  "name": "Railway bridge KW51, Leuven, Belgium",
+  "units": "m",
+  "coordinate_system": "x longitudinal (Brussels ~0, Leuven ~115); y transverse, side A=0, side C=11.750; z up",
+  "nodes":   [ { "id": 101001, "part": "girder_A", "x": 0.0, "y": 0.0, "z": 0.2719 } ],
+  "members": [ { "id": 1, "part": "girder_A", "element_type": "beam", "nodes": [101001, 101002] } ],
+  "diagonal_connections": {
+    "distinct_location_count": 34,
+    "distinct_locations": [
+      {
+        "location_id": "A-arch-103016",
+        "node_id": 103016,
+        "side": "A",
+        "end": "arch",
+        "x": 17.158, "y": 0.0, "z": 9.9849,
+        "diagonal_ends": [ { "diagonal": 15, "end": "arch" }, { "diagonal": 16, "end": "arch" } ]
+      }
+    ]
+  },
+  "sensors": [ { "label": "sgBD1011A", "type": "strain", "part": "girder_A", "x": 32.5915, "y": 0.0, "z": 0.2719 } ],
+  "provenance": { "source": "...", "doi": "https://doi.org/10.5281/zenodo.17366772", "license": "CC BY-NC-SA 4.0", "note": "derived geometry..." }
+}
+```
+
+- The dashboard consumes `distinct_locations` (the 34 inspection stops), `sensors`
+  (26 real sensors, typed strain/acceleration/displacement), `nodes`/`members`
+  (for drawing girder, arch, diagonals), and `provenance` (on-screen credit).
+- `side` is `A` (South, y=0) or `C` (North, y=11.750); `end` is `deck` or `arch`.
+- Shared diagonal ends collapse to one stop (`diagonal_ends` lists which diagonals
+  meet there). There are 34 distinct locations: 18 deck + 16 arch.
+- Other fields in the file (`omitted_parts`, `cross_checks`, `retrofit_zones`,
+  `diags_box_scheme`) are ignored by the dashboard.
+- Geometry is real and must be credited (DOI + CC BY-NC-SA 4.0). No dataset
+  images or external model files are committed (section 5).
+
+## 4b. Planner output (metric, v2) (owner: Suhail; produced by `firmware_esp32/planner.py`)
+
+Files: `data/plans/kw51_naive.json` and `data/plans/kw51_optimized.json`. The
+planner is the single source of truth for plans; the dashboard reads these files
+and never computes a route.
+
+```jsonc
+{
+  "plan_type": "optimized",
+  "units": "m",
+  "stops": [
+    { "location_id": "A-arch-103016", "x": 17.158, "y": 0.0, "z": 9.9849, "order": 0, "reachable": true }
+  ],
+  "stats": {
+    "locations_total": 34,
+    "locations_visited": 34,
+    "coverage_pct": 1.0,
+    "route_length_m": 399.8,
+    "route_length_note": "straight-line 3D estimate, ignores obstacles (deck, bracing)",
+    "energy_per_meter": 1.0,
+    "battery_used": 399.8,
+    "battery_budget": 600.0,
+    "battery_budget_note": "demonstration cap, not an engineering limit; set so both plans finish",
+    "within_budget": true
+  },
+  "provenance": { "source": "...", "doi": "https://doi.org/10.5281/zenodo.17366772", "license": "CC BY-NC-SA 4.0", "derivation": "derived" }
+}
+```
+
+- `plan_type` is `naive` | `optimized`:
+  - `naive` — a per-level manual sweep a pilot could fly by hand (A deck asc x,
+    A arch desc x, C arch asc x, C deck desc x).
+  - `optimized` — a nearest-neighbor heuristic with a 2-opt improvement pass. It
+    is a good short route, **not guaranteed to be the shortest**; never labeled
+    "optimal" in the UI.
+- Distances are 3D (x, y, z). Route length is a straight-line estimate that
+  ignores obstacles; the UI states this.
+- `stops` are ordered; `reachable` is `false` for any stop past the battery
+  cut-off. `coverage_pct` = locations actually visited / 34, rounded to 4
+  decimal places.
+- The battery budget is a **demonstration cap** that both KW51 plans finish
+  within (per-level ≈ 405.9 m, optimized ≈ 399.8 m are within ~1.5%). The cut-off
+  logic still exists and is exercised by a test with a small test-only budget; it
+  does not gate either real KW51 plan. There is no "naive runs out / optimized
+  finishes" demonstration, because forcing one on KW51 would require tuning the
+  numbers.
+- Each plan file carries the same `provenance` block as the layout plus
+  `"derivation": "derived"`, since the plan is derived from the KU Leuven model.
+- No stat depends on an alert location. "Priority coverage" from v1 is removed and
+  not replaced.
 
 ## 5. Image map (owner: Komal, data/)
 

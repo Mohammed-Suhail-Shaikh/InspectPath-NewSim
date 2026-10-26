@@ -20,43 +20,112 @@ export interface TriggerRecord {
 // [contract §2] alert levels
 export type AlertLevel = "normal" | "watch" | "warning" | "alarm";
 
-// [contract §3] structure input
-export interface Structure {
-  id: string;
-  name: string;
-  width: number;
-  height: number;
-  grid: number[][]; // 0 surface, 1 obstacle/no-fly, 2 priority
-  start: { x: number; y: number };
-  battery_budget: number;
-  capture_spacing: number;
-  alert_zone?: { x: number; y: number; radius: number };
-}
-
-// [contract §4] planner output
-export interface Waypoint {
-  id: string;
-  x: number;
-  y: number;
-  capture: boolean;
-  closeup: boolean;
-  zone?: string;
-}
-
-export interface PlanStats {
-  coverage_pct: number;
-  priority_coverage_pct: number;
-  path_length: number;
-  battery_used: number;
-  battery_budget: number;
-}
-
+// [contract §4b] plan type (shared enum for metric plans)
 export type PlanType = "naive" | "optimized";
 
-export interface Plan {
+// ---- Contract metric v2 shapes (docs/contract.md §3b, §4b) ----
+// Real KW51 geometry at true metric scale, consumed by the elevation map and
+// the metric planner output. These live ALONGSIDE the grid shapes above during
+// the migration; the grid shapes are removed once no caller remains.
+
+export type BridgeSide = "A" | "C";
+export type ConnectionEnd = "deck" | "arch";
+
+// [contract §3b] provenance for derived geometry / plans
+export interface Provenance {
+  source: string;
+  doi: string;
+  license: string;
+  note?: string;
+  derivation?: string; // "derived" on plan files
+}
+
+// [contract §3b] a structural node (girder/arch/diagonal vertex)
+export interface MetricNode {
+  id: number;
+  part: string;
+  x: number;
+  y: number;
+  z: number;
+}
+
+// [contract §3b] a structural member joining two nodes
+export interface MetricMember {
+  id: number;
+  part: string;
+  element_type: string;
+  nodes: [number, number];
+}
+
+// [contract §3b] one of the 34 distinct diagonal-connection inspection stops
+export interface DistinctLocation {
+  location_id: string;
+  node_id: number;
+  side: BridgeSide;
+  end: ConnectionEnd;
+  x: number;
+  y: number;
+  z: number;
+  diagonal_ends: { diagonal: number; end: ConnectionEnd }[];
+}
+
+// [contract §3b] a real sensor on the structure
+export interface MetricSensor {
+  label: string;
+  type: "strain" | "acceleration" | "displacement";
+  part: string;
+  x: number;
+  y: number;
+  z: number;
+}
+
+// [contract §3b] structure input (metric)
+export interface MetricStructure {
+  id: string;
+  name: string;
+  units: "m";
+  coordinate_system: string;
+  nodes: MetricNode[];
+  members: MetricMember[];
+  diagonal_connections: {
+    distinct_location_count: number;
+    distinct_locations: DistinctLocation[];
+  };
+  sensors: MetricSensor[];
+  provenance: Provenance;
+}
+
+// [contract §4b] one ordered stop in a metric plan
+export interface MetricStop {
+  location_id: string;
+  x: number;
+  y: number;
+  z: number;
+  order: number;
+  reachable: boolean;
+}
+
+// [contract §4b] metric plan stats (no priority coverage, no alert-dependent stat)
+export interface MetricPlanStats {
+  locations_total: number;
+  locations_visited: number;
+  coverage_pct: number;
+  route_length_m: number;
+  route_length_note: string;
+  energy_per_meter: number;
+  battery_used: number;
+  battery_budget: number;
+  battery_budget_note: string;
+  within_budget: boolean;
+}
+
+// [contract §4b] planner output (metric)
+export interface MetricPlan {
   plan_type: PlanType;
-  waypoints: Waypoint[];
-  stats: PlanStats;
+  units: "m";
+  stops: MetricStop[];
+  stats: MetricPlanStats;
+  provenance: Provenance;
 }
 
 // [contract §5] image map
@@ -79,12 +148,13 @@ export type DefectTier = "high" | "medium" | "low" | "none";
 
 // ---- Dashboard-internal shapes (NOT part of the shared contract) ----
 
-// [dashboard-internal] joins a map location to a captured image and its defect result
+// [dashboard-internal] joins a map location to a captured image and its defect result.
+// Positioned on the metric elevation by location_id/side; the geometry is real
+// but the defect result itself is simulated (see defect_source).
 export interface Finding {
   id: string;
-  waypoint_id: string; // references Waypoint.id [contract §4]
-  x: number;
-  y: number;
+  location_id: string; // references MetricStop.location_id [contract §4b]
+  side: BridgeSide; // which elevation the pin belongs on
   tier: DefectTier; // value set per [contract §1]
   scores: DefectScores; // field set per [contract §1]
   detected: string[]; // per [contract §1]

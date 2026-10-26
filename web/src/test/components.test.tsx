@@ -37,19 +37,20 @@ describe("tier colors", () => {
 });
 
 describe("FindingDetail", () => {
+  // Metric findings: keyed to real KW51 connection ids and a side (not grid
+  // waypoint_id/x/y). Reason: the Finding shape moved to metric with the map.
   const imageMap: ImageMap = {
-    "bridge-a": {
-      w8: "images/bridge-a/w8.jpg",
-      w8_closeup: "images/bridge-a/w8_closeup.jpg",
-      w13: "images/bridge-a/w13.jpg",
+    kw51: {
+      "A-deck-105020": "images/kw51/A-deck-105020.jpg",
+      "A-deck-105020_closeup": "images/kw51/A-deck-105020_closeup.jpg",
+      "C-deck-106020": "images/kw51/C-deck-106020.jpg",
     },
   };
 
   const highWithCloseup: Finding = {
     id: "f1",
-    waypoint_id: "w8",
-    x: 7,
-    y: 0,
+    location_id: "A-deck-105020",
+    side: "A",
     tier: "high",
     scores: {
       crack: 0.74,
@@ -59,16 +60,17 @@ describe("FindingDetail", () => {
       corrosion_stain: 0.4,
     },
     detected: ["crack", "spallation", "exposed_bars"],
-    image_key: "w8",
+    image_key: "A-deck-105020",
     has_closeup: true,
   };
 
   const lowNoCloseup: Finding = {
     ...highWithCloseup,
     id: "f3",
-    waypoint_id: "w13",
+    location_id: "C-deck-106020",
+    side: "C",
     tier: "low",
-    image_key: "w13",
+    image_key: "C-deck-106020",
     has_closeup: false,
   };
 
@@ -77,7 +79,7 @@ describe("FindingDetail", () => {
       <FindingDetail
         finding={highWithCloseup}
         imageMap={imageMap}
-        structureId="bridge-a"
+        structureId="kw51"
         onClose={() => {}}
       />
     );
@@ -93,12 +95,42 @@ describe("FindingDetail", () => {
       <FindingDetail
         finding={lowNoCloseup}
         imageMap={imageMap}
-        structureId="bridge-a"
+        structureId="kw51"
         onClose={() => {}}
       />
     );
     expect(screen.getByText("Capture")).toBeInTheDocument();
     expect(screen.queryByText("Close-up")).not.toBeInTheDocument();
+  });
+
+  it("shows the real-scores CODEBRIM note when defect_source is predict", () => {
+    render(
+      <FindingDetail
+        finding={{ ...highWithCloseup, defect_source: "predict" }}
+        imageMap={imageMap}
+        structureId="kw51"
+        onClose={() => {}}
+      />
+    );
+    expect(
+      screen.getByText(/CODEBRIM held-out test set; not photographs of KW51/i)
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/is a mock/i)).not.toBeInTheDocument();
+  });
+
+  it("shows the mock note (not the real note) when defect_source is mock", () => {
+    render(
+      <FindingDetail
+        finding={{ ...lowNoCloseup, defect_source: "mock" }}
+        imageMap={imageMap}
+        structureId="kw51"
+        onClose={() => {}}
+      />
+    );
+    expect(screen.getByText(/is a mock/i)).toBeInTheDocument();
+    expect(
+      screen.queryByText(/CODEBRIM held-out test set/i)
+    ).not.toBeInTheDocument();
   });
 
   it("calls onClose when the close button is clicked", () => {
@@ -107,7 +139,7 @@ describe("FindingDetail", () => {
       <FindingDetail
         finding={lowNoCloseup}
         imageMap={imageMap}
-        structureId="bridge-a"
+        structureId="kw51"
         onClose={onClose}
       />
     );

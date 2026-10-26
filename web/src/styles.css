@@ -898,3 +898,113 @@ body {
   font-size: 0.78rem;
   margin: 0 0 0.75rem;
 }
+
+/* Honest provenance note for real model scores (neutral, not an alert). */
+.finding-real-note {
+  background: #eef1f4;
+  color: #3a424d;
+  border: 1px solid #c2c9d2;
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.78rem;
+  margin: 0 0 0.75rem;
+}
+
+/* ---- KW51 inspection: banners, side toggle, elevation map extras ---- */
+
+.dispatch-banner,
+.sample-banner {
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--radius-sm);
+  margin-top: var(--sp-4);
+  font-weight: 600;
+  border: 1px solid;
+}
+
+/* Dispatch notice: neutral-amber, informative not alarming. */
+.dispatch-banner {
+  background: var(--warning-band);
+  border-color: #9e5200;
+  color: #7a3f00;
+}
+
+/* Sample-data notice: distinct neutral-gray so it is not mistaken for an alert. */
+.sample-banner {
+  background: #eef1f4;
+  border-color: #8a93a0;
+  color: #3a424d;
+}
+
+.map-side-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--sp-2);
+}
+
+.side-toggle-group {
+  display: inline-flex;
+  gap: 0.4rem;
+}
+
+.side-caption {
+  font-size: var(--text-label);
+}
+
+.plan-btn-label {
+  display: block;
+}
+
+.plan-btn-sub {
+  display: block;
+  font-size: var(--text-label);
+  opacity: 0.8;
+  margin-top: 0.15rem;
+  font-weight: 400;
+}
+
+.stat-note {
+  font-size: var(--text-label);
+  margin: 0.25rem 0 0.75rem;
+  line-height: 1.4;
+}
+
+.route-note {
+  font-size: var(--text-label);
+  margin-top: var(--sp-2);
+}
+
+.map-caption {
+  font-size: var(--text-label);
+  margin-top: var(--sp-3);
+  line-height: 1.4;
+}
+
+.map-credit {
+  font-size: var(--text-label);
+  opacity: 0.85;
+  margin-top: 0.25rem;
+  line-height: 1.4;
+}
+
+/* Legend swatches for the elevation map */
+.legend-stop {
+  border: 1.2px solid #8a93a0;
+  border-radius: 50%;
+  background: var(--surface);
+}
+
+.legend-sensor {
+  border: 1px solid #5b6676;
+  background: var(--surface);
+}
+
+/* Dataset picker fallback note: shown when a real dataset is selected but the
+   active source fell back to the mock (so the picker never lies). */
+.dataset-fallback-note {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: var(--text-label);
+  color: #7a3f00;
+}
