@@ -175,8 +175,17 @@ Concrete things it did on this build:
 - A linear temperature baseline underfits below freezing, where the bridge stiffens, so most remaining false alarms come from one cold spell.
 - The defect model is trained on one dataset, sees cropped patches rather than full photos, and has to learn from patches that often show several defects at once.
 - Alert thresholds and urgency tiers are demonstration values, not engineering limits. The system helps prioritize; it never states that a bridge is safe or unsafe.
-- The planner's metric layout and the dashboard's grid contract do not match yet, so the dashboard runs on a sample layout rather than the planner's output.
 - The trained weights (`ml/defect/artifacts/best.pt`, about 43 MB) are shared for non-commercial use under the CODEBRIM license; they are derived weights and contain no images.
+
+## Known limitations
+
+Specific honesty caveats for the KW51 inspection path:
+
+- The trigger detects a change in natural frequency in either direction (it classifies the absolute residual), and it does not localize the change. A Warning or Alarm says something changed, not where, so the inspection route visits all connection locations rather than a pinpointed zone. Localizing a change would need distributed sensor nodes.
+- The June 2019 demo window falls inside KW51's retrofit period (roughly May to September 2019), so frequency shifts in that window may reflect the retrofit work itself rather than damage. The demo shows the method, not a diagnosis.
+- The temperature correction is a modest linear fit (R-squared 0.409). It explains part of the frequency-temperature relationship, not most of it, which is why some false alarms remain.
+- Defect scores are real model output run on CODEBRIM concrete images from the held-out test set. Those images are placed at chosen connections for demonstration; the placements are not detections, and only a few of the 34 connections are imaged. The rest have no image and are neither assessed nor cleared.
+- Route length is a straight-line 3D estimate between connections; it ignores obstacles such as the deck and bracing. Obstacle-aware path planning is future work for the Gazebo stage.
 
 ## 11. Team
 
