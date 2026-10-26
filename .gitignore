@@ -6,3 +6,5 @@ __pycache__/
 data/images/
 # Downloaded datasets (CODEBRIM, etc.) stay local; the CODEBRIM license forbids redistribution.
 datasets/
+# External source data (e.g. KW51 FEM, CC BY-NC-SA). Kept local; derived outputs are committed separately with attribution.
+data/external/
