@@ -19,14 +19,19 @@ const WATCH = 0.75;
 const WARNING = 1.5;
 const ALARM = 2.0;
 
-// Band tints (match design tokens). Shown behind the data so the reader sees
-// which severity zone each point falls in, not just lines.
+// Band tints. Watch uses a distinctly light yellow so it reads clearly lighter
+// than the Warning band (which is a deeper amber tint). Shown behind the data.
 const BAND = {
   normal: "var(--normal-band)",
-  watch: "var(--watch-band)",
+  watch: "#fbf3d6", // light yellow, clearly lighter than warning
   warning: "var(--warning-band)",
   alarm: "var(--alarm-band)",
 };
+
+// Watch points: pale-yellow fill with a dark-yellow outline, so they stay
+// distinguishable from the solid Warning points.
+const WATCH_FILL = "#f5e8b8";
+const WATCH_STROKE = "#806500";
 
 // Residual % over recent replay history. Points are colored by each record's
 // own alert_level (we never recompute the level here). Shaded bands behind the
@@ -105,9 +110,18 @@ export default function ResidualChart({
             <ReferenceLine y={0} stroke="var(--border-strong)" />
 
             <Scatter data={data} isAnimationActive={false}>
-              {data.map((d) => (
-                <Cell key={d.i} fill={d.color} />
-              ))}
+              {data.map((d) =>
+                d.level === "watch" ? (
+                  <Cell
+                    key={d.i}
+                    fill={WATCH_FILL}
+                    stroke={WATCH_STROKE}
+                    strokeWidth={1.5}
+                  />
+                ) : (
+                  <Cell key={d.i} fill={d.color} />
+                )
+              )}
             </Scatter>
           </ScatterChart>
         </ResponsiveContainer>
