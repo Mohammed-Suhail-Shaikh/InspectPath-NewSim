@@ -199,6 +199,10 @@ consumers to the metric methods and then deletes the grid code.
     Location unknown: inspecting all connection locations."; render ElevationMap +
     SideToggle; show the geometry-real/findings-simulated caption and a visible
     provenance credit (DOI + CC BY-NC-SA 4.0).
+  - Sample-data notice: when the metric SAMPLE fallback is in use (structure is
+    not the real KW51, i.e. not loaded from kw51_layout.json), the map must
+    clearly say it is showing sample data, not KW51. Drive this off the structure
+    id / data warnings, not a guess.
 - **Verify:** `npx tsc --noEmit`; component tests (task 13); build. Requirements
   3, 4.1, 5.4, 6.1–6.5, 7.2–7.5, 10.1.
 
@@ -264,12 +268,18 @@ types or methods remain (the command above, returning no matches).
 
 ### 15. Add new dashboard tests
 - **Files (new):** `web/src/test/metricContract.test.ts` (or extend
-  `validators.test.ts`), plus a plan-stats test
-- **Do:** metric structure/plan validator (valid + invalid); plan stats sanity
-  (coverage_pct = visited/34; battery_used = length × energy_per_meter;
-  within_budget true for both KW51 plans); stops = 34 and shared diagonal ends
-  collapse to one.
-- **Verify:** `npm test` in `web/` passes. Requirement 6, 7.1, 9.
+  `validators.test.ts`), plus a plan-stats test and a realSource fallback test
+- **Do:**
+  - metric structure/plan validator (valid + invalid);
+  - plan stats sanity (coverage_pct = visited/34; battery_used = length ×
+    energy_per_meter; within_budget true for both KW51 plans); stops = 34 and
+    shared diagonal ends collapse to one.
+  - **Permanent fallback test** (promoted from the group C throwaway): with
+    `fetch` mocked, a missing layout file makes `getMetricStructure()` return the
+    metric sample AND raise a data warning; an invalid plan (e.g. empty `stops`)
+    makes `getMetricPlan()` return the metric sample plan AND raise a warning
+    whose message names the offending field.
+- **Verify:** `npm test` in `web/` passes. Requirement 2.3, 6, 7.1, 9.
 
 ---
 
