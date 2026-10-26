@@ -5,6 +5,8 @@ import type {
   Finding,
   ImageMap,
   InspectionReport,
+  MetricPlan,
+  MetricStructure,
   Plan,
   PlanType,
   Structure,
@@ -12,7 +14,13 @@ import type {
   Waypoint,
 } from "./types";
 import { mockSource } from "./mockSource";
-import { validatePlan, validateReplay, validateStructure } from "./validators";
+import {
+  validateMetricPlan,
+  validateMetricStructure,
+  validatePlan,
+  validateReplay,
+  validateStructure,
+} from "./validators";
 import { addWarning } from "./dataWarnings";
 
 // Base path where the shared data/ outputs are served from. Defaults to "/data".
@@ -119,6 +127,52 @@ async function getPlan(type: PlanType): Promise<Plan> {
     });
     return mockSource.getPlan(type);
   }
+}
+
+// ---- Metric structure (contract §3b) ----
+// Real KW51 geometry. The dashboard reads it; it never computes geometry.
+// The layout file is served at /data/structures/kw51_layout.json.
+
+async function getMetricStructure(): Promise<MetricStructure> {
+  const fileName = "kw51_layout.json";
+  const raw = await fetchJson(`${DATA_BASE}/structures/${fileName}`);
+  if (raw === null) {
+    // Not present yet: fall back to the metric sample. This is expected before
+    // the geometry is deployed, so warn (it affects what the map shows).
+    addWarning({
+      piece: "structure",
+      message: `${fileName} not found under ${DATA_BASE}/structures/. Using the metric sample.`,
+    });
+    return mockSource.getMetricStructure();
+  }
+  const res = validateMetricStructure(raw, fileName);
+  if (!res.ok) {
+    addWarning({ piece: "structure", message: `${res.error}. Falling back to the metric sample.` });
+    return mockSource.getMetricStructure();
+  }
+  return res.value;
+}
+
+// ---- Metric plan (contract §4b) ----
+// Produced only by firmware_esp32/planner.py and served as JSON files; the
+// dashboard reads them and never computes a plan.
+
+async function getMetricPlan(type: PlanType): Promise<MetricPlan> {
+  const fileName = `kw51_${type}.json`;
+  const raw = await fetchJson(`${DATA_BASE}/plans/${fileName}`);
+  if (raw === null) {
+    addWarning({
+      piece: "plan",
+      message: `${fileName} not found under ${DATA_BASE}/plans/. Using the metric sample plan.`,
+    });
+    return mockSource.getMetricPlan(type);
+  }
+  const res = validateMetricPlan(raw, fileName);
+  if (!res.ok) {
+    addWarning({ piece: "plan", message: `${res.error}. Falling back to the metric sample plan.` });
+    return mockSource.getMetricPlan(type);
+  }
+  return res.value;
 }
 
 // ---- Image map (contract §5) ----
@@ -273,6 +327,8 @@ export const realSource: DataSource = {
   getReplay,
   getStructure,
   getPlan,
+  getMetricStructure,
+  getMetricPlan,
   getImageMap,
   getFindings,
   getDemoReport,

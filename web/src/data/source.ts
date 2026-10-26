@@ -6,6 +6,8 @@ import type {
   ImageMap,
   Finding,
   InspectionReport,
+  MetricStructure,
+  MetricPlan,
 } from "./types";
 
 // The single seam between the dashboard and its data.
@@ -16,8 +18,10 @@ export interface DataSource {
   // The UI uses this to avoid claiming real data in the monitor subtitle/footer.
   readonly isMock: boolean;
   getReplay(dataset: string): Promise<TriggerRecord[]>; // [contract §2]
-  getStructure(id: string): Promise<Structure>; // [contract §3]
-  getPlan(type: PlanType): Promise<Plan>; // [contract §4]
+  getStructure(id: string): Promise<Structure>; // [contract §3, grid — removed in group D]
+  getPlan(type: PlanType): Promise<Plan>; // [contract §4, grid — removed in group D]
+  getMetricStructure(): Promise<MetricStructure>; // [contract §3b]
+  getMetricPlan(type: PlanType): Promise<MetricPlan>; // [contract §4b]
   getImageMap(): Promise<ImageMap>; // [contract §5]
   getFindings(structureId: string): Promise<Finding[]>; // [dashboard-internal]
   getDemoReport(): Promise<InspectionReport>; // [dashboard-internal]

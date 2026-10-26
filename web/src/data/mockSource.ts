@@ -7,12 +7,17 @@ import type {
   ImageMap,
   Finding,
   InspectionReport,
+  MetricStructure,
+  MetricPlan,
 } from "./types";
 
 import replayZ24 from "../mocks/replay_z24.json";
 import structureBridgeA from "../mocks/structure_bridge-a.json";
 import planNaive from "../mocks/plan_naive.json";
 import planOptimized from "../mocks/plan_optimized.json";
+import structureKw51Sample from "../mocks/structure_kw51_sample.json";
+import planKw51NaiveSample from "../mocks/plan_kw51_naive_sample.json";
+import planKw51OptimizedSample from "../mocks/plan_kw51_optimized_sample.json";
 import imageMap from "../mocks/image_map.json";
 import findings from "../mocks/findings.json";
 import reportDemo from "../mocks/report_demo.json";
@@ -36,6 +41,16 @@ export const mockSource: DataSource = {
 
   async getPlan(type: PlanType): Promise<Plan> {
     return (type === "optimized" ? planOptimized : planNaive) as Plan;
+  },
+
+  async getMetricStructure(): Promise<MetricStructure> {
+    return structureKw51Sample as unknown as MetricStructure;
+  },
+
+  async getMetricPlan(type: PlanType): Promise<MetricPlan> {
+    return (type === "optimized"
+      ? planKw51OptimizedSample
+      : planKw51NaiveSample) as unknown as MetricPlan;
   },
 
   async getImageMap(): Promise<ImageMap> {
