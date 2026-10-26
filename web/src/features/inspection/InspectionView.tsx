@@ -17,6 +17,7 @@ import StatsPanel from "./StatsPanel";
 import PlanToggle from "./PlanToggle";
 import FindingPin from "./FindingPin";
 import FindingDetail from "./FindingDetail";
+import ImagedStrip from "./ImagedStrip";
 import ReportPanel from "../report/ReportPanel";
 import { useRobotRun } from "./useRobotRun";
 import {
@@ -260,6 +261,14 @@ export default function InspectionView() {
           )}
         </aside>
       </div>
+
+      <ImagedStrip
+        findings={findings}
+        imageMap={imageMap}
+        structureId={STRUCTURE_ID}
+        selectedFindingId={selectedFindingId}
+        onSelect={setSelectedFindingId}
+      />
 
       <ReportPanel />
     </div>

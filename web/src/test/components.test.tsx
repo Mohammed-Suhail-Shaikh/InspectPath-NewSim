@@ -6,6 +6,7 @@ import { alertStyle } from "../data/alertLevels";
 import { TIER_COLOR } from "../data/tiers";
 import FindingDetail from "../features/inspection/FindingDetail";
 import StatsPanel from "../features/inspection/StatsPanel";
+import ImagedStrip from "../features/inspection/ImagedStrip";
 import type { Finding, ImageMap, MetricPlanStats } from "../data/types";
 import { generateReport } from "../features/report/llmClient";
 
@@ -183,6 +184,66 @@ describe("StatsPanel", () => {
     const { container } = render(<StatsPanel stats={stats} findings={findings} />);
     expect(container.textContent).not.toMatch(/battery/i);
     expect(container.querySelector(".battery-bar")).toBeNull();
+  });
+});
+
+describe("ImagedStrip", () => {
+  const imageMap: ImageMap = {
+    kw51: { "A-deck-105020": "images/test/defects/x.png" },
+  };
+  const findings = [
+    {
+      id: "f1",
+      location_id: "A-deck-105020",
+      side: "A",
+      tier: "high",
+      scores: {
+        crack: 0.2,
+        spallation: 0.98,
+        exposed_bars: 0.66,
+        efflorescence: 0.1,
+        corrosion_stain: 0.3,
+      },
+      detected: ["spallation", "exposed_bars"],
+      image_key: "A-deck-105020",
+      has_closeup: true,
+      defect_source: "predict",
+    },
+  ] as Finding[];
+
+  it("shows the honesty label once and a card per imaged finding", () => {
+    render(
+      <ImagedStrip
+        findings={findings}
+        imageMap={imageMap}
+        structureId="kw51"
+        selectedFindingId={null}
+        onSelect={() => {}}
+      />
+    );
+    expect(screen.getByText("Imaged connections (1)")).toBeInTheDocument();
+    expect(
+      screen.getByText(/not photographs of KW51 and not detections/i)
+    ).toBeInTheDocument();
+    // tier + top score shown as text (never color-alone)
+    expect(screen.getByText(/A-deck-105020 · side A/)).toBeInTheDocument();
+    expect(screen.getByText(/spallation 0\.98/)).toBeInTheDocument();
+    expect(screen.getByText(/H High/)).toBeInTheDocument();
+  });
+
+  it("selects the finding when its card is clicked", () => {
+    const onSelect = vi.fn();
+    render(
+      <ImagedStrip
+        findings={findings}
+        imageMap={imageMap}
+        structureId="kw51"
+        selectedFindingId={null}
+        onSelect={onSelect}
+      />
+    );
+    fireEvent.click(screen.getByRole("button", { name: /finding at connection A-deck-105020/i }));
+    expect(onSelect).toHaveBeenCalledWith("f1");
   });
 });
 
