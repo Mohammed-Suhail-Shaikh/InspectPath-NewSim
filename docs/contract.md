@@ -193,7 +193,8 @@ and never computes a route.
 - Distances are 3D (x, y, z). Route length is a straight-line estimate that
   ignores obstacles; the UI states this.
 - `stops` are ordered; `reachable` is `false` for any stop past the battery
-  cut-off. `coverage_pct` = locations actually visited / 34.
+  cut-off. `coverage_pct` = locations actually visited / 34, rounded to 4
+  decimal places.
 - The battery budget is a **demonstration cap** that both KW51 plans finish
   within (per-level ≈ 405.9 m, optimized ≈ 399.8 m are within ~1.5%). The cut-off
   logic still exists and is exercised by a test with a small test-only budget; it

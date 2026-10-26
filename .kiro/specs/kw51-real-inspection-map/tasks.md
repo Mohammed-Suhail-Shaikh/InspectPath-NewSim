@@ -115,54 +115,65 @@ disagree.
 
 ---
 
-## C. Dashboard — data layer
+## C. Dashboard — data layer (ADDITIVE ONLY)
 
-### 8. Metric types and validators; retire grid validators
+Every commit in this group must build and pass tests. The grid→metric type
+switch spans groups C and D: the grid types are consumed by the inspection
+components and the report, which are not changed until group D. So group C only
+ADDS the metric types, validators, mocks, and source methods ALONGSIDE the
+existing grid ones. Nothing grid-related is removed or rewired in group C; the
+existing `getStructure`/`getPlan` keep working unchanged. Group D switches the
+consumers to the metric methods and then deletes the grid code.
+
+### 8. Add metric types and validators (grid types kept)
 - **Files:** `web/src/data/types.ts`, `web/src/data/validators.ts`
-- **Do:** Add metric `Structure`/`Plan` v2 types (nodes/members/
-  distinct_locations/sensors/provenance; plan stops + stats) and validators for
-  them. Remove the grid structure/plan types and validators that no longer have a
-  caller after the renderer is replaced (tasks 10–11).
-- **Verify:** `npx tsc --noEmit` clean; validator tests (task 14). Requirement
+- **Do:** ADD metric `MetricStructure` and `MetricPlan` types
+  (nodes/members/distinct_locations/sensors/provenance for structure; plan
+  `stops` + `stats` + provenance) and `validateMetricStructure` /
+  `validateMetricPlan`. Do NOT remove or change the existing grid `Structure`,
+  `Plan`, `Waypoint`, `PlanStats` or their validators — they still have callers.
+- **Verify:** `npx tsc --noEmit` clean; validator tests (group E). Requirement
   1, 2.2–2.3.
 
-### 9. Real/mock sources return metric structure and read plan files
-- **Files:** `web/src/data/realSource.ts`, `web/src/data/mockSource.ts`,
-  `web/src/data/activeSource.ts` (as needed)
-- **Do:** `getStructure` returns the metric structure from `kw51_layout.json`
-  (real) or a small **metric** sample (mock). `getPlan(type)` reads
-  `data/plans/kw51_naive.json` / `kw51_optimized.json`; on absent/invalid file,
-  fall back to a small metric sample plan AND raise a data warning (existing
-  `dataWarnings` mechanism). Never compute a plan in the dashboard.
-- **Verify:** component/integration tests (tasks 13–14); build. Requirement
-  2.1–2.3, 6.
+### 9. Add metric source methods (existing methods untouched)
+- **Files:** `web/src/data/source.ts`, `web/src/data/realSource.ts`,
+  `web/src/data/mockSource.ts`, `web/src/data/activeSource.ts` (as needed)
+- **Do:** ADD `getMetricStructure()` and `getMetricPlan(type)` to the
+  `DataSource` interface and both implementations. Real: read
+  `kw51_layout.json` and `data/plans/kw51_naive.json` / `kw51_optimized.json`,
+  validate, and on absent/invalid file fall back to the metric sample AND raise a
+  data warning via the existing `dataWarnings` mechanism. Mock: return the metric
+  sample structure/plans. The dashboard never computes a plan. Do NOT rewire or
+  remove the existing `getStructure`/`getPlan`.
+- **Verify:** `npx tsc --noEmit`; build; metric source/validator tests (group E).
+  Requirement 2.1–2.3, 6.
 
-### 10. Replace the grid mock with a metric sample mock
+### 10. Add metric sample mock files (grid mocks kept)
 - **Files (new):** `web/src/mocks/structure_kw51_sample.json`,
-  `web/src/mocks/plan_naive.json` + `web/src/mocks/plan_optimized.json` (rewrite
-  to metric). Remove `web/src/mocks/structure_bridge-a.json` if it is grid-only
-  and unreferenced after this change.
+  `web/src/mocks/plan_kw51_naive_sample.json`,
+  `web/src/mocks/plan_kw51_optimized_sample.json`
 - **Do:** Author a tiny valid metric structure and two tiny metric plans that
-  satisfy the v2 validators, for the mock fallback.
-- **Verify:** `web/src/test/mocks.contract.test.ts` (updated in task 13) passes.
-  Requirement 2.3.
+  satisfy the v2 validators, for the metric-sample fallback. Keep the existing
+  grid mocks (`structure_bridge-a.json`, `plan_naive.json`, `plan_optimized.json`)
+  in place; they are removed in group D once no caller remains.
+- **Verify:** metric validators accept the samples (group E); build. Requirement
+  2.3.
 
 ---
 
-## D. Dashboard — rendering and panels
+## D. Dashboard — rendering and panels (and grid removal)
 
-### 11. ElevationMap + SideToggle (replaces GridMap)
+### 11. ElevationMap + SideToggle (new; GridMap removed at end of group D)
 - **Files (new):** `web/src/features/inspection/ElevationMap.tsx`,
   `web/src/features/inspection/SideToggle.tsx`
-- **Files (removed):** `web/src/features/inspection/GridMap.tsx`,
-  `web/src/features/inspection/mapLayout.ts`
 - **Do:** `ElevationMap` projects (x, z) at equal scale; draws girder line, arch
   polyline, diagonals, the 34 stop markers and 26 sensors filtered to the
   selected side. `SideToggle` switches A/C; both views keep Brussels on the left;
   each labeled e.g. "Side A (South), viewed from the south". Technical-drawing
   style from `.kiro/steering/design.md`; color for meaning only; keep focus/
-  contrast/reduced-motion rules. No alert-zone circle anywhere.
-- **Verify:** `npx tsc --noEmit`; component tests (task 13); build. Requirements
+  contrast/reduced-motion rules. No alert-zone circle anywhere. (GridMap and
+  mapLayout are NOT deleted yet — see task 13b.)
+- **Verify:** `npx tsc --noEmit`; component tests (group E); build. Requirements
   2.4–2.5, 3, 4.1–4.2, 7.1–7.3.
 
 ### 12. Update CoverageLayer, RobotMarker, PlanToggle, StatsPanel, FindingPin, InspectionView
@@ -199,6 +210,29 @@ disagree.
   change how findings/stats/history drive the report. No invented numbers.
 - **Verify:** `web/src/test/ruleBasedReport.test.ts` updated (wording assertions
   only; all numeric assertions unchanged) and passing. Requirement 8.
+
+### 13b. Remove all grid code once no caller remains (final group D task)
+- **Files (removed):** `web/src/features/inspection/GridMap.tsx`,
+  `web/src/features/inspection/mapLayout.ts`; grid shading in
+  `web/src/features/inspection/CoverageLayer.tsx` (replaced by visited-stop
+  highlighting); grid mocks `web/src/mocks/structure_bridge-a.json`,
+  `web/src/mocks/plan_naive.json`, `web/src/mocks/plan_optimized.json`
+- **Files (edited):** `web/src/data/types.ts` (remove grid `Structure`, `Plan`,
+  `Waypoint`, `PlanStats`), `web/src/data/validators.ts` (remove
+  `validateStructure`/`validatePlan`/`validateWaypoint`/`validateStats` grid
+  versions), `web/src/data/source.ts`, `realSource.ts`, `mockSource.ts` (remove
+  the old `getStructure`/`getPlan` and grid mock imports)
+- **Do:** Only after tasks 11–13 have switched every component and the report to
+  the metric methods. Delete the grid types, validators, mocks, old source
+  methods, `GridMap`, `mapLayout`, and CoverageLayer's grid shading.
+- **Verify:** `npx tsc --noEmit` clean; `npm run build` and `npm test` pass; and
+  a search proving no grid type or method remains anywhere in `web/src/`
+  (`grep -r "\.grid\b|Waypoint|priority_coverage|getStructure\b|getPlan\b|GridMap|mapLayout|capture_spacing|alert_zone" web/src`
+  returns nothing). Requirement 2.5, 9.
+
+### Group D stop — required evidence
+In addition to the usual report, show a search over `web/src/` proving no grid
+types or methods remain (the command above, returning no matches).
 
 ---
 
