@@ -8,10 +8,6 @@
   --border: #d8dde3;
   --border-strong: #b9c0c9;
 
-  /* Backwards-compatible alias: some view rules still reference --panel.
-     Maps to the raised surface so nothing breaks before each view is redone. */
-  --panel: #ffffff;
-
   /* Alert levels (meaning only; all AA on white text and as text on --bg) */
   --normal: #2e7d32;
   --watch: #806500;
@@ -886,9 +882,10 @@ body {
 }
 
 .data-warning-piece {
-  text-transform: uppercase;
-  font-size: 0.72rem;
-  letter-spacing: 0.04em;
+  /* piece values are lowercase data strings (e.g. "replay"); show them in
+     sentence case for display only, without changing the data value. */
+  text-transform: capitalize;
+  font-size: var(--text-label);
   font-weight: 700;
 }
 
