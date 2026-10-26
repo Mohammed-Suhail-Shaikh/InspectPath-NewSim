@@ -3,6 +3,7 @@
   --bg: #f7f8fa;
   --surface: #ffffff;
   --text: #1e293b;
+  --text-strong: #0f1724;
   --muted: #5b6676;
   --border: #d8dde3;
   --border-strong: #b9c0c9;
@@ -684,29 +685,37 @@ body {
 }
 
 .report-panel {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 1rem;
-  margin-top: 1rem;
+  margin-top: var(--sp-5);
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--border);
 }
 
 .report-head {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 1rem;
+  gap: var(--sp-4);
   flex-wrap: wrap;
 }
 
-.report-generate {
-  background: #5aa9ff;
-  color: #06213f;
-  border-color: #5aa9ff;
+/* Neutral primary button: dark slate, not the loudest thing on screen. */
+.btn-primary {
+  background: var(--text);
+  color: var(--surface);
+  border: 1px solid var(--text);
+  border-radius: var(--radius-md);
+  padding: 0.45rem 0.9rem;
+  font-weight: 600;
+  font-size: var(--text-body);
+  cursor: pointer;
 }
 
-.report-generate:disabled {
-  opacity: 0.6;
+.btn-primary:hover {
+  background: var(--text-strong);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
   cursor: default;
 }
 
@@ -716,39 +725,65 @@ body {
   flex-wrap: wrap;
 }
 
-.report-source {
-  font-size: 0.75rem;
-  margin: 0 0 0.4rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
 .report-notice {
-  color: #ffd23f;
-  font-size: 0.85rem;
-  margin: 0.5rem 0 0;
+  color: var(--text-muted);
+  font-size: var(--text-label);
+  margin: var(--sp-2) 0 0;
 }
 
-.report-body {
-  margin-top: 0.75rem;
+/* The rule-based report, as a clean printed sheet on white. */
+.report-sheet {
+  margin-top: var(--sp-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-5) var(--sp-6);
+  max-width: 70ch;
+}
+
+/* AI summary: visually separate from the rule-based sheet and clearly labeled. */
+.report-ai {
+  margin-top: var(--sp-4);
+  background: #f4f6f8;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-4) var(--sp-5);
+  max-width: 70ch;
+}
+
+.report-ai-label {
+  margin: 0 0 var(--sp-3);
+  font-size: var(--text-label);
+  font-weight: 600;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.report-ai-label::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--text-muted);
 }
 
 .report-text {
   white-space: pre-wrap;
-  font-family: inherit;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 0.85rem;
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: 1.6;
+  color: var(--text);
   margin: 0;
 }
 
 .report-actions {
   display: flex;
   gap: 0.5rem;
-  margin-top: 0.75rem;
+  margin-top: var(--sp-4);
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--border);
 }
 
 /* Responsive: keep every view usable on a phone. */

@@ -19,6 +19,7 @@ Neutral cool base, color reserved for meaning, never color alone.
 | `--bg` | `#f7f8fa` | off-white page background (cool, not cream) |
 | `--surface` | `#ffffff` | raised surface, used sparingly |
 | `--text` | `#1e293b` | dark slate, primary text; also the focus ring |
+| `--text-strong` | `#0f1724` | darker slate for primary-button hover |
 | `--text-muted` | `#5b6676` | secondary text and labels |
 | `--border` | `#d8dde3` | thin gray divider |
 | `--border-strong` | `#b9c0c9` | emphasis divider |
