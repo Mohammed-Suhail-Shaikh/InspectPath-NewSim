@@ -249,7 +249,7 @@ export default function InspectionView() {
             {usingSample
               ? "Geometry: sample placeholder, not the real KW51 bridge (the KW51 layout could not be loaded). Defect findings and images: simulated."
               : anyRealScores
-              ? "Geometry: real KW51 (KU Leuven FEM, CC BY-NC-SA 4.0). Defect scores: real model on representative concrete images from the CODEBRIM held-out test set, not photographs of KW51."
+              ? "Geometry: real KW51 (KU Leuven FEM, CC BY-NC-SA 4.0). Defect scores: real model on representative concrete images from the CODEBRIM held-out test set, not photographs of KW51. Defect images are placed at chosen connections for demonstration; their locations are not detections."
               : "Geometry: real KW51 (KU Leuven FEM, CC BY-NC-SA 4.0). Defect findings and images: simulated."}
           </p>
           {credit && <p className="map-credit muted">{credit}</p>}

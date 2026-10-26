@@ -80,7 +80,9 @@ export default function FindingDetail({
       {finding.defect_source === "predict" && (
         <p className="finding-real-note">
           Real model scores on representative concrete images from the CODEBRIM
-          held-out test set; not photographs of KW51.
+          held-out test set; not photographs of KW51. Defect images are placed at
+          chosen connections for demonstration; their locations are not
+          detections.
         </p>
       )}
 
