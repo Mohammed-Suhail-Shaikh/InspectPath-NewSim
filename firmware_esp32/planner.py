@@ -91,7 +91,12 @@ def find_dispatch(records):
 # 2. Route planning
 # ---------------------------------------------------------------------------
 def distance(a, b):
-    return math.hypot(a["x_m"] - b["x_m"], a["y_m"] - b["y_m"])
+    """3D Euclidean distance. Falls back to z=0 for the legacy grid layout, which
+    has no z_m, so the original bridge_layout.json path is unchanged in value."""
+    dx = a["x_m"] - b["x_m"]
+    dy = a["y_m"] - b["y_m"]
+    dz = a.get("z_m", 0.0) - b.get("z_m", 0.0)
+    return math.sqrt(dx * dx + dy * dy + dz * dz)
 
 
 def nearest_neighbor_order(start, points):
@@ -127,6 +132,173 @@ def plan_route(layout, node_id, level):
         length += distance(current, w)
         current = w
     return route, length, node
+
+
+# ---------------------------------------------------------------------------
+# 2b. KW51 metric planning (Plan v2)
+# ---------------------------------------------------------------------------
+# The trigger watches one global natural frequency and cannot localize the
+# change, so the KW51 route visits ALL 34 distinct connection locations. This is
+# separate from the generic warning/alarm near/far path above, which is kept for
+# bridge_layout.json.
+
+# Config (single source of truth; echoed into each plan file's stats so the
+# dashboard displays values it does not own). All are demonstration values.
+KW51_LAUNCH = {"x_m": 0.0, "y_m": -10.0, "z_m": 0.0}   # ASSUMED launch position
+ENERGY_PER_METER = 1.0                                  # battery units per metre (demo)
+BATTERY_BUDGET = 600.0                                  # demo cap; both plans finish
+
+
+def kw51_stops(layout):
+    """Build the 34-stop list from diagonal_connections.distinct_locations.
+    Shared diagonal ends are already collapsed to one location in the layout."""
+    stops = []
+    for loc in layout["diagonal_connections"]["distinct_locations"]:
+        stops.append({
+            "location_id": loc["location_id"],
+            "side": loc["side"],
+            "end": loc["end"],
+            "x_m": loc["x"],
+            "y_m": loc["y"],
+            "z_m": loc["z"],
+        })
+    return stops
+
+
+def per_level_sweep_order(stops):
+    """Naive baseline: a manual sweep a pilot could fly by hand, finishing each
+    level before changing height. A deck asc x, A arch desc x, C arch asc x,
+    C deck desc x."""
+    def level(side, end, ascending):
+        picked = [s for s in stops if s["side"] == side and s["end"] == end]
+        return sorted(picked, key=lambda s: s["x_m"], reverse=not ascending)
+
+    return (level("A", "deck", True)
+            + level("A", "arch", False)
+            + level("C", "arch", True)
+            + level("C", "deck", False))
+
+
+def route_length(start, order):
+    """Sum of 3D segment lengths from start through the ordered stops."""
+    total, current = 0.0, start
+    for s in order:
+        total += distance(current, s)
+        current = s
+    return total
+
+
+def two_opt(start, order):
+    """Standard 2-opt local search: repeatedly reverse a route segment while that
+    shortens the total length, until no improving reversal remains. Untuned; no
+    bridge-specific logic. Returns a new order no longer than the input."""
+    best = list(order)
+    improved = True
+    while improved:
+        improved = False
+        for i in range(len(best) - 1):
+            for k in range(i + 1, len(best)):
+                candidate = best[:i] + best[i:k + 1][::-1] + best[k + 1:]
+                if route_length(start, candidate) + 1e-9 < route_length(start, best):
+                    best = candidate
+                    improved = True
+    return best
+
+
+def apply_budget(start, order, energy_per_meter, battery_budget):
+    """Walk the order accumulating battery_used = cumulative_length * energy.
+    Mark stops reachable until the budget is exceeded, then stop adding length."""
+    placed = []
+    cumulative_length = 0.0
+    current = start
+    exhausted = False
+    for idx, s in enumerate(order):
+        seg = distance(current, s)
+        if not exhausted:
+            next_used = (cumulative_length + seg) * energy_per_meter
+            if next_used > battery_budget:
+                exhausted = True
+        reachable = not exhausted
+        if reachable:
+            cumulative_length += seg
+            current = s
+        placed.append({
+            "location_id": s["location_id"],
+            "x": round(s["x_m"], 4),
+            "y": round(s["y_m"], 4),
+            "z": round(s["z_m"], 4),
+            "order": idx,
+            "reachable": reachable,
+        })
+    route_len = round(cumulative_length, 1)
+    reachable_count = sum(1 for p in placed if p["reachable"])
+    return placed, route_len, reachable_count
+
+
+def build_kw51_plan(plan_type, layout, order, start,
+                    energy_per_meter=ENERGY_PER_METER, battery_budget=BATTERY_BUDGET):
+    """Assemble a Plan v2 dict for one route order."""
+    total = len(layout["diagonal_connections"]["distinct_locations"])
+    placed, route_len, reachable_count = apply_budget(
+        start, order, energy_per_meter, battery_budget)
+    battery_used = round(route_len * energy_per_meter, 1)
+    prov = dict(layout.get("provenance", {}))
+    prov["derivation"] = "derived"
+    return {
+        "plan_type": plan_type,
+        "units": "m",
+        "stops": placed,
+        "stats": {
+            "locations_total": total,
+            "locations_visited": reachable_count,
+            "coverage_pct": round(reachable_count / total, 4) if total else 0.0,
+            "route_length_m": route_len,
+            "route_length_note": "straight-line 3D estimate, ignores obstacles (deck, bracing)",
+            "energy_per_meter": energy_per_meter,
+            "battery_used": battery_used,
+            "battery_budget": battery_budget,
+            "battery_budget_note": "demonstration cap, not an engineering limit; set so both plans finish",
+            "within_budget": reachable_count == total,
+        },
+        "provenance": prov,
+    }
+
+
+def generate_kw51_plans(layout, energy_per_meter=ENERGY_PER_METER,
+                        battery_budget=BATTERY_BUDGET):
+    """Return (naive_plan, optimized_plan) as Plan v2 dicts.
+    Naive = per-level sweep. Optimized = nearest-neighbor + 2-opt. Same 3D distance."""
+    stops = kw51_stops(layout)
+    start = dict(KW51_LAUNCH)
+
+    naive_order = per_level_sweep_order(stops)
+    nn_order = nearest_neighbor_order(start, stops)
+    opt_order = two_opt(start, nn_order)
+
+    naive_plan = build_kw51_plan("naive", layout, naive_order, start,
+                                 energy_per_meter, battery_budget)
+    opt_plan = build_kw51_plan("optimized", layout, opt_order, start,
+                               energy_per_meter, battery_budget)
+    return naive_plan, opt_plan
+
+
+def write_kw51_plans(layout_path, out_dir,
+                     energy_per_meter=ENERGY_PER_METER, battery_budget=BATTERY_BUDGET):
+    """Read the KW51 layout, generate both plans, write them as Plan v2 JSON.
+    Deterministic: given the same layout, byte-identical output every run."""
+    with open(layout_path, encoding="utf-8") as f:
+        layout = json.load(f)
+    naive_plan, opt_plan = generate_kw51_plans(layout, energy_per_meter, battery_budget)
+    os.makedirs(out_dir, exist_ok=True)
+    naive_path = os.path.join(out_dir, "kw51_naive.json")
+    opt_path = os.path.join(out_dir, "kw51_optimized.json")
+    with open(naive_path, "w", encoding="utf-8", newline="\n") as f:
+        json.dump(naive_plan, f, indent=2)
+        f.write("\n")
+    with open(opt_path, "w", encoding="utf-8", newline="\n") as f:
+        json.dump(opt_plan, f, indent=2)
+        f.write("\n")
+    return naive_path, opt_path, naive_plan, opt_plan
 
 
 # ---------------------------------------------------------------------------
@@ -227,13 +399,33 @@ def inspect(route, node, image_map, args):
 def main():
     here = os.path.dirname(os.path.abspath(__file__))
     ap = argparse.ArgumentParser(description="InspectPath inspection planner")
-    ap.add_argument("--records", required=True, help="trigger/status records (JSON array, JSON lines or serial log)")
+    ap.add_argument("--records", help="trigger/status records (JSON array, JSON lines or serial log)")
     ap.add_argument("--layout", default=os.path.join(here, "bridge_layout.json"))
     ap.add_argument("--images", default=None, help="image_map.json (not needed with --mock)")
     ap.add_argument("--api", default="http://localhost:8000/predict", help="Zaiba's /predict URL")
     ap.add_argument("--mock", action="store_true", help="fake defect scores, for testing without the model")
     ap.add_argument("--out", default=os.path.join(here, "output", "inspection_report.json"))
+    ap.add_argument("--kw51-plans", action="store_true",
+                    help="generate KW51 metric Plan v2 files (naive + optimized) from --layout into --out-dir")
+    ap.add_argument("--out-dir", default=None, help="output directory for --kw51-plans")
     args = ap.parse_args()
+
+    # KW51 metric mode: route through all 34 connection locations, write both
+    # Plan v2 files. No trigger records needed (the alert cannot be localized).
+    if args.kw51_plans:
+        if not args.out_dir:
+            raise SystemExit("--kw51-plans requires --out-dir")
+        naive_path, opt_path, naive_plan, opt_plan = write_kw51_plans(args.layout, args.out_dir)
+        for label, path, plan in (("naive", naive_path, naive_plan),
+                                  ("optimized", opt_path, opt_plan)):
+            st = plan["stats"]
+            print(f"{label:<9} -> {path}  ({st['route_length_m']} m, "
+                  f"{st['locations_visited']}/{st['locations_total']} stops, "
+                  f"coverage {st['coverage_pct']:.0%}, within_budget {st['within_budget']})")
+        return
+
+    if not args.records:
+        raise SystemExit("--records is required (or use --kw51-plans)")
 
     with open(args.layout, encoding="utf-8") as f:
         layout = json.load(f)
