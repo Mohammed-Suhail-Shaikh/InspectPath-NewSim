@@ -92,13 +92,15 @@ export default function ReportPanel() {
     URL.revokeObjectURL(url);
   }
 
-  const sourceLabel =
-    report?.source === "rule-based"
-      ? "Rule-based report"
-      : report?.source === "llm"
-      ? "AI summary"
+  // The rule-based report is the authoritative document. An AI summary, when
+  // the backend is reachable, is shown separately and clearly labeled so it is
+  // never mistaken for the rule-based output.
+  const isAi = report?.source === "llm" || report?.source === "mock";
+  const aiLabel =
+    report?.source === "llm"
+      ? "AI-generated summary"
       : report?.source === "mock"
-      ? "Sample AI summary"
+      ? "AI-generated summary (sample)"
       : "";
 
   return (
@@ -113,7 +115,7 @@ export default function ReportPanel() {
         </div>
         <div className="report-buttons">
           <button
-            className="dispatch-btn report-generate"
+            className="btn-primary"
             onClick={generateRuleBased}
             disabled={!structure || !plan}
           >
@@ -133,20 +135,33 @@ export default function ReportPanel() {
 
       {aiNotice && <p className="report-notice">{aiNotice}</p>}
 
-      {report && (
-        <div className="report-body">
-          {sourceLabel && <p className="report-source muted">{sourceLabel}</p>}
-          <pre className="report-text">{report.text}</pre>
-          <div className="report-actions">
-            <button className="replay-btn" onClick={copyReport}>
-              {copied ? "Copied" : "Copy"}
-            </button>
-            <button className="replay-btn" onClick={downloadReport}>
-              Download
-            </button>
+      {report &&
+        (isAi ? (
+          <div className="report-ai">
+            <p className="report-ai-label">{aiLabel}</p>
+            <pre className="report-text">{report.text}</pre>
+            <div className="report-actions">
+              <button className="replay-btn" onClick={copyReport}>
+                {copied ? "Copied" : "Copy"}
+              </button>
+              <button className="replay-btn" onClick={downloadReport}>
+                Download
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        ) : (
+          <article className="report-sheet" aria-label="Inspection report">
+            <pre className="report-text">{report.text}</pre>
+            <div className="report-actions">
+              <button className="replay-btn" onClick={copyReport}>
+                {copied ? "Copied" : "Copy"}
+              </button>
+              <button className="replay-btn" onClick={downloadReport}>
+                Download
+              </button>
+            </div>
+          </article>
+        ))}
     </section>
   );
 }

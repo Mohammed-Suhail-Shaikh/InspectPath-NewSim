@@ -1,10 +1,54 @@
 :root {
-  --bg: #0f1419;
-  --panel: #1a2029;
-  --text: #e6e9ef;
-  --muted: #9aa4b2;
-  --border: #2a323d;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* Base (neutral, cool) */
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --text: #1e293b;
+  --text-strong: #0f1724;
+  --muted: #5b6676;
+  --border: #d8dde3;
+  --border-strong: #b9c0c9;
+
+  /* Alert levels (meaning only; all AA on white text and as text on --bg) */
+  --normal: #2e7d32;
+  --watch: #806500;
+  --warning: #9e5200;
+  --alarm: #c62828;
+  --normal-band: #2e7d3214;
+  --watch-band: #80650022;
+  --warning-band: #9e520022;
+  --alarm-band: #c6282822;
+
+  /* Finding tiers (reuse alert hues) */
+  --tier-high: #c62828;
+  --tier-medium: #9e5200;
+  --tier-low: #806500;
+
+  /* Route and robot (the one purple) */
+  --route: #6d28d9;
+  --route-soft: #6d28d91f;
+
+  /* Typography */
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --text-hero: 3rem;
+  --text-page: 1.5rem;
+  --text-section: 1.05rem;
+  --text-body: 0.95rem;
+  --text-label: 0.8rem;
+
+  /* Spacing */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+
+  /* Radius */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+
+  font-family: var(--font-sans);
+  color: var(--text);
 }
 
 * {
@@ -15,6 +59,33 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
+  font-size: var(--text-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Tabular numerals for readings and numeric values everywhere. */
+.reading-value,
+.stat-value,
+.score-num,
+.alert-hero-value {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Visible keyboard focus: dark slate, no saturated color. */
+:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+/* Motion only for state changes / user actions; respect reduced-motion. */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 .app {
@@ -24,18 +95,24 @@ body {
 }
 
 .app-header {
-  padding: 0.75rem 1.25rem;
+  padding: var(--sp-3) var(--sp-5);
   border-bottom: 1px solid var(--border);
+  background: var(--surface);
 }
 
 .app-header h1 {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: var(--text-page);
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .app-main {
   flex: 1;
-  padding: 1.25rem;
+  padding: var(--sp-5);
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 .placeholder {
@@ -44,13 +121,13 @@ body {
 
 .app-footer {
   border-top: 1px solid var(--border);
-  padding: 0.75rem 1.25rem;
-  background: var(--panel);
+  padding: var(--sp-3) var(--sp-5);
+  background: var(--surface);
 }
 
 .app-footer p {
   margin: 0;
-  font-size: 0.8rem;
+  font-size: var(--text-label);
   color: var(--muted);
   text-align: center;
   line-height: 1.4;
@@ -58,7 +135,7 @@ body {
 
 @media (max-width: 600px) {
   .app-main {
-    padding: 0.75rem;
+    padding: var(--sp-3);
   }
   .app-footer p {
     font-size: 0.75rem;
@@ -73,19 +150,77 @@ body {
   color: var(--muted);
 }
 
+/* ---- Monitor: alert hero ---- */
+.alert-hero {
+  display: flex;
+  align-items: stretch;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+  margin-top: var(--sp-5);
+}
+
+.alert-hero-main {
+  flex: 1 1 260px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  padding: var(--sp-4) var(--sp-5);
+  border-left: 4px solid var(--border);
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+}
+
+/* Watch fallback: light yellow tint so it does not look like Warning's solid
+   dark fill. Text stays dark yellow (#806500), AA on this tint (5.0:1). */
+.alert-hero-watch {
+  background: #fbf3d6;
+  border-left-color: #806500;
+}
+
+.alert-hero-label {
+  font-size: var(--text-label);
+  color: var(--muted);
+}
+
+.alert-hero-value {
+  font-size: var(--text-hero);
+  font-weight: 700;
+  line-height: 1.05;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.alert-hero-icon {
+  font-size: 0.6em;
+  font-weight: 700;
+  border: 2px solid currentColor;
+  border-radius: 999px;
+  width: 1.5em;
+  height: 1.5em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.alert-hero-aside {
+  display: flex;
+  align-items: flex-start;
+  padding-top: var(--sp-2);
+}
+
+/* ---- Monitor: readings ---- */
 .readings {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 1rem;
-  margin-top: 1rem;
+  margin-top: var(--sp-5);
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--border);
 }
 
 .readings-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 1rem;
+  gap: var(--sp-4);
   flex-wrap: wrap;
 }
 
@@ -93,59 +228,55 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
-  font-size: 0.9rem;
+  font-size: var(--text-body);
 }
 
-.readings-badges {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.alert-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 999px;
-  font-weight: 700;
-  font-size: 0.85rem;
-  letter-spacing: 0.02em;
-}
-
+/* Degraded badge describes the SENSOR, not the bridge. Neutral gray, never
+   amber (amber means Warning). Plug/sensor icon + unchanged text. */
 .quality-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
   padding: 0.25rem 0.6rem;
-  border-radius: 999px;
-  font-size: 0.8rem;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-label);
   font-weight: 600;
-  background: #3a2c00;
-  color: #ffd23f;
-  border: 1px solid #5c4a00;
+  background: var(--surface);
+  color: var(--text-muted);
+  border: 1px solid var(--border-strong);
+}
+
+.quality-badge-icon {
+  flex: none;
 }
 
 .readings-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 0.75rem;
-  margin-top: 1rem;
+  gap: var(--sp-3);
+  margin-top: var(--sp-4);
 }
 
 .reading {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 0.6rem 0.75rem;
+  padding: var(--sp-2) var(--sp-3);
+  border-left: 2px solid var(--border);
+}
+
+.reading-emphasis {
+  border-left-color: var(--text);
 }
 
 .reading-label {
-  font-size: 0.75rem;
+  font-size: var(--text-label);
   color: var(--muted);
 }
 
 .reading-value {
-  font-size: 1.3rem;
-  font-weight: 700;
+  font-size: 1.4rem;
+  font-weight: 600;
 }
 
 .monitor-head {
@@ -174,12 +305,12 @@ body {
 }
 
 .dataset-picker select {
-  background: var(--panel);
+  background: var(--surface);
   color: var(--text);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   padding: 0.3rem 0.5rem;
-  font-size: 0.85rem;
+  font-size: var(--text-label);
   cursor: pointer;
 }
 
@@ -203,49 +334,53 @@ body {
 
 .speed-btn,
 .replay-btn {
-  background: var(--panel);
+  background: var(--surface);
   color: var(--text);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   padding: 0.3rem 0.6rem;
-  font-size: 0.85rem;
+  font-size: var(--text-label);
   cursor: pointer;
 }
 
 .speed-btn.active {
-  background: #5aa9ff;
-  color: #06213f;
-  border-color: #5aa9ff;
-  font-weight: 700;
+  background: var(--text);
+  color: var(--surface);
+  border-color: var(--text);
+  font-weight: 600;
 }
 
 .speed-btn:hover,
 .replay-btn:hover {
-  border-color: #5aa9ff;
+  border-color: var(--border-strong);
 }
 
 .chart {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 1rem;
-  margin-top: 1rem;
+  margin-top: var(--sp-5);
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--border);
 }
 
 .chart-title {
-  margin: 0 0 0.5rem;
-  font-size: 1rem;
+  margin: 0 0 0.25rem;
+  font-size: var(--text-section);
+  font-weight: 600;
+}
+
+.chart-legend {
+  margin: 0 0 var(--sp-3);
+  font-size: var(--text-label);
 }
 
 .escalation-banner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: var(--sp-4);
   flex-wrap: wrap;
-  padding: 0.85rem 1rem;
-  border-radius: 10px;
-  margin-top: 1rem;
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--radius-sm);
+  margin-top: var(--sp-4);
   font-weight: 600;
 }
 
@@ -255,18 +390,18 @@ body {
 }
 
 .dispatch-btn {
-  background: rgba(0, 0, 0, 0.25);
+  background: rgba(255, 255, 255, 0.18);
   color: inherit;
-  border: 1px solid rgba(0, 0, 0, 0.35);
-  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-md);
   padding: 0.45rem 0.9rem;
-  font-weight: 700;
-  font-size: 0.9rem;
+  font-weight: 600;
+  font-size: var(--text-body);
   cursor: pointer;
 }
 
 .dispatch-btn:hover {
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .inspection-head {
@@ -279,46 +414,46 @@ body {
 
 .inspection-body {
   display: flex;
-  gap: 1rem;
+  gap: var(--sp-5);
   flex-wrap: wrap;
-  margin-top: 1rem;
+  margin-top: var(--sp-4);
   align-items: flex-start;
 }
 
+/* The map is the main element: give it the dominant width. */
 .map-wrap {
-  flex: 1 1 420px;
-  min-width: 280px;
-  background: var(--panel);
+  flex: 3 1 520px;
+  min-width: 300px;
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 0.75rem;
+  border-radius: var(--radius-sm);
+  padding: var(--sp-3);
 }
 
 .grid-map {
   display: block;
-  max-width: 640px;
+  max-width: 760px;
   height: auto;
   margin: 0 auto;
 }
 
+/* Compact side column. */
 .inspection-side {
   flex: 1 1 240px;
   min-width: 220px;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--sp-4);
 }
 
 .stats-panel {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 1rem;
+  padding-top: var(--sp-2);
 }
 
 .stats-title {
-  margin: 0 0 0.75rem;
-  font-size: 1rem;
+  margin: 0 0 var(--sp-2);
+  font-size: var(--text-section);
+  font-weight: 600;
 }
 
 .stat {
@@ -326,7 +461,7 @@ body {
   justify-content: space-between;
   align-items: baseline;
   gap: 0.5rem;
-  padding: 0.35rem 0;
+  padding: 0.3rem 0;
   border-bottom: 1px solid var(--border);
 }
 
@@ -336,17 +471,17 @@ body {
 
 .stat-label {
   color: var(--muted);
-  font-size: 0.85rem;
+  font-size: var(--text-label);
 }
 
 .stat-value {
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .stat-sub {
   font-weight: 400;
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: var(--text-label);
 }
 
 .battery-bar {
@@ -360,14 +495,12 @@ body {
 
 .battery-fill {
   height: 100%;
-  background: #3ddc84;
+  background: var(--text);
 }
 
 .plan-toggle {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 1rem;
+  padding-top: var(--sp-2);
+  border-top: 1px solid var(--border);
 }
 
 .plan-toggle-group {
@@ -377,32 +510,30 @@ body {
 }
 
 .plan-btn {
-  background: var(--bg);
+  background: var(--surface);
   color: var(--text);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   padding: 0.5rem 0.75rem;
-  font-size: 0.85rem;
+  font-size: var(--text-label);
   cursor: pointer;
   text-align: left;
 }
 
 .plan-btn.active {
-  background: #5aa9ff;
-  color: #06213f;
-  border-color: #5aa9ff;
-  font-weight: 700;
+  background: var(--text);
+  color: var(--surface);
+  border-color: var(--text);
+  font-weight: 600;
 }
 
 .plan-btn:hover {
-  border-color: #5aa9ff;
+  border-color: var(--border-strong);
 }
 
 .finding-detail {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 1rem;
+  padding-top: var(--sp-2);
+  border-top: 1px solid var(--border);
 }
 
 .finding-detail-head {
@@ -411,9 +542,71 @@ body {
   align-items: center;
 }
 
+/* Tier shown as a labeled chip, not color-only. */
 .finding-tier {
-  font-weight: 700;
-  margin: 0.25rem 0 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-weight: 600;
+  font-size: var(--text-label);
+  margin: 0.4rem 0 0.75rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+}
+
+/* Low tier: pale-yellow fill to match the Watch treatment. Text/border stay
+   dark yellow (#806500) via the inline color; letter contrast 5.0:1. */
+.finding-tier-low {
+  background: #fbf3d6;
+}
+
+/* ---- Inspection: map legend ---- */
+.map-legend {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3) var(--sp-4);
+  margin: var(--sp-3) 0 0;
+  padding: var(--sp-3) 0 0;
+  border-top: 1px solid var(--border);
+  font-size: var(--text-label);
+  color: var(--muted);
+}
+
+.map-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.legend-swatch {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  border-radius: 2px;
+  background: var(--surface);
+}
+
+.legend-priority {
+  border: 1px dotted #5b6676;
+}
+
+.legend-obstacle {
+  background: #e9edf2;
+  border: 1px solid #b9c0c9;
+  background-image: linear-gradient(135deg, transparent 45%, #b9c0c9 45%, #b9c0c9 55%, transparent 55%);
+}
+
+.legend-covered {
+  background: var(--route-soft);
+  border: 1px solid var(--route);
+}
+
+.legend-alert-zone {
+  border: 1px dashed #c62828;
+  background: rgba(198, 40, 40, 0.10);
+  border-radius: 999px;
 }
 
 .finding-images {
@@ -479,7 +672,7 @@ body {
 
 .score-fill {
   height: 100%;
-  background: #5aa9ff;
+  background: var(--text);
 }
 
 .score-num {
@@ -488,29 +681,37 @@ body {
 }
 
 .report-panel {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 1rem;
-  margin-top: 1rem;
+  margin-top: var(--sp-5);
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--border);
 }
 
 .report-head {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 1rem;
+  gap: var(--sp-4);
   flex-wrap: wrap;
 }
 
-.report-generate {
-  background: #5aa9ff;
-  color: #06213f;
-  border-color: #5aa9ff;
+/* Neutral primary button: dark slate, not the loudest thing on screen. */
+.btn-primary {
+  background: var(--text);
+  color: var(--surface);
+  border: 1px solid var(--text);
+  border-radius: var(--radius-md);
+  padding: 0.45rem 0.9rem;
+  font-weight: 600;
+  font-size: var(--text-body);
+  cursor: pointer;
 }
 
-.report-generate:disabled {
-  opacity: 0.6;
+.btn-primary:hover {
+  background: var(--text-strong);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
   cursor: default;
 }
 
@@ -520,39 +721,65 @@ body {
   flex-wrap: wrap;
 }
 
-.report-source {
-  font-size: 0.75rem;
-  margin: 0 0 0.4rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
 .report-notice {
-  color: #ffd23f;
-  font-size: 0.85rem;
-  margin: 0.5rem 0 0;
+  color: var(--text-muted);
+  font-size: var(--text-label);
+  margin: var(--sp-2) 0 0;
 }
 
-.report-body {
-  margin-top: 0.75rem;
+/* The rule-based report, as a clean printed sheet on white. */
+.report-sheet {
+  margin-top: var(--sp-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-5) var(--sp-6);
+  max-width: 70ch;
+}
+
+/* AI summary: visually separate from the rule-based sheet and clearly labeled. */
+.report-ai {
+  margin-top: var(--sp-4);
+  background: #f4f6f8;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-4) var(--sp-5);
+  max-width: 70ch;
+}
+
+.report-ai-label {
+  margin: 0 0 var(--sp-3);
+  font-size: var(--text-label);
+  font-weight: 600;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.report-ai-label::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--text-muted);
 }
 
 .report-text {
   white-space: pre-wrap;
-  font-family: inherit;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 0.85rem;
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: 1.6;
+  color: var(--text);
   margin: 0;
 }
 
 .report-actions {
   display: flex;
   gap: 0.5rem;
-  margin-top: 0.75rem;
+  margin-top: var(--sp-4);
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--border);
 }
 
 /* Responsive: keep every view usable on a phone. */
@@ -569,11 +796,21 @@ body {
     align-items: stretch;
   }
 
+  /* Alert level first, then the separate degraded badge below it. */
+  .alert-hero {
+    flex-direction: column;
+    gap: var(--sp-3);
+  }
+
+  .alert-hero-value {
+    font-size: 2.25rem;
+  }
+
   .replay-controls {
     justify-content: space-between;
   }
 
-  /* Map and side panels stack vertically. */
+  /* Map and side panels stack vertically: map first, then the side column. */
   .inspection-body {
     flex-direction: column;
   }
@@ -582,6 +819,21 @@ body {
   .inspection-side {
     flex: 1 1 100%;
     min-width: 0;
+  }
+
+  /* Side column order on mobile: stats, then plan toggle, then finding detail. */
+  .inspection-side {
+    display: flex;
+    flex-direction: column;
+  }
+  .inspection-side .stats-panel {
+    order: 1;
+  }
+  .inspection-side .plan-toggle {
+    order: 2;
+  }
+  .inspection-side .finding-detail {
+    order: 3;
   }
 
   .readings-grid {
@@ -630,9 +882,10 @@ body {
 }
 
 .data-warning-piece {
-  text-transform: uppercase;
-  font-size: 0.72rem;
-  letter-spacing: 0.04em;
+  /* piece values are lowercase data strings (e.g. "replay"); show them in
+     sentence case for display only, without changing the data value. */
+  text-transform: capitalize;
+  font-size: var(--text-label);
   font-weight: 700;
 }
 

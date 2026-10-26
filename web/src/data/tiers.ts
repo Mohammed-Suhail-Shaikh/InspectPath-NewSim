@@ -2,10 +2,11 @@ import type { DefectTier } from "./types";
 
 // Tier -> pin color. Colors are a dashboard presentation choice;
 // the tier values are from contract §1.
+// Hex values match the design tokens in .kiro/steering/design.md.
 export const TIER_COLOR: Record<DefectTier, string | null> = {
-  high: "#e5484d", // red
-  medium: "#ff8c42", // amber
-  low: "#ffd23f", // yellow
+  high: "#c62828", // red
+  medium: "#9e5200", // amber
+  low: "#806500", // yellow
   none: null, // not pinned
 };
 

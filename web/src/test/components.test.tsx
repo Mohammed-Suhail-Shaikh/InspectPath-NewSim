@@ -29,9 +29,9 @@ describe("AlertBadge", () => {
 
 describe("tier colors", () => {
   it("maps high/medium/low to red/amber/yellow and none to null", () => {
-    expect(TIER_COLOR.high).toBe("#e5484d");
-    expect(TIER_COLOR.medium).toBe("#ff8c42");
-    expect(TIER_COLOR.low).toBe("#ffd23f");
+    expect(TIER_COLOR.high).toBe("#c62828");
+    expect(TIER_COLOR.medium).toBe("#9e5200");
+    expect(TIER_COLOR.low).toBe("#806500");
     expect(TIER_COLOR.none).toBeNull();
   });
 });

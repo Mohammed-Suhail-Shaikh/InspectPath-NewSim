@@ -94,9 +94,9 @@ export default function InspectionView() {
               <polyline
                 points={pathPoints}
                 fill="none"
-                stroke="#5aa9ff"
+                stroke="var(--route)"
                 strokeWidth={1.5}
-                strokeOpacity={0.45}
+                strokeOpacity={0.55}
                 strokeDasharray="4 3"
               />
             )}
@@ -110,6 +110,25 @@ export default function InspectionView() {
               />
             ))}
           </GridMap>
+
+          <ul className="map-legend" aria-label="Map legend">
+            <li>
+              <span className="legend-swatch legend-priority" aria-hidden="true" />
+              Priority zone
+            </li>
+            <li>
+              <span className="legend-swatch legend-obstacle" aria-hidden="true" />
+              Obstacle
+            </li>
+            <li>
+              <span className="legend-swatch legend-covered" aria-hidden="true" />
+              Covered
+            </li>
+            <li>
+              <span className="legend-swatch legend-alert-zone" aria-hidden="true" />
+              Alert zone
+            </li>
+          </ul>
         </div>
 
         <aside className="inspection-side">

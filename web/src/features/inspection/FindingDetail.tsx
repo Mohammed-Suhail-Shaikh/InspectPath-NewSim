@@ -63,7 +63,10 @@ export default function FindingDetail({
         </button>
       </div>
 
-      <div className="finding-tier" style={{ color: tierColor }}>
+      <div
+        className={`finding-tier finding-tier-${finding.tier}`}
+        style={{ color: tierColor }}
+      >
         {TIER_LABEL[finding.tier]} priority
       </div>
 

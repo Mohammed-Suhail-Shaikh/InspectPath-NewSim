@@ -10,9 +10,9 @@ export default function RobotMarker({ waypoint }: { waypoint: Waypoint | null })
 
   return (
     <g className="robot" style={{ transition: "transform 0.4s linear" }}>
-      <circle cx={cx} cy={cy} r={r} fill="#5aa9ff" stroke="#06213f" strokeWidth={2} />
+      <circle cx={cx} cy={cy} r={r} fill="var(--route)" stroke="#ffffff" strokeWidth={2} />
       {/* simple "scanner" dot */}
-      <circle cx={cx} cy={cy} r={r * 0.35} fill="#06213f" />
+      <circle cx={cx} cy={cy} r={r * 0.35} fill="#ffffff" />
       <title>Inspection robot</title>
     </g>
   );
