@@ -5,7 +5,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { AlertHistoryEntry, PlanType } from "../data/types";
+import type { AlertHistoryEntry, BridgeSide, PlanType } from "../data/types";
 
 // [dashboard-internal] UI state only — no measurement/domain data defined here.
 export type ActiveView = "monitor" | "inspection";
@@ -34,6 +34,9 @@ interface ViewStateValue {
   selectedPlan: PlanType;
   setSelectedPlan: (p: PlanType) => void;
 
+  selectedSide: BridgeSide;
+  setSelectedSide: (s: BridgeSide) => void;
+
   selectedFindingId: string | null;
   setSelectedFindingId: (id: string | null) => void;
 
@@ -52,6 +55,7 @@ export function ViewStateProvider({ children }: { children: ReactNode }) {
   const [replaySpeed, setReplaySpeed] = useState<ReplaySpeed>(1);
   const [replayDataset, setReplayDataset] = useState<ReplayDataset>("kw51_demo");
   const [selectedPlan, setSelectedPlan] = useState<PlanType>("optimized");
+  const [selectedSide, setSelectedSide] = useState<BridgeSide>("A");
   const [selectedFindingId, setSelectedFindingId] = useState<string | null>(null);
   const [alertHistory, setAlertHistory] = useState<AlertHistoryEntry[]>([]);
 
@@ -69,6 +73,8 @@ export function ViewStateProvider({ children }: { children: ReactNode }) {
       setReplayDataset,
       selectedPlan,
       setSelectedPlan,
+      selectedSide,
+      setSelectedSide,
       selectedFindingId,
       setSelectedFindingId,
       alertHistory,
@@ -81,6 +87,7 @@ export function ViewStateProvider({ children }: { children: ReactNode }) {
       replaySpeed,
       replayDataset,
       selectedPlan,
+      selectedSide,
       selectedFindingId,
       alertHistory,
     ]
