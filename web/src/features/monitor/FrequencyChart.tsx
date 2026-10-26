@@ -37,10 +37,10 @@ export default function FrequencyChart({
       <div className="chart-body">
         <ResponsiveContainer width="100%" height={240}>
           <LineChart data={data} margin={{ top: 8, right: 16, bottom: 4, left: -8 }}>
-            <CartesianGrid stroke="#2a323d" strokeDasharray="3 3" />
-            <XAxis dataKey="time" stroke="#9aa4b2" fontSize={12} />
+            <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" />
+            <XAxis dataKey="time" stroke="var(--muted)" fontSize={12} />
             <YAxis
-              stroke="#9aa4b2"
+              stroke="var(--muted)"
               fontSize={12}
               domain={["auto", "auto"]}
               tickFormatter={(v: number) => v.toFixed(2)}
@@ -48,9 +48,9 @@ export default function FrequencyChart({
             />
             <Tooltip
               contentStyle={{
-                background: "#1a2029",
-                border: "1px solid #2a323d",
-                color: "#e6e9ef",
+                background: "var(--surface)",
+                border: "1px solid var(--border)",
+                color: "var(--text)",
               }}
             />
             <Legend />
@@ -58,7 +58,7 @@ export default function FrequencyChart({
               type="monotone"
               dataKey="measured"
               name="Measured (Hz)"
-              stroke="#3ddc84"
+              stroke="var(--text)"
               strokeWidth={2}
               dot={false}
               isAnimationActive={false}
@@ -67,7 +67,7 @@ export default function FrequencyChart({
               type="monotone"
               dataKey="predicted"
               name="Predicted (Hz)"
-              stroke="#5aa9ff"
+              stroke="var(--muted)"
               strokeWidth={2}
               strokeDasharray="5 4"
               dot={false}

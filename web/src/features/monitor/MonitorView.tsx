@@ -1,4 +1,5 @@
 import { useReplay } from "./useReplay";
+import AlertHero from "./AlertHero";
 import ReadingsPanel from "./ReadingsPanel";
 import FrequencyChart from "./FrequencyChart";
 import ResidualChart from "./ResidualChart";
@@ -55,6 +56,11 @@ export default function MonitorView() {
           <ReplayControls atEnd={atEnd} />
         </div>
       </div>
+
+      {/* DOM order is also the mobile stack order:
+          alert level + degraded badge, dispatch banner, readings,
+          frequency chart, residual chart. */}
+      <AlertHero record={current} />
 
       <EscalationBanner level={current.alert_level} />
 

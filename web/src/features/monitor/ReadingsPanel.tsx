@@ -1,12 +1,12 @@
 import type { TriggerRecord } from "../../data/types";
-import AlertBadge from "./AlertBadge";
-import QualityBadge from "./QualityBadge";
 
 function fmt(n: number, digits = 2) {
   return n.toFixed(digits);
 }
 
-// Measured frequency vs predicted, residual %, temperature, with plain labels + units.
+// Measured frequency vs predicted, difference from expected, and temperature,
+// with plain-language labels and units. The alert level and the "node
+// degraded" badge live in the hero above, not here.
 export default function ReadingsPanel({ record }: { record: TriggerRecord }) {
   return (
     <section className="readings">
@@ -16,10 +16,6 @@ export default function ReadingsPanel({ record }: { record: TriggerRecord }) {
           <time dateTime={record.timestamp}>
             {new Date(record.timestamp).toLocaleString()}
           </time>
-        </div>
-        <div className="readings-badges">
-          <AlertBadge level={record.alert_level} />
-          <QualityBadge quality={record.quality} />
         </div>
       </div>
 
@@ -34,7 +30,7 @@ export default function ReadingsPanel({ record }: { record: TriggerRecord }) {
             {fmt(record.predicted_frequency_hz)} Hz
           </span>
         </div>
-        <div className="reading">
+        <div className="reading reading-emphasis">
           <span className="reading-label">Difference from expected</span>
           <span className="reading-value">{fmt(record.residual_pct, 1)}%</span>
         </div>

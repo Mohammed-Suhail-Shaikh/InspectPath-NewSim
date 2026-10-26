@@ -6,6 +6,7 @@ import {
   ZAxis,
   CartesianGrid,
   Tooltip,
+  ReferenceArea,
   ReferenceLine,
   ResponsiveContainer,
   Cell,
@@ -13,12 +14,23 @@ import {
 import type { TriggerRecord } from "../../data/types";
 import { alertStyle } from "../../data/alertLevels";
 
-// Demo alert thresholds on absolute residual (dashed guide lines only).
-const THRESHOLDS = [0.75, 1.5, 2.0];
+// Demo alert thresholds on absolute residual.
+const WATCH = 0.75;
+const WARNING = 1.5;
+const ALARM = 2.0;
+
+// Band tints (match design tokens). Shown behind the data so the reader sees
+// which severity zone each point falls in, not just lines.
+const BAND = {
+  normal: "var(--normal-band)",
+  watch: "var(--watch-band)",
+  warning: "var(--warning-band)",
+  alarm: "var(--alarm-band)",
+};
 
 // Residual % over recent replay history. Points are colored by each record's
-// own alert_level (we never recompute the level here). Dashed reference lines
-// mark the +/- thresholds for context.
+// own alert_level (we never recompute the level here). Shaded bands behind the
+// data mark the Watch / Warning / Alarm severity zones on both sides of zero.
 export default function ResidualChart({
   records,
   upToIndex,
@@ -30,7 +42,8 @@ export default function ResidualChart({
 }) {
   const end = Math.min(upToIndex + 1, records.length);
   const start = Math.max(0, end - window);
-  const data = records.slice(start, end).map((r, i) => ({
+  const slice = records.slice(start, end);
+  const data = slice.map((r, i) => ({
     i: start + i,
     time: new Date(r.timestamp).toLocaleTimeString([], {
       hour: "2-digit",
@@ -41,23 +54,36 @@ export default function ResidualChart({
     color: alertStyle(r.alert_level).bg,
   }));
 
+  // Y range: cover the data and at least the alarm band, with a little margin.
+  const maxAbs = Math.max(ALARM + 0.5, ...slice.map((r) => Math.abs(r.residual_pct) + 0.3));
+  const yMin = -maxAbs;
+  const yMax = maxAbs;
+
   return (
     <section className="chart">
       <h3 className="chart-title">Residual % (difference from expected)</h3>
+      <p className="chart-legend muted">
+        Bands show severity zones: normal, watch, warning, alarm.
+      </p>
       <div className="chart-body">
-        <ResponsiveContainer width="100%" height={240}>
+        <ResponsiveContainer width="100%" height={260}>
           <ScatterChart margin={{ top: 8, right: 16, bottom: 4, left: -8 }}>
-            <CartesianGrid stroke="#2a323d" strokeDasharray="3 3" />
-            <XAxis
-              type="category"
-              dataKey="time"
-              stroke="#9aa4b2"
-              fontSize={12}
-            />
+            {/* Severity bands behind the data (both signs). Innermost first. */}
+            <ReferenceArea y1={-WATCH} y2={WATCH} fill={BAND.normal} fillOpacity={1} ifOverflow="extendDomain" />
+            <ReferenceArea y1={WATCH} y2={WARNING} fill={BAND.watch} fillOpacity={1} />
+            <ReferenceArea y1={-WARNING} y2={-WATCH} fill={BAND.watch} fillOpacity={1} />
+            <ReferenceArea y1={WARNING} y2={ALARM} fill={BAND.warning} fillOpacity={1} />
+            <ReferenceArea y1={-ALARM} y2={-WARNING} fill={BAND.warning} fillOpacity={1} />
+            <ReferenceArea y1={ALARM} y2={yMax} fill={BAND.alarm} fillOpacity={1} />
+            <ReferenceArea y1={yMin} y2={-ALARM} fill={BAND.alarm} fillOpacity={1} />
+
+            <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" />
+            <XAxis type="category" dataKey="time" stroke="var(--muted)" fontSize={12} />
             <YAxis
               type="number"
               dataKey="residual"
-              stroke="#9aa4b2"
+              domain={[yMin, yMax]}
+              stroke="var(--muted)"
               fontSize={12}
               tickFormatter={(v: number) => v.toFixed(1)}
               width={48}
@@ -66,9 +92,9 @@ export default function ResidualChart({
             <Tooltip
               cursor={{ strokeDasharray: "3 3" }}
               contentStyle={{
-                background: "#1a2029",
-                border: "1px solid #2a323d",
-                color: "#e6e9ef",
+                background: "var(--surface)",
+                border: "1px solid var(--border)",
+                color: "var(--text)",
               }}
               formatter={(value: number, _name, props) => [
                 `${value.toFixed(2)}%  (${props?.payload?.level})`,
@@ -76,24 +102,7 @@ export default function ResidualChart({
               ]}
             />
 
-            {/* Dashed threshold guide lines at +/- each threshold. */}
-            {THRESHOLDS.map((t) => (
-              <ReferenceLine
-                key={`p${t}`}
-                y={t}
-                stroke="#5a6472"
-                strokeDasharray="5 4"
-              />
-            ))}
-            {THRESHOLDS.map((t) => (
-              <ReferenceLine
-                key={`n${t}`}
-                y={-t}
-                stroke="#5a6472"
-                strokeDasharray="5 4"
-              />
-            ))}
-            <ReferenceLine y={0} stroke="#3a424d" />
+            <ReferenceLine y={0} stroke="var(--border-strong)" />
 
             <Scatter data={data} isAnimationActive={false}>
               {data.map((d) => (
