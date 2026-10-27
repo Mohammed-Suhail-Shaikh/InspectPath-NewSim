@@ -135,7 +135,7 @@ The optional report backend runs from `api/` with `uvicorn main:app --port 8000`
 
 ## 8. Testing
 
-- Dashboard: from `web/`, `npm run build` and `npm test`. 74 tests run against the sample and the committed real KW51 geometry/plans; none need the image datasets. This is the main test suite.
+- Dashboard: from `web/`, `npm run build` and `npm test`. 108 tests run against the sample and the committed real KW51 geometry/plans; none need the image datasets. This is the main test suite.
 - Defect tier rule: `python -m pytest ml/defect/tests/test_tier.py` (14 tests, no model or dataset needed). The 8 API tests in `ml/defect/tests/test_api.py` also need `torch`, `fastapi`, and `pillow` installed to collect, since the API module imports the model stack at load time.
 
 A judge without the datasets can still see the system work: start the defect API in mock mode and run the dashboard, which falls back to mock structure, plan, and findings while replaying the real KW51 demo window. The monitor labels whether it is showing real or sample data, so what is real stays clear.
