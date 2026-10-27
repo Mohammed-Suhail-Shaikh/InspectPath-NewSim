@@ -1,12 +1,18 @@
 import { useReplay } from "./useReplay";
-import AlertHero from "./AlertHero";
-import ReadingsPanel from "./ReadingsPanel";
-import FrequencyChart from "./FrequencyChart";
-import ResidualChart from "./ResidualChart";
+import StatusCard from "./StatusCard";
+import SummaryMetrics from "./SummaryMetrics";
+import DriftChart from "./DriftChart";
+import AlertTimeline from "./AlertTimeline";
+import EngineeringSection from "./EngineeringSection";
 import ReplayControls from "./ReplayControls";
-import EscalationBanner from "./EscalationBanner";
 import DatasetPicker from "./DatasetPicker";
+import { currentLevelSince } from "./monitorMetrics";
 import { useViewState } from "../../app/viewState";
+
+// Every monitor chart shares ONE time window so the frequency, drift, and
+// engineering charts line up (previously the frequency chart used 12 and the
+// residual chart 24, showing different spans).
+const CHART_WINDOW = 24;
 
 export default function MonitorView() {
   const { current, loading, records, isMock } = useReplay();
@@ -31,13 +37,12 @@ export default function MonitorView() {
 
   const index = Math.min(replayCursor, records.length - 1);
   const atEnd = index >= records.length - 1;
+  // History up to (and including) the current cursor — the data every panel
+  // summarizes. Nothing reads past the cursor.
+  const history = records.slice(0, index + 1);
+  const since = currentLevelSince(history);
 
   const isKw51 = !isMock && (replayDataset === "kw51_demo" || replayDataset === "kw51");
-
-  // Panel label by source:
-  // - mock: never claim real data
-  // - KW51 real data: replay of recorded times, not live
-  // - other real source: the file's own source label
   const subtitle = isMock
     ? "Replaying sample sensor data (mock)"
     : isKw51
@@ -57,18 +62,19 @@ export default function MonitorView() {
         </div>
       </div>
 
-      {/* DOM order is also the mobile stack order:
-          alert level + degraded badge, dispatch banner, readings,
-          frequency chart, residual chart. */}
-      <AlertHero record={current} />
+      {/* LAYER 1 — summary for anyone. DOM order = mobile stack order. */}
+      <StatusCard record={current} since={since} />
+      <SummaryMetrics current={current} history={history} />
+      <DriftChart records={records} upToIndex={index} window={CHART_WINDOW} />
+      <AlertTimeline history={history} />
 
-      <EscalationBanner level={current.alert_level} />
-
-      <ReadingsPanel record={current} />
-
-      <FrequencyChart records={records} upToIndex={index} />
-
-      <ResidualChart records={records} upToIndex={index} />
+      {/* LAYER 2 — engineering detail, always visible. */}
+      <EngineeringSection
+        current={current}
+        history={history}
+        upToIndex={index}
+        window={CHART_WINDOW}
+      />
     </div>
   );
 }
