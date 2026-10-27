@@ -13,7 +13,6 @@ longer apply. The historical owners below are kept for provenance only.
 | ml/defect/ | Zaiba |
 | ml/trigger/ | Komal |
 | data/ | Komal (structures/ by Varun) |
-| embedded/ (Wokwi firmware) | Varun |
 | firmware_esp32/ (ESP32 firmware + planner) | Varun |
 | docs/, README.md, .kiro/ | Suhail |
 
