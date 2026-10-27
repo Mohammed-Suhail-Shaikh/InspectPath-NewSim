@@ -27,6 +27,18 @@
   --route: #6d28d9;
   --route-soft: #6d28d91f;
 
+  /* Inspection elevation map: structure recedes (light grays), route and
+     progress stand out (saturated purple on a white casing). All graphics are
+     >=3:1 against the bg and the heaviest member line. */
+  --map-member-strong: #aeb6c0; /* arch + girder */
+  --map-member-mid: #c3cad3;    /* deck beams */
+  --map-member-light: #d4d9e0;  /* diagonals, braces */
+  --map-sensor: #5b6676;        /* sensor squares */
+  --map-stop-unvisited: #434c59;/* hollow unvisited stop outline */
+  --route-flown: #5b21b6;       /* flown route, visited stops, robot */
+  --route-remaining: #6d28d9;   /* remaining route (lighter, dashed) */
+  --route-casing: #ffffff;      /* white casing under route / ring on stops */
+
   /* Typography */
   --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --text-hero: 3rem;
@@ -988,9 +1000,25 @@ body {
 }
 
 .legend-visited {
-  border: 1.2px solid var(--route);
+  border: 1.6px solid var(--route-casing);
   border-radius: 50%;
-  background: var(--route);
+  background: var(--route-flown);
+}
+
+/* route legend: short line swatches */
+.legend-line {
+  width: 18px;
+  height: 0;
+  flex: none;
+  align-self: center;
+}
+
+.legend-route-flown {
+  border-top: 2.6px solid var(--route-flown);
+}
+
+.legend-route-remaining {
+  border-top: 2px dashed var(--route-remaining);
 }
 
 /* Dataset picker fallback note: shown when a real dataset is selected but the

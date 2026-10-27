@@ -58,6 +58,32 @@ Soft band tints for the residual chart (level color at low alpha):
 | `--route` | `#6d28d9` | route line and robot marker |
 | `--route-soft` | `#6d28d91f` | coverage shading (subtle) |
 
+### Inspection elevation map (structure recedes, route and progress stand out)
+The members are context: light grays, keeping the weight hierarchy. The route,
+visited stops, and robot are the figure: saturated purple on a white casing so
+they read over the members. Every graphic is >=3:1 against the background AND
+against the heaviest member line (`--map-member-strong`); see the contrast table
+in the PR notes.
+
+| Token | Hex | Use |
+|---|---|---|
+| `--map-member-strong` | `#aeb6c0` | arch and girder lines (heaviest) |
+| `--map-member-mid` | `#c3cad3` | deck beam lines (medium) |
+| `--map-member-light` | `#d4d9e0` | diagonal and brace lines (lightest) |
+| `--map-sensor` | `#5b6676` | small sensor squares (dark gray) |
+| `--map-stop-unvisited` | `#434c59` | hollow unvisited stop outline (dark gray) |
+| `--route-flown` | `#5b21b6` | flown part of the route (solid), visited stops, robot |
+| `--route-remaining` | `#6d28d9` | remaining part of the route (lighter, dashed) |
+| `--route-casing` | `#ffffff` | thin white casing under the route and ring on visited stops / robot |
+
+Route and progress: the flown segment is solid `--route-flown`; the remaining
+segment is `--route-remaining`, lighter and dashed; both sit on a white casing.
+Stops: unvisited are hollow `--map-stop-unvisited` outlines (circle = arch,
+diamond = deck); visited are filled `--route-flown` with a white ring. The robot
+is a larger `--route-flown` marker with a white outline. Shape still carries
+meaning so nothing depends on color alone. Route progress animation respects
+`prefers-reduced-motion`.
+
 ## Typography
 
 One sans-serif family. Tabular numerals on all readings and numeric values.

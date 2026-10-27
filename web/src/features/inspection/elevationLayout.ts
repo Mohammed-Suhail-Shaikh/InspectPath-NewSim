@@ -103,6 +103,16 @@ export function memberOpacity(part: string): number {
   return 0.6;
 }
 
+// Member stroke color by weight: light grays so the structure recedes behind the
+// route. Heavy (arch/girder) is the darkest member but still a light gray;
+// diagonals the faintest. CSS variables from the design tokens.
+export function memberStroke(part: string): string {
+  if (part.startsWith("arch") || part.startsWith("girder"))
+    return "var(--map-member-strong)";
+  if (part === "deck_beam") return "var(--map-member-mid)";
+  return "var(--map-member-light)";
+}
+
 // Diagonal number (1-16) for a connection location, read from its diagonal_ends.
 // overview.pdf numbers diagonal 1 at the Leuven end (high x) and 16 at Brussels
 // (low x). A location can sit where two diagonals meet; the lowest number is a

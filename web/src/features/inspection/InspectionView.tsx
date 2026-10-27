@@ -195,6 +195,7 @@ export default function InspectionView() {
             plan={plan}
             side={selectedSide}
             visitedIds={visitedIds}
+            robotIndex={robotIndex}
           >
             {robotPt && (
               <RobotMarker cx={robotPt.cx} cy={robotPt.cy} r={stopR} />
@@ -238,7 +239,15 @@ export default function InspectionView() {
             </li>
             <li>
               <span className="legend-swatch legend-visited" aria-hidden="true" />
-              Visited (filled)
+              Visited stop (filled)
+            </li>
+            <li>
+              <span className="legend-line legend-route-flown" aria-hidden="true" />
+              Route flown (solid)
+            </li>
+            <li>
+              <span className="legend-line legend-route-remaining" aria-hidden="true" />
+              Route remaining (dashed)
             </li>
           </ul>
 

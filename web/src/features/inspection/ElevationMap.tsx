@@ -13,6 +13,7 @@ import {
   diagonalMemberNumbers,
   elevationBounds,
   memberOpacity,
+  memberStroke,
   memberWeight,
   nodeOnSide,
   project,
@@ -33,12 +34,14 @@ export default function ElevationMap({
   plan,
   side,
   visitedIds,
+  robotIndex = -1,
   children,
 }: {
   structure: MetricStructure;
   plan: MetricPlan | null;
   side: BridgeSide;
   visitedIds?: Set<string>;
+  robotIndex?: number;
   children?: ReactNode;
 }) {
   const bounds = elevationBounds(structure);
@@ -71,14 +74,26 @@ export default function ElevationMap({
     side === "A" ? Math.abs(s.y) < 0.5 : Math.abs(s.y - 11.75) < 0.5
   );
 
-  // Route segments for stops on this side, in plan order.
+  // Route points for stops on this side, in plan order, each tagged with its
+  // order in the FULL route so we can split flown (<= robotIndex) from remaining.
   const sideStopIds = new Set(stops.map((s) => s.location_id));
-  const routePts = (plan?.stops ?? [])
+  const routePoints = (plan?.stops ?? [])
     .filter((s) => sideStopIds.has(s.location_id))
     .map((s) => {
       const { px, py } = project(s.x, s.z, bounds);
-      return `${px.toFixed(1)},${py.toFixed(1)}`;
-    })
+      return { order: s.order, pt: `${px.toFixed(1)},${py.toFixed(1)}` };
+    });
+  // Flown = points at or before the robot; remaining = the rest. Overlap by one
+  // point so the two polylines join without a gap. When robotIndex is -1 (no
+  // run yet) everything is "remaining".
+  const idx = robotIndex;
+  const flownPts = routePoints
+    .filter((p) => p.order <= idx)
+    .map((p) => p.pt)
+    .join(" ");
+  const remainingPts = routePoints
+    .filter((p, i) => p.order >= idx || (i > 0 && routePoints[i - 1].order <= idx))
+    .map((p) => p.pt)
     .join(" ");
 
   const r = Math.max(4, ELEV_SCALE * 0.6);
@@ -126,7 +141,7 @@ export default function ElevationMap({
             y1={pa.py}
             x2={pb.px}
             y2={pb.py}
-            stroke="#6b7480"
+            stroke={memberStroke(m.part)}
             strokeOpacity={memberOpacity(m.part)}
             strokeWidth={memberWeight(m.part)}
           />
@@ -230,15 +245,48 @@ export default function ElevationMap({
         Leuven
       </text>
 
-      {/* route polyline for this side (purple, reserved for the route) */}
-      {routePts && (
+      {/* route: a thin white casing underneath so it stays visible where it
+          crosses members, then the flown part solid and the remaining part
+          lighter + dashed. */}
+      {remainingPts && (
         <polyline
-          points={routePts}
+          points={remainingPts}
           fill="none"
-          stroke="var(--route)"
-          strokeWidth={1.5}
-          strokeOpacity={0.55}
-          strokeDasharray="4 3"
+          stroke="var(--route-casing)"
+          strokeWidth={4}
+          strokeLinejoin="round"
+          strokeLinecap="round"
+        />
+      )}
+      {flownPts && (
+        <polyline
+          points={flownPts}
+          fill="none"
+          stroke="var(--route-casing)"
+          strokeWidth={4.5}
+          strokeLinejoin="round"
+          strokeLinecap="round"
+        />
+      )}
+      {remainingPts && (
+        <polyline
+          points={remainingPts}
+          fill="none"
+          stroke="var(--route-remaining)"
+          strokeWidth={2}
+          strokeDasharray="5 4"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+        />
+      )}
+      {flownPts && (
+        <polyline
+          points={flownPts}
+          fill="none"
+          stroke="var(--route-flown)"
+          strokeWidth={2.6}
+          strokeLinejoin="round"
+          strokeLinecap="round"
         />
       )}
 
@@ -254,8 +302,8 @@ export default function ElevationMap({
               y={py - r * 0.5}
               width={r}
               height={r}
-              fill="#ffffff"
-              stroke="#5b6676"
+              fill="var(--map-sensor)"
+              stroke="var(--map-sensor)"
               strokeWidth={1}
             />
             <text
@@ -263,8 +311,9 @@ export default function ElevationMap({
               y={py}
               textAnchor="middle"
               dominantBaseline="central"
-              fontSize={r * 0.9}
-              fill="#5b6676"
+              fontSize={r * 0.82}
+              fontWeight={600}
+              fill="#ffffff"
               aria-hidden="true"
             >
               {letter}
@@ -279,8 +328,11 @@ export default function ElevationMap({
       {stops.map((l) => {
         const { px, py } = project(l.x, l.z, bounds);
         const isVisited = visited.has(l.location_id);
-        const fill = isVisited ? "var(--route)" : "#ffffff";
-        const stroke = isVisited ? "var(--route)" : "#8a93a0";
+        // Visited: filled route-purple with a white ring (casing drawn first,
+        // slightly larger). Unvisited: hollow dark-gray outline.
+        const fill = isVisited ? "var(--route-flown)" : "#ffffff";
+        const stroke = isVisited ? "var(--route-casing)" : "var(--map-stop-unvisited)";
+        const sw = isVisited ? 1.6 : 1.2;
         const marker =
           l.end === "deck" ? (
             // diamond for deck connections
@@ -288,16 +340,18 @@ export default function ElevationMap({
               points={`${px},${py - r * 0.6} ${px + r * 0.6},${py} ${px},${py + r * 0.6} ${px - r * 0.6},${py}`}
               fill={fill}
               stroke={stroke}
-              strokeWidth={1.2}
+              strokeWidth={sw}
             />
           ) : (
             // circle for arch connections
-            <circle cx={px} cy={py} r={r * 0.5} fill={fill} stroke={stroke} strokeWidth={1.2} />
+            <circle cx={px} cy={py} r={r * 0.5} fill={fill} stroke={stroke} strokeWidth={sw} />
           );
         return (
           <g key={`stop-${l.location_id}`}>
             {marker}
-            <title>{`Connection ${l.location_id} (${l.end})`}</title>
+            <title>
+              {`Connection ${l.location_id} (${l.end})${isVisited ? " — visited" : ""}`}
+            </title>
           </g>
         );
       })}
