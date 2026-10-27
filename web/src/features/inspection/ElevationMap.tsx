@@ -10,7 +10,7 @@ import {
   ELEV_SCALE,
   SIDE_LABEL,
   bearingSpan,
-  diagonalNumber,
+  diagonalMemberNumbers,
   elevationBounds,
   memberOpacity,
   memberWeight,
@@ -56,6 +56,10 @@ export default function ElevationMap({
     const b = nodeById.get(m.nodes[1]);
     return a && b && nodeOnSide(a, side) && nodeOnSide(b, side);
   });
+
+  // Diagonal number per diagonal member (1 Leuven .. 16 Brussels), so each of
+  // the 16 is labeled once at its own midpoint.
+  const diagNums = diagonalMemberNumbers(structure, side);
 
   // Stops on the selected side.
   const stops = structure.diagonal_connections.distinct_locations.filter(
@@ -126,6 +130,30 @@ export default function ElevationMap({
             strokeOpacity={memberOpacity(m.part)}
             strokeWidth={memberWeight(m.part)}
           />
+        );
+      })}
+
+      {/* diagonal numbers: one per diagonal member, at its midpoint, so all 16
+          appear once per side (matching overview.pdf) */}
+      {members.map((m) => {
+        const num = diagNums.get(m.id);
+        if (num === undefined) return null;
+        const a = nodeById.get(m.nodes[0])!;
+        const b = nodeById.get(m.nodes[1])!;
+        const pa = project(a.x, a.z, bounds);
+        const pb = project(b.x, b.z, bounds);
+        return (
+          <text
+            key={`dn-${m.id}`}
+            x={(pa.px + pb.px) / 2}
+            y={(pa.py + pb.py) / 2}
+            textAnchor="middle"
+            dominantBaseline="central"
+            fontSize={8}
+            fill="#8a93a0"
+          >
+            {num}
+          </text>
         );
       })}
 
@@ -253,7 +281,6 @@ export default function ElevationMap({
         const isVisited = visited.has(l.location_id);
         const fill = isVisited ? "var(--route)" : "#ffffff";
         const stroke = isVisited ? "var(--route)" : "#8a93a0";
-        const num = diagonalNumber(l);
         const marker =
           l.end === "deck" ? (
             // diamond for deck connections
@@ -270,19 +297,7 @@ export default function ElevationMap({
         return (
           <g key={`stop-${l.location_id}`}>
             {marker}
-            {num !== null && (
-              <text
-                x={px}
-                y={l.end === "arch" ? py - r * 0.9 : py + r * 1.6}
-                textAnchor="middle"
-                fontSize={8}
-                fill="#8a93a0"
-                aria-hidden="true"
-              >
-                {num}
-              </text>
-            )}
-            <title>{`Connection ${l.location_id} (${l.end}${num !== null ? `, diagonal ${num}` : ""})`}</title>
+            <title>{`Connection ${l.location_id} (${l.end})`}</title>
           </g>
         );
       })}

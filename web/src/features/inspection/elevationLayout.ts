@@ -105,13 +105,44 @@ export function memberOpacity(part: string): number {
 
 // Diagonal number (1-16) for a connection location, read from its diagonal_ends.
 // overview.pdf numbers diagonal 1 at the Leuven end (high x) and 16 at Brussels
-// (low x). A location can sit where two diagonals meet; show the lowest number
-// so the label is stable and unambiguous.
+// (low x). A location can sit where two diagonals meet; the lowest number is a
+// stable label for the stop. (Member-level labeling below shows all 16 once.)
 export function diagonalNumber(
   loc: { diagonal_ends?: { diagonal: number }[] }
 ): number | null {
   const ds = (loc.diagonal_ends ?? []).map((d) => d.diagonal);
   return ds.length ? Math.min(...ds) : null;
+}
+
+// Map each diagonal member id to its diagonal number (1-16), so every diagonal
+// can be labeled once at its own midpoint (matching overview.pdf) instead of
+// collapsing pairs onto a shared stop. A diagonal member's number is the number
+// shared by BOTH its endpoint connection locations: each end node participates
+// in up to two diagonals, and the member is the one diagonal common to both
+// ends. Built per side from the layout.
+export function diagonalMemberNumbers(
+  structure: MetricStructure,
+  side: BridgeSide
+): Map<number, number> {
+  // node_id -> set of diagonal numbers meeting at that node (this side).
+  const nodeDiags = new Map<number, Set<number>>();
+  for (const loc of structure.diagonal_connections.distinct_locations) {
+    if (loc.side !== side) continue;
+    const set = nodeDiags.get(loc.node_id) ?? new Set<number>();
+    for (const e of loc.diagonal_ends) set.add(e.diagonal);
+    nodeDiags.set(loc.node_id, set);
+  }
+  const out = new Map<number, number>();
+  for (const m of structure.members) {
+    if (m.part !== `diagonal_${side}`) continue;
+    const a = nodeDiags.get(m.nodes[0]);
+    const b = nodeDiags.get(m.nodes[1]);
+    if (!a || !b) continue;
+    const shared = [...a].filter((n) => b.has(n));
+    if (shared.length === 1) out.set(m.id, shared[0]);
+    else if (shared.length > 1) out.set(m.id, Math.min(...shared));
+  }
+  return out;
 }
 
 // Bearing x-positions (the two abutment lines) from the structure's bearing

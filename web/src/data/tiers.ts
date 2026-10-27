@@ -17,6 +17,21 @@ export const TIER_LABEL: Record<DefectTier, string> = {
   none: "None",
 };
 
+// Single letter per tier (used on map pins, where space is tight).
+export const TIER_LETTER: Record<DefectTier, string> = {
+  high: "H",
+  medium: "M",
+  low: "L",
+  none: "",
+};
+
+// Letter-in-parens plus the word, e.g. "(H) High". Used anywhere there is room
+// for the full chip (strip, finding detail, legend). Never color-alone.
+export function tierChipText(tier: DefectTier): string {
+  if (tier === "none") return TIER_LABEL.none;
+  return `(${TIER_LETTER[tier]}) ${TIER_LABEL[tier]}`;
+}
+
 // Count imaged findings by tier and render a plain-language, color-independent
 // summary, e.g. "1 high, 1 medium, 2 low (4 imaged for demonstration)". Shared
 // by the stats panel and the rule-based report so the wording stays identical.

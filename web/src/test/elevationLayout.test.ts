@@ -3,6 +3,7 @@ import {
   memberWeight,
   memberOpacity,
   diagonalNumber,
+  diagonalMemberNumbers,
   bearingSpan,
 } from "../features/inspection/elevationLayout";
 import layout from "../../../data/structures/kw51_layout.json";
@@ -30,6 +31,26 @@ describe("diagonal numbering", () => {
     expect(diagonalNumber({ diagonal_ends: [{ diagonal: 1 }] })).toBe(1);
     expect(diagonalNumber({ diagonal_ends: [] })).toBeNull();
   });
+});
+
+describe("diagonal member numbering (all 16 once per side)", () => {
+  const structure = layout as unknown as MetricStructure;
+
+  for (const side of ["A", "C"] as const) {
+    it(`side ${side}: every number 1..16 is assigned to exactly one diagonal member`, () => {
+      const map = diagonalMemberNumbers(structure, side);
+      const nums = [...map.values()].sort((a, b) => a - b);
+      // 16 diagonal members, numbers 1..16, no repeats, no gaps.
+      expect(nums).toEqual(Array.from({ length: 16 }, (_, i) => i + 1));
+      // keys are member ids of this side's diagonals only
+      const diagMemberIds = new Set(
+        structure.members
+          .filter((m) => m.part === `diagonal_${side}`)
+          .map((m) => m.id)
+      );
+      for (const id of map.keys()) expect(diagMemberIds.has(id)).toBe(true);
+    });
+  }
 });
 
 describe("bearing span from the real layout", () => {
