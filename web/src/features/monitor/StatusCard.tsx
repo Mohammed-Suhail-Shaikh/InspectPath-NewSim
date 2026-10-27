@@ -25,11 +25,11 @@ const RECOMMENDATION: Record<AlertLevel, string> = {
 function directionSentence(residualPct: number): string {
   const mag = Math.abs(residualPct).toFixed(2);
   if (Math.abs(residualPct) < THRESHOLDS.watch) {
-    return `The bridge is vibrating within ${mag}% of what is expected for today's temperature, which is normal.`;
+    return `The bridge is vibrating within ${mag}% of what is expected for the recorded temperature, which is normal.`;
   }
   const dir = residualPct > 0 ? "faster" : "slower";
   return (
-    `The bridge is vibrating ${mag}% ${dir} than expected for today's temperature. ` +
+    `The bridge is vibrating ${mag}% ${dir} than expected for the recorded temperature. ` +
     "A shift this size can mean the structure has changed."
   );
 }

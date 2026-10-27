@@ -73,8 +73,9 @@ export default function FreqTempScatter({
     <section className="chart">
       <h3 className="chart-title">Measured frequency vs temperature (zoomed in)</h3>
       <p className="chart-legend muted">
-        Each point is one reading; the dashed line is the temperature model's
-        prediction. The y-axis does not start at 0, so the scatter is exaggerated.
+        Every reading in this replay (not just the recent window) is plotted; the
+        dashed line is the temperature model's prediction. The y-axis does not
+        start at 0, so the scatter is exaggerated.
       </p>
       <div className="chart-body">
         <ResponsiveContainer width="100%" height={300}>
@@ -131,7 +132,7 @@ export default function FreqTempScatter({
         </ResponsiveContainer>
       </div>
       <p className="chart-legend muted">
-        {allOrMost} readings in this window ({share.above} of {share.total}, {pct}%)
+        {allOrMost} readings in this replay ({share.above} of {share.total}, {pct}%)
         sit above the healthy-period model line. The model was fit on pre-retrofit
         data, so readings sitting above it is consistent with the retrofit
         stiffening the bridge.

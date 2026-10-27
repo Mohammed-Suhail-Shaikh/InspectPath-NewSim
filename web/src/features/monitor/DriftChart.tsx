@@ -10,6 +10,7 @@ import {
   ReferenceLine,
   ResponsiveContainer,
   Cell,
+  LabelList,
 } from "recharts";
 import type { TriggerRecord } from "../../data/types";
 import { alertStyle } from "../../data/alertLevels";
@@ -60,9 +61,9 @@ export default function DriftChart({
   const yMax = bound;
   const ticks: number[] = [];
   for (let t = -bound; t <= bound; t++) ticks.push(t);
-  const currentResidual = slice.length
-    ? slice[slice.length - 1].residual_pct
-    : 0;
+  // The current (latest) reading, rendered as a single emphasized dot with a
+  // "now" label beside it — NOT a horizontal line across the chart.
+  const nowPoint = data.length ? [{ ...data[data.length - 1], now: "now" }] : [];
 
   return (
     <section className="chart">
@@ -128,14 +129,6 @@ export default function DriftChart({
             <ReferenceLine y={0} stroke="var(--border-strong)"
               label={{ value: "expected", position: "right", fill: "var(--muted)", fontSize: 11 }} />
 
-            {/* current reading marker, labeled on the right so it clears the y-axis */}
-            <ReferenceLine
-              y={currentResidual}
-              stroke="var(--route-flown)"
-              strokeWidth={1.5}
-              label={{ value: "now", position: "right", fill: "var(--route-flown)", fontSize: 11 }}
-            />
-
             <Scatter data={data} isAnimationActive={false}>
               {data.map((d) =>
                 d.level === "watch" ? (
@@ -144,6 +137,19 @@ export default function DriftChart({
                   <Cell key={d.i} fill={d.color} />
                 )
               )}
+            </Scatter>
+
+            {/* current reading: one emphasized dot with a "now" label beside it,
+                ring in the route-done purple so it reads as the latest point */}
+            <Scatter data={nowPoint} isAnimationActive={false} shape="circle">
+              <Cell fill="var(--route-flown)" stroke="#ffffff" strokeWidth={2} />
+              <LabelList
+                dataKey="now"
+                position="top"
+                offset={10}
+                fill="var(--route-flown)"
+                fontSize={11}
+              />
             </Scatter>
           </ScatterChart>
         </ResponsiveContainer>
