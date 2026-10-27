@@ -10,7 +10,16 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import type { TriggerRecord } from "../../data/types";
-import { recoverTempModel, shareAbovePredicted } from "./monitorMetrics";
+import {
+  recoverTempModel,
+  shareAbovePredicted,
+  downsample,
+} from "./monitorMetrics";
+
+// Cap on plotted scatter points. The relationship is fully represented by an
+// evenly-spaced sample; drawing every point of the ~10k full replay blanks the
+// page. The model line, y-domain, and the share stat still use every reading.
+const MAX_POINTS = 400;
 
 // Layer 2, item 11b: measured frequency vs temperature, with the model's
 // prediction line. The line comes from recoverTempModel (fit of the served
@@ -26,10 +35,14 @@ export default function FreqTempScatter({
   const slice = records.slice(0, end);
   const model = recoverTempModel(slice);
 
-  const pts = slice.map((r) => ({
+  // Downsample the plotted points so the scatter never renders thousands of
+  // SVG nodes (the crash on the full dataset). The stats below use all readings.
+  const plotted = downsample(slice, MAX_POINTS);
+  const pts = plotted.map((r) => ({
     temp: r.temperature_c,
     measured: r.frequency_hz,
   }));
+  const isDownsampled = plotted.length < slice.length;
 
   // Prediction line across the observed temperature range.
   const temps = slice.map((r) => r.temperature_c);
@@ -73,8 +86,10 @@ export default function FreqTempScatter({
     <section className="chart">
       <h3 className="chart-title">Measured frequency vs temperature (zoomed in)</h3>
       <p className="chart-legend muted">
-        Every reading in this replay (not just the recent window) is plotted; the
-        dashed line is the temperature model's prediction. The y-axis does not
+        {isDownsampled
+          ? `Readings from across this replay (an even sample of ${pts.length} of ${slice.length}) are plotted; `
+          : "Every reading in this replay (not just the recent window) is plotted; "}
+        the dashed line is the temperature model's prediction. The y-axis does not
         start at 0, so the scatter is exaggerated.
       </p>
       <div className="chart-body">

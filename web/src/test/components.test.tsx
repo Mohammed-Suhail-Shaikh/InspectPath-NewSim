@@ -293,6 +293,46 @@ describe("ImageOverlay", () => {
   });
 });
 
+describe("ViewErrorBoundary", () => {
+  it("shows a recoverable message instead of blanking when a child throws", async () => {
+    const { default: ViewErrorBoundary } = await import(
+      "../components/ViewErrorBoundary"
+    );
+    function Boom(): JSX.Element {
+      throw new Error("kaboom");
+    }
+    // Silence the expected React error log for this render.
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    render(
+      <ViewErrorBoundary onRestart={() => {}}>
+        <Boom />
+      </ViewErrorBoundary>
+    );
+    expect(screen.getByText(/this section hit an error/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /restart/i })).toBeInTheDocument();
+    spy.mockRestore();
+  });
+
+  it("calls onRestart when the restart button is clicked", async () => {
+    const { default: ViewErrorBoundary } = await import(
+      "../components/ViewErrorBoundary"
+    );
+    function Boom(): JSX.Element {
+      throw new Error("kaboom");
+    }
+    const onRestart = vi.fn();
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    render(
+      <ViewErrorBoundary onRestart={onRestart}>
+        <Boom />
+      </ViewErrorBoundary>
+    );
+    fireEvent.click(screen.getByRole("button", { name: /restart/i }));
+    expect(onRestart).toHaveBeenCalledTimes(1);
+    spy.mockRestore();
+  });
+});
+
 describe("report generation", () => {
   beforeEach(() => {
     vi.restoreAllMocks();

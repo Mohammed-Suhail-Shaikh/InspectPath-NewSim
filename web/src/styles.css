@@ -1373,3 +1373,16 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* Error boundary fallback for a view that threw */
+.view-error {
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: var(--sp-5);
+  margin-top: var(--sp-4);
+  text-align: center;
+  background: var(--surface);
+}
+.view-error p {
+  margin: 0 0 var(--sp-3);
+}

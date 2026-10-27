@@ -13,8 +13,10 @@ import {
   fmtUtcHm,
   timeAboveNormal,
   shareAbovePredicted,
+  downsample,
 } from "../features/monitor/monitorMetrics";
 import replay from "../../../data/trigger/replay_kw51_demo.json";
+import full from "../../../data/trigger/replay_kw51.json";
 import type { TriggerRecord } from "../data/types";
 
 const recs = replay as unknown as TriggerRecord[];
@@ -150,6 +152,25 @@ describe("share above the model line (fix 6: computed, not assumed 'all')", () =
     const s = shareAbovePredicted(recs);
     expect(s.total).toBe(recs.length);
     expect(s.fraction).toBeGreaterThan(0.5);
+  });
+});
+
+describe("downsample (root-cause guard for the blank-page crash)", () => {
+  it("caps a large series to at most max points, keeping first and last", () => {
+    const big = Array.from({ length: 9857 }, (_, i) => i);
+    const out = downsample(big, 400);
+    expect(out.length).toBe(400);
+    expect(out[0]).toBe(0);
+    expect(out[out.length - 1]).toBe(9856);
+  });
+  it("returns the array unchanged when it is already small enough", () => {
+    const small = [1, 2, 3];
+    expect(downsample(small, 400)).toEqual(small);
+  });
+  it("the full KW51 replay downsamples to the cap, not thousands of points", () => {
+    const fullRecs = full as unknown as TriggerRecord[];
+    expect(fullRecs.length).toBeGreaterThan(1000); // the crash input
+    expect(downsample(fullRecs, 400).length).toBe(400);
   });
 });
 

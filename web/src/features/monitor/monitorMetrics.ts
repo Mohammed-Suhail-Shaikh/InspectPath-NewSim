@@ -160,6 +160,20 @@ export function timeAboveNormal(
   return { hours, readings: records.length - startIdx };
 }
 
+// Evenly downsample an array to at most `max` items, always keeping the first
+// and last. Used so the frequency-vs-temperature scatter can represent every
+// reading's relationship without rendering thousands of SVG points (the full
+// KW51 replay is ~10k readings, which blanks the page if drawn point-for-point).
+export function downsample<T>(items: T[], max: number): T[] {
+  if (max <= 0 || items.length <= max) return items.slice();
+  const out: T[] = [];
+  const step = (items.length - 1) / (max - 1);
+  for (let i = 0; i < max; i++) {
+    out.push(items[Math.round(i * step)]);
+  }
+  return out;
+}
+
 // Share of readings whose measured frequency is ABOVE the model's predicted
 // frequency (i.e. positive residual). Returns the fraction 0..1 and the counts,
 // computed from the data so the UI can state the actual share instead of
