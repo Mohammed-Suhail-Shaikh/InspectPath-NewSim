@@ -4,7 +4,7 @@ InspectPath combines continuous bridge monitoring with targeted AI inspection.
 
 1. A low-cost sensor node on the bridge measures vibration, tilt, strain, water level, and temperature.
 2. A trigger model compares natural frequency against a temperature-corrected baseline and raises Watch / Warning / Alarm.
-3. A Warning or Alarm dispatches an inspection route that prioritizes the zone near the alert.
+3. A Warning or Alarm dispatches an inspection. The trigger does not localize the change, so on KW51 the route visits all 34 diagonal connections.
 4. A defect model trained on CODEBRIM (real bridge imagery) classifies five defect types and assigns an urgency tier.
 5. The dashboard and an LLM report give engineers one prioritized inspection list.
 
