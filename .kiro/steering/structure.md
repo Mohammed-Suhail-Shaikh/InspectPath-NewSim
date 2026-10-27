@@ -8,12 +8,10 @@ longer apply. The historical owners below are kept for provenance only.
 |---|---|
 | web/ (dashboard, report) | Suhail |
 | api/ (report backend) | Suhail |
-| web/src/planner/ | Varun |
 | web/src/mocks/ | Suhail |
 | ml/defect/ | Zaiba |
 | ml/trigger/ | Komal |
-| data/ | Komal (structures/ by Varun) |
-| embedded/ (Wokwi firmware) | Varun |
+| data/ | Komal (structures/kw51_layout.json by Suhail, post-hackathon) |
 | firmware_esp32/ (ESP32 firmware + planner) | Varun |
 | docs/, README.md, .kiro/ | Suhail |
 
