@@ -243,11 +243,11 @@ export default function InspectionView() {
             </li>
             <li>
               <span className="legend-line legend-route-flown" aria-hidden="true" />
-              Route flown (solid)
+              Route flown (solid purple, done)
             </li>
             <li>
               <span className="legend-line legend-route-remaining" aria-hidden="true" />
-              Route remaining (dashed)
+              Route remaining (dashed gray, to do)
             </li>
           </ul>
 

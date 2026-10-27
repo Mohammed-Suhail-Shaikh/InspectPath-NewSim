@@ -34,9 +34,9 @@
   --map-member-mid: #a2abb6;    /* deck beams (~2.2:1 vs bg) */
   --map-member-light: #aab2bd;  /* diagonals, braces (~2.0:1 vs bg) */
   --map-sensor: #5b6676;        /* sensor squares */
-  --map-stop-unvisited: #434c59;/* hollow unvisited stop outline */
-  --route-flown: #5b21b6;       /* flown route, visited stops, robot */
-  --route-remaining: #5e23bd;   /* remaining route (dashed; relies on white casing over members) */
+  --map-stop-unvisited: #434c59;/* hollow unvisited stop outline (to-do) */
+  --route-flown: #5b21b6;       /* purple = DONE: flown route, visited stops, robot */
+  --route-remaining: #434c59;   /* dark gray = TO-DO: remaining route (dashed), matches unvisited stops */
   --route-casing: #ffffff;      /* white casing under route / ring on stops */
 
   /* Typography */
