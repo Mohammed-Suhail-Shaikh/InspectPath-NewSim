@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   memberWeight,
-  memberOpacity,
+  memberStroke,
   diagonalNumber,
   diagonalMemberNumbers,
   bearingSpan,
@@ -17,9 +17,12 @@ describe("elevation line weights by member type", () => {
     expect(memberWeight("diagonal_C")).toBe(memberWeight("brace"));
   });
 
-  it("light members are drawn more faintly than heavy ones", () => {
-    expect(memberOpacity("arch_A")).toBeGreaterThanOrEqual(memberOpacity("deck_beam"));
-    expect(memberOpacity("deck_beam")).toBeGreaterThan(memberOpacity("diagonal_A"));
+  it("maps each member tier to its receding gray token", () => {
+    expect(memberStroke("arch_A")).toBe("var(--map-member-strong)");
+    expect(memberStroke("girder_C")).toBe("var(--map-member-strong)");
+    expect(memberStroke("deck_beam")).toBe("var(--map-member-mid)");
+    expect(memberStroke("diagonal_A")).toBe("var(--map-member-light)");
+    expect(memberStroke("brace")).toBe("var(--map-member-light)");
   });
 });
 

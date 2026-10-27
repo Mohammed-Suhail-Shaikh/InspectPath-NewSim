@@ -12,11 +12,14 @@ export default function RobotMarker({
 }) {
   if (cx === null || cy === null) return null;
 
+  // Larger than a stop, with a white outline so it reads over the route and the
+  // structure. Fill is the solid flown-route purple.
+  const rr = r * 1.25;
   return (
     <g className="robot">
-      <circle cx={cx} cy={cy} r={r} fill="var(--route)" stroke="#ffffff" strokeWidth={2} />
-      {/* simple "scanner" dot */}
-      <circle cx={cx} cy={cy} r={r * 0.35} fill="#ffffff" />
+      <circle cx={cx} cy={cy} r={rr} fill="var(--route-flown)" stroke="var(--route-casing)" strokeWidth={2.5} />
+      {/* scanner dot */}
+      <circle cx={cx} cy={cy} r={rr * 0.35} fill="var(--route-casing)" />
       <title>Inspection robot</title>
     </g>
   );

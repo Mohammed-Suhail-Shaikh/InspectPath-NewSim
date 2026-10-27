@@ -96,11 +96,14 @@ export function memberWeight(part: string): number {
   return 0.8; // diagonals, braces
 }
 
-// Member stroke opacity: let the light members recede a little.
-export function memberOpacity(part: string): number {
-  if (part.startsWith("arch") || part.startsWith("girder")) return 1;
-  if (part === "deck_beam") return 0.85;
-  return 0.6;
+// Member stroke color by weight: light grays so the structure recedes behind the
+// route. Heavy (arch/girder) is the darkest member but still a light gray;
+// diagonals the faintest. CSS variables from the design tokens.
+export function memberStroke(part: string): string {
+  if (part.startsWith("arch") || part.startsWith("girder"))
+    return "var(--map-member-strong)";
+  if (part === "deck_beam") return "var(--map-member-mid)";
+  return "var(--map-member-light)";
 }
 
 // Diagonal number (1-16) for a connection location, read from its diagonal_ends.
