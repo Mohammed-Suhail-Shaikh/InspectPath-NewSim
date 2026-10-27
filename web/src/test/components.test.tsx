@@ -228,7 +228,8 @@ describe("ImagedStrip", () => {
     // tier + top score shown as text (never color-alone)
     expect(screen.getByText(/A-deck-105020 · side A/)).toBeInTheDocument();
     expect(screen.getByText(/spallation 0\.98/)).toBeInTheDocument();
-    expect(screen.getByText(/H High/)).toBeInTheDocument();
+    // tier chip is "(H) High" (letter-in-parens + word, never color-alone)
+    expect(screen.getByText("(H) High")).toBeInTheDocument();
   });
 
   it("selects the finding when its card is clicked", () => {
@@ -244,6 +245,51 @@ describe("ImagedStrip", () => {
     );
     fireEvent.click(screen.getByRole("button", { name: /finding at connection A-deck-105020/i }));
     expect(onSelect).toHaveBeenCalledWith("f1");
+  });
+});
+
+describe("ImageOverlay", () => {
+  it("renders the image with alt text and a labelled dialog", async () => {
+    const { default: ImageOverlay } = await import(
+      "../features/inspection/ImageOverlay"
+    );
+    render(
+      <ImageOverlay src="/x.png" alt="Defect image at A-deck-105020, High priority" onClose={() => {}} />
+    );
+    expect(
+      screen.getByRole("dialog", { name: /A-deck-105020, High priority/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByAltText("Defect image at A-deck-105020, High priority")
+    ).toBeInTheDocument();
+  });
+
+  it("closes on Escape, on the close button, and on a backdrop click", async () => {
+    const { default: ImageOverlay } = await import(
+      "../features/inspection/ImageOverlay"
+    );
+
+    // Escape
+    let onClose = vi.fn();
+    const { unmount } = render(
+      <ImageOverlay src="/x.png" alt="img" onClose={onClose} />
+    );
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(onClose).toHaveBeenCalledTimes(1);
+    unmount();
+
+    // Close button
+    onClose = vi.fn();
+    const r2 = render(<ImageOverlay src="/x.png" alt="img" onClose={onClose} />);
+    fireEvent.click(screen.getByRole("button", { name: /close enlarged image/i }));
+    expect(onClose).toHaveBeenCalledTimes(1);
+    r2.unmount();
+
+    // Backdrop click (the dialog element itself)
+    onClose = vi.fn();
+    render(<ImageOverlay src="/x.png" alt="img" onClose={onClose} />);
+    fireEvent.click(screen.getByRole("dialog"));
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
 });
 
