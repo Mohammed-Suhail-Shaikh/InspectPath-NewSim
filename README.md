@@ -35,13 +35,13 @@ At the end of the hackathon the dashboard drew a sample grid bridge, because the
 
 ### 3.2 Post-hackathon work (Suhail)
 
-After the hackathon, Suhail took over all folders and moved the inspection side onto KW51:
+After the hackathon, Suhail continued the project on his own and moved the inspection side onto KW51:
 
-- Real KW51 geometry. `data/structures/kw51_layout.json` is derived from the KU Leuven finite element model of KW51: nodes, members, the 34 diagonal connection locations, and 26 sensor positions.
+- Real KW51 geometry. `data/structures/kw51_layout.json` is derived from the KU Leuven finite element model of KW51: nodes, members, the 34 diagonal connection locations, and 26 sensor positions. The extracted geometry was checked against KU Leuven's overview drawing, and the bearing span matches exactly: 114.198 m vs the drawing label "Overspanning 11419.8 cm" (`data/structures/README.md`).
 - Metric planner. The KW51 path extends Varun's `planner.py`; it is not a separate planner. It writes two plans, a manual per-level sweep and a nearest-neighbor + 2-opt route, and the route was compared against three baselines (section 5.3).
 - Real defect scores. The dashboard sends CODEBRIM held-out test images placed at 4 connections to the real defect model and shows its actual output.
 - Inspection map. A side elevation of KW51 drawn to scale, with the route, a side A / side C toggle, a plan toggle, and an imaged-connections strip with expandable images.
-- Two-layer monitor. A plain-language summary on top (status, current reading, drift from expected, time above normal) and an engineering section below (residual, temperature model, thresholds, persistence, sensor health).
+- Two-layer monitor. A plain-language summary on top (status, drift chart with alert bands, alert timeline) and an engineering section below (current reading, thresholds, temperature model, frequency charts).
 - Honesty and data-integrity fixes. The battery figure was removed from the UI and report, the dispatch banner states that the location is unknown, mock data is labeled as mock, and view error boundaries keep one failing view from blanking the page.
 
 ## 4. How it works
@@ -92,7 +92,7 @@ Distances are straight-line 3D and ignore obstacles such as the deck and bracing
 
 A React and Vite app in `web/` with two views, monitor and inspection. The report sits in the inspection view.
 
-The monitor replays KW51 data (a short demo window or the full record, chosen from a dataset picker). The top layer is plain language: the alert level, what it means, the current reading, drift from expected, and time above normal. A Warning or Alarm shows a Dispatch inspection button. The engineering layer below shows the residual chart with threshold lines, the temperature model, and sensor health.
+The monitor replays KW51 data (a short demo window or the full record, chosen from a dataset picker). The top layer is plain language: the alert level and what it means, drift from expected, time above normal, sensor health, a drift chart with Normal, Watch, Warning, and Alarm bands, and the alert timeline. A Warning or Alarm shows a Dispatch inspection button. The engineering layer below shows the current reading, thresholds, the tracked vibration mode, the temperature model, persistence above each threshold, a chart of measured vs predicted frequency, and a frequency vs temperature scatter.
 
 The inspection view draws KW51 in side elevation at true scale, one side at a time. Members are drawn in light gray so the route stands out: purple for what is done, dark gray and dashed for what remains. It shows connections visited, a tier breakdown of findings, and route length. Findings are pinned by tier, with a letter as well as a color, and clicking one shows the image, the per-class scores, and a close-up when one exists.
 
@@ -218,7 +218,7 @@ Without the datasets you can still see the system work: start the defect API in 
 - KW51 is a European steel railway bridge measured with professional accelerometers. The ESP32's MPU6050 is much noisier, so the trigger work demonstrates the method, not a calibration for Massachusetts bridges.
 - The trigger detects a change in natural frequency in either direction, but it does not localize it. A Warning or Alarm says something changed, not where, so the inspection visits all 34 connections. Localizing a change would need distributed sensors.
 - The temperature correction is a linear fit with R-squared 0.409. It underfits below freezing, where the bridge stiffens, so most remaining false alarms come from one cold spell.
-- The June 2019 demo window falls inside KW51's retrofit period, so the alarm there reflects the retrofit, not damage. The demo shows the method, not a diagnosis.
+- The June 2019 demo window falls inside KW51's retrofit period, so the alarm there may reflect the retrofit work rather than damage. The demo shows the method, not a diagnosis.
 - The defect model is trained on one dataset of concrete imagery, sees cropped patches rather than full photos, and has to learn from patches that often show several defects at once. KW51 is a steel bridge, so the defect images are placed at its connections for demonstration only.
 - Only 4 of the 34 connections have an image. The rest are neither assessed nor cleared.
 - Route length is a straight-line 3D estimate that ignores obstacles such as the deck and bracing. The launch point is assumed.
