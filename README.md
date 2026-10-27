@@ -1,6 +1,8 @@
 # InspectPath
 
-Continuous bridge monitoring that dispatches a targeted AI inspection and returns a ranked list of what to look at first. Track: Robotics & Hardware. Built for Hackachusetts 2026. Everything runs in simulation on real public datasets; there is no physical sensor node or drone.
+Continuous bridge monitoring that dispatches an inspection and returns a ranked list of what to look at first. It began as a Hackachusetts 2026 build (Robotics & Hardware track) and was extended afterwards on a real bridge, railway bridge KW51 in Leuven, Belgium.
+
+Everything runs in simulation on real public datasets. There is no physical sensor node or drone.
 
 ## 1. The problem and who benefits
 
@@ -12,15 +14,37 @@ From Varun's analysis of the 2022 National Bridge Inventory for Massachusetts, c
 
 ## 2. What it does
 
-InspectPath connects monitoring to inspection in one flow:
-
-1. Monitor: a sensor node streams structural and environmental readings.
+1. Monitor: a sensor node streams structural and environmental readings. On KW51, the dashboard replays recorded 2019 monitoring data.
 2. Trigger: a model compares natural frequency against a temperature-corrected baseline and raises Watch, Warning, or Alarm.
-3. Dispatch: a Warning or Alarm starts an inspection that prioritizes the zone near the alert.
+3. Dispatch: a Warning or Alarm offers an inspection. A frequency change does not say where the change is, so on KW51 the inspection visits all 34 diagonal connections.
 4. Inspect: the route captures images, and a defect model classifies each image and assigns an urgency tier.
 5. Ranked report: the dashboard and a plain-language report give one prioritized list of what to inspect first.
 
-## 3. How it works
+## 3. Project history
+
+### 3.1 Hackathon build (Hackachusetts 2026)
+
+A team of four built the first end-to-end version in one day:
+
+- Suhail: product lead, dashboard, report, integration.
+- Varun: sensor node and the planner (`firmware_esp32/planner.py`).
+- Zaiba: defect model.
+- Komal: trigger model.
+
+At the end of the hackathon the dashboard drew a sample grid bridge, because the planner's metric layout and the dashboard's grid format did not match yet.
+
+### 3.2 Post-hackathon work (Suhail)
+
+After the hackathon, Suhail took over all folders and moved the inspection side onto KW51:
+
+- Real KW51 geometry. `data/structures/kw51_layout.json` is derived from the KU Leuven finite element model of KW51: nodes, members, the 34 diagonal connection locations, and 26 sensor positions.
+- Metric planner. The KW51 path extends Varun's `planner.py`; it is not a separate planner. It writes two plans, a manual per-level sweep and a nearest-neighbor + 2-opt route, and the route was compared against three baselines (section 5.3).
+- Real defect scores. The dashboard sends CODEBRIM held-out test images placed at 4 connections to the real defect model and shows its actual output.
+- Inspection map. A side elevation of KW51 drawn to scale, with the route, a side A / side C toggle, a plan toggle, and an imaged-connections strip with expandable images.
+- Two-layer monitor. A plain-language summary on top (status, current reading, drift from expected, time above normal) and an engineering section below (residual, temperature model, thresholds, persistence, sensor health).
+- Honesty and data-integrity fixes. The battery figure was removed from the UI and report, the dispatch banner states that the location is unknown, mock data is labeled as mock, and view error boundaries keep one failing view from blanking the page.
+
+## 4. How it works
 
 ### Sensor node (Varun)
 
@@ -31,37 +55,56 @@ A low-cost ESP32 node, simulated in Wokwi, that measures the four failure-releva
 - HC-SR04: ultrasonic distance to the water surface, for water level and scour risk.
 - HX711 with a strain gauge: beam strain under traffic. A load cell stands in under simulation.
 
-The node runs on-device data-quality checks on every reading (range, stuck value, rate of change, dropout, timing jitter, and a temperature cross-check). A window with more than 5% flagged samples is excluded, and the node is reported as degraded rather than the bridge being called unsafe. It raises graded alerts (Normal, Watch, Warning, Alarm) and combines parameters, so a frequency drop with rising strain and new tilt is treated differently from a frequency drop during a heat wave. The firmware's own residual thresholds are 2 / 5 / 8 percent because its simulated MPU6050 is noisier than the professional sensors behind the KW51 data; this is intentional, see section 6. Full detail is in [`docs/hardware-spec.md`](docs/hardware-spec.md). Live simulation: [Varun's ESP32 sensor node simulation in Wokwi](https://wokwi.com/projects/478798310961586177).
+The node runs data-quality checks on every reading: range, stuck value, rate of change, dropout, timing jitter, and a temperature cross-check. A window with more than 5% flagged samples is excluded, and the node is reported as degraded rather than the bridge being called unsafe. It raises graded alerts and combines parameters, so a frequency drop with rising strain and new tilt is treated differently from a frequency drop during a heat wave.
+
+The firmware's residual thresholds are 2 / 5 / 8 percent, because its simulated MPU6050 is noisier than the professional sensors behind the KW51 data (section 7). Full detail is in [`docs/hardware-spec.md`](docs/hardware-spec.md). Live simulation: [Varun's ESP32 sensor node in Wokwi](https://wokwi.com/projects/478798310961586177).
 
 <img width="1152" height="971" alt="ESP32 sensor node circuit" src="https://github.com/user-attachments/assets/4afccc9e-e074-431f-b674-a60b70e9584a" />
 
 ### Trigger model on KW51 (Komal)
 
-The trigger model decides when the node should raise an alert. A bridge's natural frequency drops when it loses stiffness, but temperature also shifts frequency, often by more than damage does, so a naive threshold raises a false alarm with every cold snap. The model learns how frequency depends on temperature during a healthy period, then flags readings that do not fit.
+A bridge's natural frequency drops when it loses stiffness, but temperature also shifts frequency, often by more than damage does. A plain threshold would raise a false alarm with every cold snap. The trigger model learns how frequency depends on temperature during a healthy period, then flags readings that do not fit.
 
-It fits a linear baseline of mode-6 natural frequency against steel temperature on the healthy period (before May 15, 2019). For each reading it computes the residual, the percent difference between measured and predicted frequency, and assigns an alert level on the absolute residual: 0.75% watch, 1.5% warning, 2.0% alarm. It exports the result as replay data the dashboard plays back as if it were live. Code is in `ml/trigger/`, replay data in `data/trigger/`. Run it with `python ml/trigger/trigger_model.py`.
+It fits a linear baseline of mode-6 natural frequency against steel temperature on the healthy period (before May 15, 2019). For each reading it computes the residual, the percent difference between measured and predicted frequency, and assigns an alert level on the absolute residual: 0.75% watch, 1.5% warning, 2.0% alarm. It exports the result as replay data that the dashboard plays back. Code is in `ml/trigger/`, replay data in `data/trigger/`.
 
 ### Defect model on CODEBRIM (Zaiba)
 
-The defect model looks at a concrete patch and says which of five defects are present: crack, spallation, exposed bars, efflorescence, corrosion stain. A rule turns that into an urgency tier.
+The defect model looks at a concrete patch and says which of five defects are present: crack, spallation, exposed bars, efflorescence, corrosion stain.
 
-It is a pretrained ResNet-18 with five independent sigmoid outputs, since one patch can show several defects at once. Rare classes get a higher loss weight. Thin patches are padded to square and resized. The data is split by source photo, so test photos are never seen in training; the best epoch is chosen on validation, and the test set is used once. It serves `POST /predict` (an image file or base64) and returns per-class scores, the detected classes (score at or above the threshold of 0.5), and a tier. The tier rule, a team decision rather than an engineering standard: high if exposed_bars or spallation, else medium if corrosion_stain, else low if crack or efflorescence, else none. High and medium tiers trigger a close-up re-inspection.
+It is a pretrained ResNet-18 with five independent sigmoid outputs, since one patch can show several defects at once. Rare classes get a higher loss weight. Thin patches are padded to square and resized. The data is split by source photo, so test photos are never seen in training. The best epoch is chosen on validation, and the test set is used once.
 
-### Planner (Varun)
+It serves `POST /predict` (an image file or base64) and returns per-class scores, the detected classes (score at or above 0.5), and a tier. The tier rule is a team decision, not an engineering standard: high if exposed_bars or spallation, else medium if corrosion_stain, else low if crack or efflorescence, else none. High and medium tiers trigger a close-up re-inspection.
 
-The planner turns an alert into an inspection route. On a Warning it inspects only the zone near the node that raised the alert; on an Alarm it does that zone first, then sweeps the rest of the bridge. It reads a bridge layout (`firmware_esp32/bridge_layout.json`), orders waypoints by nearest-neighbor from the alert, calls the defect model for each captured image (real API or a repeatable mock), and writes a dispatch-plus-findings report (`firmware_esp32/output/inspection_report.json`). Code is in `firmware_esp32/planner.py`.
+### Planner (Varun, extended by Suhail)
 
-Note on integration: the planner uses a real-world metric layout (positions in meters, named waypoints). The dashboard was built to the grid-based structure and plan shapes in `docs/contract.md` sections 3 and 4. These two do not match yet (see section 10), so in the current build the dashboard shows a sample bridge layout rather than the planner's output.
+`firmware_esp32/planner.py` has two paths.
+
+The original firmware path (Varun) reads trigger records and `firmware_esp32/bridge_layout.json`. On a Warning it inspects the zone near the node that raised the alert; on an Alarm it does that zone first, then the rest. It orders waypoints by nearest neighbor, calls the defect model for each image (real API or a repeatable mock), and writes `firmware_esp32/output/inspection_report.json`.
+
+The KW51 path (Suhail) is an extension of the same file, run with `--kw51-plans`. It reads the 34 connection locations from `kw51_layout.json` and writes `data/plans/kw51_naive.json` and `data/plans/kw51_optimized.json`:
+
+- Naive: a per-level sweep a pilot could fly by hand (side A deck ascending x, side A arch descending x, side C arch ascending x, side C deck descending x).
+- Optimized: nearest-neighbor from an assumed launch point, then a 2-opt improvement pass. It is a good short route, not guaranteed to be the shortest.
+
+Distances are straight-line 3D and ignore obstacles such as the deck and bracing. The planner is the only thing that writes plans; the dashboard reads them. The file format is in `docs/contract.md` sections 3b and 4b.
 
 ### Dashboard and report (Suhail)
 
-A React and Vite app in `web/` that replays the monitor data, shows the current alert level and a residual chart with the threshold lines, and raises a banner with a manual Dispatch button on Warning or Alarm. The inspection view draws the structure, animates the route, shades coverage, shows coverage and battery stats, and pins defect findings colored by tier; clicking a pin shows the image, the per-class scores, and a close-up when one exists. The report is a deterministic, rule-based summary built only from the findings, plan stats, and alert history, so it never invents numbers. An optional LLM "AI summary" appears only when its backend is reachable, and falls back to a sample if not. Every screen works on mock data that matches the contract, so the dashboard runs before real data is connected.
+A React and Vite app in `web/` with two views, monitor and inspection. The report sits in the inspection view.
 
-## 4. Results
+The monitor replays KW51 data (a short demo window or the full record, chosen from a dataset picker). The top layer is plain language: the alert level, what it means, the current reading, drift from expected, and time above normal. A Warning or Alarm shows a Dispatch inspection button. The engineering layer below shows the residual chart with threshold lines, the temperature model, and sensor health.
 
-Measured numbers only, from the results files in the repo.
+The inspection view draws KW51 in side elevation at true scale, one side at a time. Members are drawn in light gray so the route stands out: purple for what is done, dark gray and dashed for what remains. It shows connections visited, a tier breakdown of findings, and route length. Findings are pinned by tier, with a letter as well as a color, and clicking one shows the image, the per-class scores, and a close-up when one exists.
 
-### Defect model, test split (`ml/defect/results.md`)
+The report is a deterministic, rule-based summary built only from the findings, plan stats, and alert history, so it does not invent numbers. An optional AI summary uses a separate backend in `api/` and is labeled as a sample when that backend is not reachable.
+
+Both views also work on mock data that matches the contract. Mock data is labeled as mock on screen.
+
+## 5. Results
+
+Measured numbers only, from the results and data files in the repo.
+
+### 5.1 Defect model, test split (`ml/defect/results.md`)
 
 628 patches from 135 source photos. Threshold 0.5. Best epoch chosen on validation macro-F1 of 0.829.
 
@@ -74,40 +117,65 @@ Measured numbers only, from the results files in the repo.
 | corrosion_stain | 0.739 | 0.867 | 0.798 | 150 |
 | macro average | 0.822 | 0.872 | 0.844 | 749 |
 
-### Trigger model, KW51 (`ml/trigger/results.md`)
+### 5.2 Trigger model, KW51 (`ml/trigger/results.md`)
 
 - Compensation model: slope -0.001, intercept 2.934, R-squared 0.409.
 - Healthy-period false alarms: 129 with a naive threshold, 67 with temperature correction.
 - After-period detections (compensation model): 2546.
 
-The R-squared of 0.409 means temperature explains part, but not all, of the variation in frequency, so a residual remains to alert on. The false-alarm drop from 129 to 67 is the benefit of temperature correction over a naive threshold during a period known to be healthy. The 2546 after-period detections are readings flagged above normal after the documented retrofit, which changed the bridge's behavior.
+An R-squared of 0.409 means temperature explains part, but not all, of the variation in frequency. The drop from 129 to 67 false alarms is the benefit of temperature correction during a period known to be healthy. The 2546 after-period detections are readings flagged after the documented retrofit, which changed the bridge's behavior.
 
-## 5. Datasets and citations
+Observation on the demo window (`data/trigger/replay_kw51_demo.json`, June 22 to 29, 2019): all 165 readings sit above the healthy-period temperature model line, and the single alarm falls inside KW51's retrofit period (May 15 to September 27, 2019, as defined in `ml/trigger/trigger_model.py`). The detected change is consistent with the retrofit. It is not evidence of damage.
+
+### 5.3 Inspection route on KW51
+
+All four routes cover the same 34 connection locations, use the same straight-line 3D distance, and start from the same assumed launch point. Nothing was tuned to make the planner win.
+
+| Route | Definition | Length |
+|---|---|---|
+| x-order lawnmower | side A ascending x, then side C descending x | 533.2 m |
+| per-level manual sweep (naive plan) | finish each side and level before changing height | 405.9 m |
+| nearest-neighbor | greedy nearest neighbor from the launch point | 408.9 m |
+| nearest-neighbor + 2-opt (optimized plan) | nearest neighbor, then 2-opt improvement | 399.8 m |
+
+The two plan lengths are in `data/plans/kw51_naive.json` and `data/plans/kw51_optimized.json`. The other two are computed by the same planner functions and recorded in `.kiro/specs/kw51-real-inspection-map/design.md`.
+
+On KW51 a sensible manual sweep is within about 1.5% of the planned route: the 2-opt route is 6.2 m shorter than the per-level sweep and 9.1 m shorter than plain nearest neighbor. The large 533.2 m figure comes only from the x-order lawnmower climbing between deck and arch at almost every stop. It is not a real planning saving.
+
+## 6. Datasets and citations
 
 - KW51 railway bridge monitoring data. Maes, K. and Lombaert, G. (2021), "Monitoring railway bridge KW51 before, during, and after retrofitting," Journal of Bridge Engineering, 26(3). Dataset: Zenodo record 3745914 (https://zenodo.org/record/3745914). Only the tracked-modes file is used.
+- KW51 finite element model. Maes, K., van de Velde, M., and Lombaert, G., KU Leuven, Department of Civil Engineering, Structural Mechanics Section. DOI: https://doi.org/10.5281/zenodo.17366772. License: CC BY-NC-SA 4.0 (non-commercial, share-alike). The model uses the Stabil toolbox, which its readme asks users to cite. The derived geometry and plans in this repo carry the same license; see `data/structures/README.md`.
 - CODEBRIM concrete defect imagery. Mundt, Majumder, Murali, Panetsos, Ramesh, "Meta-learning Convolutional Neural Architectures for Multi-target Concrete Defect Classification with the COncrete DEfect BRidge IMage Dataset," CVPR 2019. Non-commercial research use; see `license.md`.
 - FHWA National Bridge Inventory 2022, Massachusetts, used for the motivation figures in section 1.
 
-CODEBRIM images are not redistributed in this repository. Its license forbids redistribution, so you download the dataset yourself and keep it local.
+CODEBRIM images and the original KW51 model files are not redistributed in this repository. You download them yourself and keep them local.
 
-## 6. Data provenance
+## 7. Data provenance
 
 Real data:
 
-- KW51 replay (`data/trigger/replay_kw51.json` and `replay_kw51_demo.json`): derived from the real KW51 monitoring dataset. The dashboard replays recorded 2019 times, not live readings.
-- CODEBRIM test images: real bridge photos, used locally, never committed. The defect model's measured results come from this test split.
-- NBI figures in section 1: real, from the 2022 National Bridge Inventory.
+- KW51 replay (`data/trigger/replay_kw51.json` and `replay_kw51_demo.json`): derived from the real KW51 monitoring data. The dashboard replays recorded 2019 times, not live readings.
+- CODEBRIM test images: real bridge photos, used locally, never committed. The defect model's results come from this test split.
+- NBI figures in section 1: from the 2022 National Bridge Inventory.
+
+Derived from real data:
+
+- KW51 geometry (`data/structures/kw51_layout.json`): extracted from the KU Leuven model by `tools/kw51_geometry/extract_layout.py`. Only the node, element, and sensor positions are reproduced, not the finite element analysis.
+- KW51 plans (`data/plans/`): computed by the planner from that geometry.
+- Defect findings on the inspection map: real model output on CODEBRIM held-out images placed at 4 of the 34 connections (`data/image_map.json`). The placements are chosen for the demo; they are not detections.
 
 Synthetic or mock data:
 
 - Firmware test logs and sample records (`firmware_esp32/node_log.txt`, `sample_records.json`): generated by the simulated node.
-- Mock defect responses: deterministic fake scores the API returns in mock mode, and the dashboard's mock findings, used when the real model or images are not present.
+- Mock defect responses: deterministic fake scores the API returns in mock mode.
+- Dashboard mocks (`web/src/mocks/`): a KW51-shaped sample structure and plans, sample findings, and a 12-reading sample replay (`replay_z24.json`), used when real data is missing and labeled as mock.
 - Simulated sensor node: the ESP32 and its sensors run in Wokwi, not on hardware.
-- Sample bridge layout in the dashboard: a representative grid, since the planner's real layout is not yet wired to the dashboard.
+- The launch point for both plans is assumed, since there is no real robot.
 
-Thresholds are set relative to each source's healthy noise, and both are demonstration values rather than engineering limits. KW51's healthy variation is about 0.2 to 0.3%, so the trigger model alerts at 0.75 / 1.5 / 2.0 percent. The simulated node is noisier, about 1%, so its firmware alerts at 2 / 5 / 8 percent. They differ on purpose because the two sources have different noise floors.
+Thresholds are set relative to each source's healthy noise, and both are demonstration values rather than engineering limits. KW51's healthy variation is about 0.2 to 0.3%, so the trigger model alerts at 0.75 / 1.5 / 2.0 percent. The simulated node is noisier, about 1%, so its firmware alerts at 2 / 5 / 8 percent.
 
-## 7. How to run it
+## 8. How to run it
 
 A short end-to-end checklist is in [`docs/demo-run.md`](docs/demo-run.md). The steps below match the code.
 
@@ -115,36 +183,59 @@ Prerequisites: Python 3, Node.js and npm. The datasets are not in the repo; you 
 
 1. Python setup. Each Python component has its own dependencies.
    - Trigger: `pip install -r ml/trigger/requirements.txt`
-   - Defect API: `pip install fastapi "uvicorn[standard]" pillow torch torchvision numpy` (there is no `ml/defect/requirements.txt` yet).
+   - Defect API: `pip install fastapi "uvicorn[standard]" pillow torch torchvision numpy python-multipart` (there is no `ml/defect/requirements.txt` yet).
    - Report backend (optional): `pip install -r api/requirements.txt`
 2. Get the datasets and place them.
-   - KW51: download the tracked-modes file from Zenodo 3745914 to `ml/trigger/raw/trackedmodes.mat`.
-   - CODEBRIM: download into `datasets/codebrim/`, then place the demo crops under `data/images/` so the dashboard can serve them. `python ml/defect/demo/build_demo_pool.py` builds the held-out demo pool, and `python ml/defect/demo/assign_to_kw51.py` writes `data/image_map.json` and selects which held-out patches to copy into `data/images/`. Both dataset locations are kept out of git. Defect scores are real model output on CODEBRIM held-out images placed at chosen connections for the demo; the placements are not detections, and only a few of the 34 connections are imaged.
-3. Run the trigger model: `python ml/trigger/trigger_model.py`. This writes `data/trigger/replay_kw51.json` and `replay_kw51_demo.json` and the plots under `ml/trigger/plots/`.
-   - The KW51 inspection plans are committed (`data/plans/kw51_naive.json` and `data/plans/kw51_optimized.json`). To regenerate them from the real geometry: `python firmware_esp32/planner.py --kw51-plans --layout data/structures/kw51_layout.json --out-dir data/plans`. The planner is the only thing that writes plans; the dashboard reads them. Naive is a per-level manual sweep (405.9 m); optimized is nearest-neighbor + 2-opt (399.8 m), a good short route, not guaranteed shortest.
-4. Start the defect API from `ml/defect/`. The dashboard expects it on port 8001.
-   - Real model (bash): `MODEL_PATH=artifacts/best.pt uvicorn api.main:app --port 8001`
-   - Real model (PowerShell): `$env:MODEL_PATH="artifacts/best.pt"; uvicorn api.main:app --port 8001`
+   - KW51 monitoring data: download the tracked-modes file from Zenodo 3745914 to `ml/trigger/raw/trackedmodes.mat`.
+   - CODEBRIM: download into `datasets/codebrim/`. `python ml/defect/demo/build_demo_pool.py` builds the held-out demo pool, and `python ml/defect/demo/assign_to_kw51.py` writes `data/image_map.json` and selects which patches to copy into `data/images/`. Both locations are kept out of git.
+   - KW51 finite element model (only needed to regenerate the geometry): keep it in `data/external/kw51_fem/`, which is gitignored.
+3. Run the trigger model: `python ml/trigger/trigger_model.py`. This writes `data/trigger/replay_kw51.json`, `replay_kw51_demo.json`, and the plots under `ml/trigger/plots/`.
+4. The KW51 plans are committed. To regenerate them: `python firmware_esp32/planner.py --kw51-plans --layout data/structures/kw51_layout.json --out-dir data/plans`.
+5. Start the defect API from `ml/defect/` on port 8001. It loads `artifacts/best.pt` by default (about 43 MB, committed).
+   - Real model: `uvicorn api.main:app --port 8001`
    - Mock mode, no model needed (bash): `MOCK_MODEL=1 uvicorn api.main:app --port 8001`
    - Mock mode, no model needed (PowerShell): `$env:MOCK_MODEL="1"; uvicorn api.main:app --port 8001`
-   - `best.pt` (about 43 MB) is committed; mock mode needs no datasets.
-5. Start the dashboard from `web/`: `npm install`, then `npm run dev`. A pre-step copies `data/` into `web/public/data/`, and Vite serves the app at the printed URL (default http://localhost:5173/).
-6. Wokwi simulation of the sensor node: https://wokwi.com/projects/478798310961586177
-
-The optional report backend runs from `api/` with `uvicorn main:app --port 8000` after you copy `.env.example` to `.env` and set `GEMINI_API_KEY`.
-
-## 8. Testing
-
-- Dashboard: from `web/`, `npm run build` and `npm test`. 108 tests run against the sample and the committed real KW51 geometry/plans; none need the image datasets. This is the main test suite.
-- Defect tier rule: `python -m pytest ml/defect/tests/test_tier.py` (14 tests, no model or dataset needed). The 8 API tests in `ml/defect/tests/test_api.py` also need `torch`, `fastapi`, and `pillow` installed to collect, since the API module imports the model stack at load time.
-
-A judge without the datasets can still see the system work: start the defect API in mock mode and run the dashboard, which falls back to mock structure, plan, and findings while replaying the real KW51 demo window. The monitor labels whether it is showing real or sample data, so what is real stays clear.
+6. Optional report backend: from `api/`, copy `.env.example` to `.env`, set `GEMINI_API_KEY`, then `uvicorn main:app --port 8000`.
+7. Start the dashboard from `web/`: `npm install`, then `npm run dev`. A pre-step copies `data/` into `web/public/data/`, and Vite serves the app at http://localhost:5173/. Restart the dev server after any change under `data/`.
+8. Wokwi simulation of the sensor node: https://wokwi.com/projects/478798310961586177
 
 There is no hosted demo. Run it locally using the steps above.
 
-## 9. How we used Kiro
+## 9. Testing
 
-We ran this as spec-driven development with a shared contract, then used short conversational edits for small follow-ups.
+- Dashboard: from `web/`, `npm run build` and `npm test`. 108 tests run against the mocks and the committed KW51 geometry, plans, and replay; none need the image datasets. This is the main test suite.
+- Planner: from `firmware_esp32/`, `python -m unittest test_planner_kw51` (11 tests).
+- Trigger model: `python -m pytest ml/trigger/tests` (3 tests).
+- Defect tier rule: `python -m pytest ml/defect/tests/test_tier.py` (14 tests, no model or dataset needed).
+- Defect API: `python -m pytest ml/defect/tests/test_api.py` (8 tests). These need `torch`, `fastapi`, and `pillow` installed to collect, since the API module imports the model stack at load time.
+- Defect demo pool: `python -m pytest ml/defect/demo` (8 tests).
+
+Without the datasets you can still see the system work: start the defect API in mock mode and run the dashboard. It replays the real KW51 demo window and shows the real KW51 map and plans, with mock findings where images are missing. The dashboard labels what is real and what is mock.
+
+## 10. Limitations
+
+- The whole system runs in simulation. There is no physical node or drone, and the sensor node runs in Wokwi.
+- KW51 is a European steel railway bridge measured with professional accelerometers. The ESP32's MPU6050 is much noisier, so the trigger work demonstrates the method, not a calibration for Massachusetts bridges.
+- The trigger detects a change in natural frequency in either direction, but it does not localize it. A Warning or Alarm says something changed, not where, so the inspection visits all 34 connections. Localizing a change would need distributed sensors.
+- The temperature correction is a linear fit with R-squared 0.409. It underfits below freezing, where the bridge stiffens, so most remaining false alarms come from one cold spell.
+- The June 2019 demo window falls inside KW51's retrofit period, so the alarm there reflects the retrofit, not damage. The demo shows the method, not a diagnosis.
+- The defect model is trained on one dataset of concrete imagery, sees cropped patches rather than full photos, and has to learn from patches that often show several defects at once. KW51 is a steel bridge, so the defect images are placed at its connections for demonstration only.
+- Only 4 of the 34 connections have an image. The rest are neither assessed nor cleared.
+- Route length is a straight-line 3D estimate that ignores obstacles such as the deck and bracing. The launch point is assumed.
+- Alert thresholds and urgency tiers are demonstration values, not engineering limits. The system helps prioritize; it never states that a bridge is safe or unsafe.
+- The trained weights (`ml/defect/artifacts/best.pt`, about 43 MB) are shared for non-commercial use under the CODEBRIM license. They are derived weights and contain no images.
+
+## 11. Future work
+
+- Damage simulation: introduce progressive stiffness loss at individual connections in the KU Leuven model and test whether the trigger detects it against real healthy KW51 data, reporting false alarms alongside detections.
+- Distributed sensors: use several nodes or mode shapes to localize a change to a region of the bridge.
+- Gazebo: obstacle-aware path planning that accounts for the deck and bracing.
+- Grad-CAM for the defect model, to show which part of an image drove each score (see `docs/gradcam-notes.md`).
+- A steel defect model, since CODEBRIM covers concrete and KW51 is steel.
+
+## 12. How we used Kiro
+
+This section describes the hackathon build. We ran it as spec-driven development with a shared contract, then used short conversational edits for small follow-ups.
 
 Specs. `.kiro/specs/` holds one spec per component, each structured as requirements, then design, then tasks, reviewed stage by stage:
 
@@ -154,9 +245,9 @@ Specs. `.kiro/specs/` holds one spec per component, each structured as requireme
 
 Working from a written spec caught things a quick prompt would have missed. The trigger spec recorded the threshold disagreement with the contract as an explicit open decision (Requirement 15) instead of silently picking a number, which is how the team later reconciled on 0.75 / 1.5 / 2.0. For small changes, like relabeling the monitor subtitle or adding a link, we edited directly without a spec.
 
-Steering. `.kiro/steering/` holds `product.md`, `tech.md`, and `structure.md`. These kept the agent following the shared data contract, reporting only measured numbers, and editing only the owner's folder for each change instead of reaching into another person's component.
+Steering. `.kiro/steering/` held `product.md`, `tech.md`, and `structure.md`. These kept the agent following the shared data contract, reporting only measured numbers, and editing only the owner's folder for each change.
 
-Hooks. `.kiro/hooks/defect-api-tests.json` is a PostFileSave hook that runs the defect API tests in mock mode when a file under `ml/defect/api/` is saved, so a change to the API is checked against its tests right away without a model or dataset.
+Hooks. `.kiro/hooks/defect-api-tests.json` is a PostFileSave hook that runs the defect API tests in mock mode when a file under `ml/defect/api/` is saved.
 
 Concrete things it did on this build:
 
@@ -168,32 +259,11 @@ Concrete things it did on this build:
 - Refused to merge teammate branches whole when they carried stale copies that would have reverted current dashboard work, and brought in only the intended files instead.
 - Scanned every integration merge for secrets, images, and oversized files before committing.
 
-## 10. Limitations
+Later work. The post-hackathon KW51 work (section 3.2) used both Kiro and Claude Code. It added a new spec, `.kiro/specs/kw51-real-inspection-map/`, and a design-token steering file, `.kiro/steering/design.md`.
 
-- The whole system runs in simulation. There is no physical node or drone, and the sensor node runs in Wokwi.
-- KW51 is a European steel railway bridge measured with professional accelerometers; the ESP32's MPU6050 is much noisier. The trigger work demonstrates the method, not a calibration for Massachusetts bridges.
-- A linear temperature baseline underfits below freezing, where the bridge stiffens, so most remaining false alarms come from one cold spell.
-- The defect model is trained on one dataset, sees cropped patches rather than full photos, and has to learn from patches that often show several defects at once.
-- Alert thresholds and urgency tiers are demonstration values, not engineering limits. The system helps prioritize; it never states that a bridge is safe or unsafe.
-- The trained weights (`ml/defect/artifacts/best.pt`, about 43 MB) are shared for non-commercial use under the CODEBRIM license; they are derived weights and contain no images.
+## 13. Team
 
-## Known limitations
-
-Specific honesty caveats for the KW51 inspection path:
-
-- The trigger detects a change in natural frequency in either direction (it classifies the absolute residual), and it does not localize the change. A Warning or Alarm says something changed, not where, so the inspection route visits all connection locations rather than a pinpointed zone. Localizing a change would need distributed sensor nodes.
-- The June 2019 demo window falls inside KW51's retrofit period (roughly May to September 2019), so frequency shifts in that window may reflect the retrofit work itself rather than damage. The demo shows the method, not a diagnosis.
-- The temperature correction is a modest linear fit (R-squared 0.409). It explains part of the frequency-temperature relationship, not most of it, which is why some false alarms remain.
-- Defect scores are real model output run on CODEBRIM concrete images from the held-out test set. Those images are placed at chosen connections for demonstration; the placements are not detections, and only a few of the 34 connections are imaged. The rest have no image and are neither assessed nor cleared.
-- Route length is a straight-line 3D estimate between connections; it ignores obstacles such as the deck and bracing. Obstacle-aware path planning is future work for the Gazebo stage.
-
-## 11. Team
-
-- Suhail: product lead, dashboard, report, integration.
+- Suhail: product lead, dashboard, report, integration, and the post-hackathon KW51 work.
 - Varun: sensor node and planner.
 - Zaiba: defect model.
 - Komal: trigger model.
-
-## 12. Video
-
-TODO: YouTube or Vimeo video link.
