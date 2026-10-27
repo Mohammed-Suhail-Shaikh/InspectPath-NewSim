@@ -12,7 +12,6 @@ import { useViewState } from "../../app/viewState";
 import ElevationMap from "./ElevationMap";
 import SideToggle from "./SideToggle";
 import RobotMarker from "./RobotMarker";
-import CoverageLayer from "./CoverageLayer";
 import StatsPanel from "./StatsPanel";
 import PlanToggle from "./PlanToggle";
 import FindingPin from "./FindingPin";
@@ -133,14 +132,11 @@ export default function InspectionView() {
   const routeCrossesSides =
     nextStop && locById.get(nextStop.location_id)?.side !== selectedSide;
 
-  // Coverage: visited stops (up to robot index) that are on the displayed side.
-  const coveragePts: { cx: number; cy: number }[] = [];
+  // Visited stops (up to robot index); the elevation fills these in. Tracked
+  // across both sides so the fill is correct whichever side is shown.
+  const visitedIds = new Set<string>();
   for (let i = 0; i <= Math.min(robotIndex, planStops.length - 1); i++) {
-    const loc = locById.get(planStops[i].location_id);
-    if (loc && loc.side === selectedSide) {
-      const { px, py } = project(loc.x, loc.z, bounds);
-      coveragePts.push({ cx: px, cy: py });
-    }
+    visitedIds.add(planStops[i].location_id);
   }
 
   // Finding pins on the displayed side, positioned at their connection stop.
@@ -194,8 +190,12 @@ export default function InspectionView() {
             <span className="muted side-caption">{SIDE_LABEL[selectedSide]}</span>
           </div>
 
-          <ElevationMap structure={structure} plan={plan} side={selectedSide}>
-            <CoverageLayer points={coveragePts} r={stopR * 0.8} />
+          <ElevationMap
+            structure={structure}
+            plan={plan}
+            side={selectedSide}
+            visitedIds={visitedIds}
+          >
             {robotPt && (
               <RobotMarker cx={robotPt.cx} cy={robotPt.cy} r={stopR} />
             )}
@@ -225,18 +225,29 @@ export default function InspectionView() {
 
           <ul className="map-legend" aria-label="Map legend">
             <li>
-              <span className="legend-swatch legend-stop" aria-hidden="true" />
-              Connection stop
+              <span className="legend-swatch legend-arch" aria-hidden="true" />
+              Arch connection (circle)
+            </li>
+            <li>
+              <span className="legend-swatch legend-deck" aria-hidden="true" />
+              Deck connection (diamond)
             </li>
             <li>
               <span className="legend-swatch legend-sensor" aria-hidden="true" />
-              Sensor (S strain, A acceleration, D displacement)
+              Sensor square (S strain, A acceleration, D displacement)
             </li>
             <li>
-              <span className="legend-swatch legend-covered" aria-hidden="true" />
-              Visited
+              <span className="legend-swatch legend-visited" aria-hidden="true" />
+              Visited (filled)
             </li>
           </ul>
+
+          <p className="map-caption muted">
+            Line weight indicates member type (arch and girder heavy, deck
+            medium, diagonals light); it is not real member thickness. Diagonals
+            are numbered 1 (Leuven) to 16 (Brussels). Bearings, abutments, and the
+            canal are schematic, not to scale.
+          </p>
 
           <p className="map-caption muted">
             {usingSample

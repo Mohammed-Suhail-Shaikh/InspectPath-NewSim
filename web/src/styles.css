@@ -584,11 +584,6 @@ body {
   background-image: linear-gradient(135deg, transparent 45%, #b9c0c9 45%, #b9c0c9 55%, transparent 55%);
 }
 
-.legend-covered {
-  background: var(--route-soft);
-  border: 1px solid var(--route);
-}
-
 .legend-alert-zone {
   border: 1px dashed #c62828;
   background: rgba(198, 40, 40, 0.10);
@@ -975,15 +970,27 @@ body {
 }
 
 /* Legend swatches for the elevation map */
-.legend-stop {
+.legend-arch {
   border: 1.2px solid #8a93a0;
   border-radius: 50%;
   background: var(--surface);
 }
 
+.legend-deck {
+  border: 1.2px solid #8a93a0;
+  background: var(--surface);
+  transform: rotate(45deg); /* diamond */
+}
+
 .legend-sensor {
   border: 1px solid #5b6676;
   background: var(--surface);
+}
+
+.legend-visited {
+  border: 1.2px solid var(--route);
+  border-radius: 50%;
+  background: var(--route);
 }
 
 /* Dataset picker fallback note: shown when a real dataset is selected but the

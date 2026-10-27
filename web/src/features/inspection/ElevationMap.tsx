@@ -6,33 +6,45 @@ import type {
   MetricStructure,
 } from "../../data/types";
 import {
+  ELEV_BOTTOM_PAD,
   ELEV_SCALE,
   SIDE_LABEL,
+  bearingSpan,
+  diagonalNumber,
   elevationBounds,
+  memberOpacity,
+  memberWeight,
   nodeOnSide,
   project,
-  svgHeight,
+  svgHeightWithDims,
   svgWidth,
 } from "./elevationLayout";
 
-// Side elevation (x-z) of the bridge at true metric scale. Draws the members
-// (girder line, arch curve, diagonals) for the selected side, the connection
-// stops, and the sensors. Children (route, robot, finding pins) are drawn on
-// top in the same coordinate space.
+// Side elevation (x-z) of the bridge at true metric scale, drawn to read like an
+// engineering elevation: line weights by member type (arch/girder heavy, deck
+// medium, diagonals light), span and crown dimensions, end labels (Brussels left,
+// Leuven right), diagonal numbers (1 Leuven .. 16 Brussels), bearing symbols with
+// schematic abutments and canal, and connection stops that fill in as visited.
+// Shapes carry meaning without color: circle = arch connection, diamond = deck
+// connection, lettered square = sensor. Children (route, robot, finding pins) are
+// drawn on top in the same coordinate space.
 export default function ElevationMap({
   structure,
   plan,
   side,
+  visitedIds,
   children,
 }: {
   structure: MetricStructure;
   plan: MetricPlan | null;
   side: BridgeSide;
+  visitedIds?: Set<string>;
   children?: ReactNode;
 }) {
   const bounds = elevationBounds(structure);
   const w = svgWidth(bounds);
-  const h = svgHeight(bounds);
+  const h = svgHeightWithDims(bounds);
+  const visited = visitedIds ?? new Set<string>();
 
   const nodeById = new Map<number, MetricNode>(
     structure.nodes.map((n) => [n.id, n])
@@ -55,8 +67,7 @@ export default function ElevationMap({
     side === "A" ? Math.abs(s.y) < 0.5 : Math.abs(s.y - 11.75) < 0.5
   );
 
-  // Route segments for stops on this side, in plan order. The full 3D route
-  // spans both sides; here we draw the portion whose stops are on this side.
+  // Route segments for stops on this side, in plan order.
   const sideStopIds = new Set(stops.map((s) => s.location_id));
   const routePts = (plan?.stops ?? [])
     .filter((s) => sideStopIds.has(s.location_id))
@@ -68,6 +79,19 @@ export default function ElevationMap({
 
   const r = Math.max(4, ELEV_SCALE * 0.6);
 
+  // Dimension + end-label geometry.
+  const span = bearingSpan(structure);
+  const dimY = project(0, bounds.minZ, bounds).py + ELEV_BOTTOM_PAD * 0.55;
+  const crownZ = bounds.maxZ;
+  // The arch crown point on this side (max-z node on the arch for the side).
+  const archNodes = structure.nodes.filter(
+    (n) => n.part === `arch_${side}`
+  );
+  const crownNode = archNodes.reduce<MetricNode | null>(
+    (best, n) => (best === null || n.z > best.z ? n : best),
+    null
+  );
+
   return (
     <svg
       className="elevation-map"
@@ -76,7 +100,16 @@ export default function ElevationMap({
       role="img"
       aria-label={`${SIDE_LABEL[side]} elevation of ${structure.name}`}
     >
-      {/* members: light technical-drawing lines */}
+      {/* schematic canal band under the deck (context only, not to scale) */}
+      <rect
+        x={0}
+        y={project(0, bounds.minZ, bounds).py + 6}
+        width={w}
+        height={ELEV_BOTTOM_PAD}
+        fill="#eef3f6"
+      />
+
+      {/* members: neutral technical-drawing lines, weighted by member type */}
       {members.map((m) => {
         const a = nodeById.get(m.nodes[0])!;
         const b = nodeById.get(m.nodes[1])!;
@@ -89,11 +122,85 @@ export default function ElevationMap({
             y1={pa.py}
             x2={pb.px}
             y2={pb.py}
-            stroke="#c2c9d2"
-            strokeWidth={1.2}
+            stroke="#6b7480"
+            strokeOpacity={memberOpacity(m.part)}
+            strokeWidth={memberWeight(m.part)}
           />
         );
       })}
+
+      {/* bearing symbols (triangles) + schematic abutment blocks at N1..N4 x's */}
+      {span &&
+        span.xs.map((bx, i) => {
+          const base = project(bx, bounds.minZ, bounds);
+          const ty = base.py + 4;
+          return (
+            <g key={`bearing-${i}`}>
+              <polygon
+                points={`${base.px},${ty} ${base.px - 5},${ty + 8} ${base.px + 5},${ty + 8}`}
+                fill="#ffffff"
+                stroke="#5b6676"
+                strokeWidth={1}
+              />
+              <rect
+                x={base.px - 7}
+                y={ty + 8}
+                width={14}
+                height={ELEV_BOTTOM_PAD * 0.4}
+                fill="#e9edf2"
+                stroke="#b9c0c9"
+                strokeWidth={1}
+              />
+            </g>
+          );
+        })}
+
+      {/* span dimension line between the two bearing x-positions */}
+      {span && (
+        <g>
+          {(() => {
+            const left = project(span.xs[0], bounds.minZ, bounds).px;
+            const right = project(span.xs[span.xs.length - 1], bounds.minZ, bounds).px;
+            return (
+              <>
+                <line x1={left} y1={dimY} x2={right} y2={dimY} stroke="#5b6676" strokeWidth={1} />
+                <line x1={left} y1={dimY - 4} x2={left} y2={dimY + 4} stroke="#5b6676" strokeWidth={1} />
+                <line x1={right} y1={dimY - 4} x2={right} y2={dimY + 4} stroke="#5b6676" strokeWidth={1} />
+                <text
+                  x={(left + right) / 2}
+                  y={dimY - 5}
+                  textAnchor="middle"
+                  fontSize={10}
+                  fill="#5b6676"
+                >
+                  {`bearing span ${span.span} m`}
+                </text>
+              </>
+            );
+          })()}
+        </g>
+      )}
+
+      {/* crown height label at the arch apex on this side */}
+      {crownNode && (
+        <text
+          x={project(crownNode.x, crownNode.z, bounds).px}
+          y={project(crownNode.x, crownNode.z, bounds).py - 6}
+          textAnchor="middle"
+          fontSize={10}
+          fill="#5b6676"
+        >
+          {`crown ${crownZ.toFixed(1)} m`}
+        </text>
+      )}
+
+      {/* end labels: Brussels left (low x), Leuven right (high x) */}
+      <text x={ELEV_SCALE} y={14} fontSize={10} fill="#5b6676">
+        Brussels
+      </text>
+      <text x={w - ELEV_SCALE} y={14} textAnchor="end" fontSize={10} fill="#5b6676">
+        Leuven
+      </text>
 
       {/* route polyline for this side (purple, reserved for the route) */}
       {routePts && (
@@ -107,7 +214,7 @@ export default function ElevationMap({
         />
       )}
 
-      {/* sensors: small squares, distinguished by a letter, never color alone */}
+      {/* sensors: small lettered squares, never color alone */}
       {sensors.map((s, i) => {
         const { px, py } = project(s.x, s.z, bounds);
         const letter =
@@ -134,28 +241,49 @@ export default function ElevationMap({
             >
               {letter}
             </text>
-            <title>
-              {`Sensor ${s.label} (${s.type})`}
-            </title>
+            <title>{`Sensor ${s.label} (${s.type})`}</title>
           </g>
         );
       })}
 
-      {/* connection stops: open circles (findings/robot drawn on top) */}
+      {/* connection stops: circle = arch, diamond = deck (shape, not color).
+          Filled when visited, hollow before. Diagonal number shown beside. */}
       {stops.map((l) => {
         const { px, py } = project(l.x, l.z, bounds);
+        const isVisited = visited.has(l.location_id);
+        const fill = isVisited ? "var(--route)" : "#ffffff";
+        const stroke = isVisited ? "var(--route)" : "#8a93a0";
+        const num = diagonalNumber(l);
+        const marker =
+          l.end === "deck" ? (
+            // diamond for deck connections
+            <polygon
+              points={`${px},${py - r * 0.6} ${px + r * 0.6},${py} ${px},${py + r * 0.6} ${px - r * 0.6},${py}`}
+              fill={fill}
+              stroke={stroke}
+              strokeWidth={1.2}
+            />
+          ) : (
+            // circle for arch connections
+            <circle cx={px} cy={py} r={r * 0.5} fill={fill} stroke={stroke} strokeWidth={1.2} />
+          );
         return (
-          <circle
-            key={`stop-${l.location_id}`}
-            cx={px}
-            cy={py}
-            r={r * 0.5}
-            fill="#ffffff"
-            stroke="#8a93a0"
-            strokeWidth={1.2}
-          >
-            <title>{`Connection ${l.location_id} (${l.end})`}</title>
-          </circle>
+          <g key={`stop-${l.location_id}`}>
+            {marker}
+            {num !== null && (
+              <text
+                x={px}
+                y={l.end === "arch" ? py - r * 0.9 : py + r * 1.6}
+                textAnchor="middle"
+                fontSize={8}
+                fill="#8a93a0"
+                aria-hidden="true"
+              >
+                {num}
+              </text>
+            )}
+            <title>{`Connection ${l.location_id} (${l.end}${num !== null ? `, diagonal ${num}` : ""})`}</title>
+          </g>
         );
       })}
 
