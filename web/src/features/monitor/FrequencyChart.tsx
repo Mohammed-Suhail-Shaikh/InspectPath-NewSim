@@ -10,15 +10,20 @@ import {
 } from "recharts";
 import type { TriggerRecord } from "../../data/types";
 
-// Plots recent measured vs predicted frequency over the replay history.
+// Plots recent measured vs predicted frequency over the replay history. The
+// window is supplied by the parent so every monitor chart shares one time
+// window. `zoomed` adds a "zoomed in" note because the y-axis does not start
+// at 0 (the frequency range is narrow, so small shifts look large).
 export default function FrequencyChart({
   records,
   upToIndex,
-  window = 12,
+  window = 24,
+  zoomed = false,
 }: {
   records: TriggerRecord[];
   upToIndex: number;
   window?: number;
+  zoomed?: boolean;
 }) {
   const end = Math.min(upToIndex + 1, records.length);
   const start = Math.max(0, end - window);
@@ -33,7 +38,14 @@ export default function FrequencyChart({
 
   return (
     <section className="chart">
-      <h3 className="chart-title">Frequency vs. predicted</h3>
+      <h3 className="chart-title">
+        Measured vs predicted frequency{zoomed ? " (zoomed in)" : ""}
+      </h3>
+      {zoomed && (
+        <p className="chart-legend muted">
+          The y-axis does not start at 0, so small differences look large.
+        </p>
+      )}
       <div className="chart-body">
         <ResponsiveContainer width="100%" height={240}>
           <LineChart data={data} margin={{ top: 8, right: 16, bottom: 4, left: -8 }}>
