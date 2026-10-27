@@ -9,6 +9,10 @@ import {
   samplingInterval,
   recoverTempModel,
   normalResidualStd,
+  fmtUtc,
+  fmtUtcHm,
+  timeAboveNormal,
+  shareAbovePredicted,
 } from "../features/monitor/monitorMetrics";
 import replay from "../../../data/trigger/replay_kw51_demo.json";
 import type { TriggerRecord } from "../data/types";
@@ -99,6 +103,53 @@ describe("sampling interval", () => {
     ];
     const s = samplingInterval(uneven);
     expect(s.varies).toBe(true);
+  });
+});
+
+describe("UTC time formatting (fix 3: data is UTC, never browser-local)", () => {
+  it("formats an ISO timestamp in UTC with a UTC label", () => {
+    // Regardless of the machine's timezone, the UTC fields are fixed.
+    expect(fmtUtc("2019-06-27T10:00:00Z")).toBe("2019-06-27 10:00 UTC");
+    expect(fmtUtcHm("2019-06-27T10:00:00Z")).toBe("10:00");
+  });
+});
+
+describe("time above normal from timestamps (fix 4)", () => {
+  it("measures the current above-normal stretch from first to latest reading", () => {
+    const series = [
+      rec("2019-06-27T08:00:00Z", "normal", 0.2),
+      rec("2019-06-27T09:00:00Z", "warning", 1.6),
+      rec("2019-06-27T10:00:00Z", "warning", 1.7),
+      rec("2019-06-27T12:00:00Z", "alarm", 2.3),
+    ];
+    const t = timeAboveNormal(series);
+    expect(t).not.toBeNull();
+    // 09:00 -> 12:00 = 3 h, 3 readings in the stretch
+    expect(t!.hours).toBeCloseTo(3, 5);
+    expect(t!.readings).toBe(3);
+  });
+  it("returns null when the latest reading is normal", () => {
+    const series = [rec("t0", "warning", 1.6), rec("t1", "normal", 0.2)];
+    expect(timeAboveNormal(series)).toBeNull();
+  });
+});
+
+describe("share above the model line (fix 6: computed, not assumed 'all')", () => {
+  it("counts readings whose measured frequency exceeds the prediction", () => {
+    const series = [
+      rec("t0", "normal", 0, 20, 2.9), // measured 2.9 == pred 2.9 -> not above
+      rec("t1", "watch", 1, 20, 2.8), // 2.9 > 2.8 -> above
+      rec("t2", "watch", 1, 20, 2.85), // 2.9 > 2.85 -> above
+    ];
+    const s = shareAbovePredicted(series);
+    expect(s.total).toBe(3);
+    expect(s.above).toBe(2);
+    expect(s.fraction).toBeCloseTo(2 / 3, 5);
+  });
+  it("on the real replay, most readings sit above the prediction (retrofit stiffening)", () => {
+    const s = shareAbovePredicted(recs);
+    expect(s.total).toBe(recs.length);
+    expect(s.fraction).toBeGreaterThan(0.5);
   });
 });
 

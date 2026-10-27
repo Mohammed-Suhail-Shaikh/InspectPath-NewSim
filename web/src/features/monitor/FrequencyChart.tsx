@@ -9,6 +9,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import type { TriggerRecord } from "../../data/types";
+import { fmtUtcHm } from "./monitorMetrics";
 
 // Plots recent measured vs predicted frequency over the replay history. The
 // window is supplied by the parent so every monitor chart shares one time
@@ -28,10 +29,7 @@ export default function FrequencyChart({
   const end = Math.min(upToIndex + 1, records.length);
   const start = Math.max(0, end - window);
   const data = records.slice(start, end).map((r) => ({
-    time: new Date(r.timestamp).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    }),
+    time: fmtUtcHm(r.timestamp),
     measured: r.frequency_hz,
     predicted: r.predicted_frequency_hz,
   }));
@@ -41,11 +39,11 @@ export default function FrequencyChart({
       <h3 className="chart-title">
         Measured vs predicted frequency{zoomed ? " (zoomed in)" : ""}
       </h3>
-      {zoomed && (
-        <p className="chart-legend muted">
-          The y-axis does not start at 0, so small differences look large.
-        </p>
-      )}
+      <p className="chart-legend muted">
+        {zoomed
+          ? "The y-axis does not start at 0, so small differences look large. Times are UTC."
+          : "Times are UTC."}
+      </p>
       <div className="chart-body">
         <ResponsiveContainer width="100%" height={240}>
           <LineChart data={data} margin={{ top: 8, right: 16, bottom: 4, left: -8 }}>
@@ -55,8 +53,8 @@ export default function FrequencyChart({
               stroke="var(--muted)"
               fontSize={12}
               domain={["auto", "auto"]}
-              tickFormatter={(v: number) => v.toFixed(2)}
-              width={48}
+              tickFormatter={(v: number) => v.toFixed(3)}
+              width={52}
             />
             <Tooltip
               contentStyle={{

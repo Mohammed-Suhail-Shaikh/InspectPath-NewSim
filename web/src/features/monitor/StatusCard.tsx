@@ -1,7 +1,7 @@
 import type { AlertLevel, TriggerRecord } from "../../data/types";
 import { alertStyle } from "../../data/alertLevels";
 import { useViewState } from "../../app/viewState";
-import { THRESHOLDS } from "./monitorMetrics";
+import { THRESHOLDS, fmtUtc } from "./monitorMetrics";
 
 // Glyph per level so level never relies on color alone.
 const LEVEL_ICON: Record<AlertLevel, string> = {
@@ -19,15 +19,11 @@ const RECOMMENDATION: Record<AlertLevel, string> = {
   alarm: "A targeted inspection is strongly recommended.",
 };
 
-function fmtTime(iso: string): string {
-  return new Date(iso).toLocaleString();
-}
-
 // One plain sentence with DIRECTION: faster or slower than expected, by how
 // much, and what a shift that size can mean. Uses the signed residual so the
 // direction is honest (positive = faster than predicted).
 function directionSentence(residualPct: number): string {
-  const mag = Math.abs(residualPct).toFixed(1);
+  const mag = Math.abs(residualPct).toFixed(2);
   if (Math.abs(residualPct) < THRESHOLDS.watch) {
     return `The bridge is vibrating within ${mag}% of what is expected for today's temperature, which is normal.`;
   }
@@ -69,7 +65,7 @@ export default function StatusCard({
           {s.label}
         </span>
         {since && (
-          <span className="status-since muted">since {fmtTime(since)}</span>
+          <span className="status-since muted">since {fmtUtc(since)}</span>
         )}
       </div>
 

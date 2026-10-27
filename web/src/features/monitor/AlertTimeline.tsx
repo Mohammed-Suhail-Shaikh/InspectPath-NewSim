@@ -1,6 +1,6 @@
 import type { AlertLevel, TriggerRecord } from "../../data/types";
 import { alertStyle } from "../../data/alertLevels";
-import { levelEntryTimes } from "./monitorMetrics";
+import { levelEntryTimes, fmtUtc } from "./monitorMetrics";
 
 const ICON: Record<AlertLevel, string> = {
   normal: "✓",
@@ -23,26 +23,27 @@ export default function AlertTimeline({
 
   return (
     <section className="alert-timeline" aria-label="Alert timeline">
-      <h3 className="chart-title">Alert timeline</h3>
-      <ol className="timeline-list">
-        {ORDER.map((level) => {
+      <h3 className="chart-title">Alert timeline (times in UTC)</h3>
+      <ol className="timeline-row">
+        {ORDER.map((level, idx) => {
           const ts = entries[level];
           const s = alertStyle(level);
           return (
-            <li key={level} className="timeline-item">
-              <span
-                className="timeline-badge"
-                style={{ background: ts ? s.bg : "transparent", borderColor: s.bg }}
-                aria-hidden="true"
-              >
-                {ts ? ICON[level] : ""}
-              </span>
-              <span className="timeline-level">{s.label}</span>
-              <span className="timeline-time muted">
-                {ts
-                  ? `first reached ${new Date(ts).toLocaleString()}`
-                  : "not reached in this replay"}
-              </span>
+            <li key={level} className="timeline-step">
+              {idx > 0 && <span className="timeline-arrow" aria-hidden="true">→</span>}
+              <div className="timeline-step-body">
+                <span
+                  className="timeline-badge"
+                  style={{ background: ts ? s.bg : "transparent", borderColor: s.bg }}
+                  aria-hidden="true"
+                >
+                  {ts ? ICON[level] : ""}
+                </span>
+                <span className="timeline-level">{s.label}</span>
+                <span className="timeline-time muted">
+                  {ts ? fmtUtc(ts) : "not reached"}
+                </span>
+              </div>
             </li>
           );
         })}

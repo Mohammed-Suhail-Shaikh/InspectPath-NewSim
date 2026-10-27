@@ -13,7 +13,7 @@ import {
 } from "recharts";
 import type { TriggerRecord } from "../../data/types";
 import { alertStyle } from "../../data/alertLevels";
-import { THRESHOLDS } from "./monitorMetrics";
+import { THRESHOLDS, fmtUtcHm } from "./monitorMetrics";
 
 const WATCH_FILL = "#f5e8b8";
 const WATCH_STROKE = "#806500";
@@ -43,21 +43,23 @@ export default function DriftChart({
   const slice = records.slice(start, end);
   const data = slice.map((r, i) => ({
     i: start + i,
-    time: new Date(r.timestamp).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    }),
+    time: fmtUtcHm(r.timestamp),
     residual: r.residual_pct,
     level: r.alert_level,
     color: alertStyle(r.alert_level).bg,
   }));
 
-  const maxAbs = Math.max(
-    THRESHOLDS.alarm + 0.5,
-    ...slice.map((r) => Math.abs(r.residual_pct) + 0.3)
+  // Symmetric domain rounded UP to a whole percent so ticks are clean integers
+  // including 0 (e.g. -3,-2,-1,0,1,2,3).
+  const dataMax = Math.max(
+    THRESHOLDS.alarm,
+    ...slice.map((r) => Math.abs(r.residual_pct))
   );
-  const yMin = -maxAbs;
-  const yMax = maxAbs;
+  const bound = Math.ceil(dataMax + 0.5);
+  const yMin = -bound;
+  const yMax = bound;
+  const ticks: number[] = [];
+  for (let t = -bound; t <= bound; t++) ticks.push(t);
   const currentResidual = slice.length
     ? slice[slice.length - 1].residual_pct
     : 0;
@@ -67,9 +69,9 @@ export default function DriftChart({
       <h3 className="chart-title">Drift from expected vibration</h3>
       <p className="chart-legend muted">
         Natural frequency is how fast the bridge vibrates on its own; it shifts
-        when the structure changes. This shows how far today's reading is from
-        what the temperature predicts. Bands: normal, watch, warning, alarm.
-        Above the line is faster than expected, below is slower.
+        when the structure changes. This shows how far each reading is from what
+        the temperature predicts. Bands: normal, watch, warning, alarm. Times are
+        UTC.
       </p>
       <div className="chart-body">
         <ResponsiveContainer width="100%" height={280}>
@@ -88,10 +90,12 @@ export default function DriftChart({
               type="number"
               dataKey="residual"
               domain={[yMin, yMax]}
+              ticks={ticks}
+              interval={0}
               stroke="var(--muted)"
               fontSize={12}
-              tickFormatter={(v: number) => `${v.toFixed(1)}%`}
-              width={52}
+              tickFormatter={(v: number) => `${v}%`}
+              width={48}
             />
             <ZAxis range={[60, 60]} />
             <Tooltip
@@ -107,7 +111,14 @@ export default function DriftChart({
               ]}
             />
 
-            {/* band labels on the right edge */}
+            {/* faster/slower labels on the upper and lower halves, next to the
+                y-axis (insideTopLeft / insideBottomLeft), not in the corners */}
+            <ReferenceLine y={bound - 0.5} stroke="none"
+              label={{ value: "↑ faster than expected", position: "insideTopLeft", fill: "var(--muted)", fontSize: 11 }} />
+            <ReferenceLine y={-(bound - 0.5)} stroke="none"
+              label={{ value: "↓ slower than expected", position: "insideBottomLeft", fill: "var(--muted)", fontSize: 11 }} />
+
+            {/* threshold + expected lines, labeled on the right edge */}
             <ReferenceLine y={THRESHOLDS.watch} stroke="var(--border-strong)" strokeDasharray="4 3"
               label={{ value: "Watch", position: "right", fill: "var(--muted)", fontSize: 11 }} />
             <ReferenceLine y={THRESHOLDS.warning} stroke="var(--border-strong)" strokeDasharray="4 3"
@@ -117,12 +128,12 @@ export default function DriftChart({
             <ReferenceLine y={0} stroke="var(--border-strong)"
               label={{ value: "expected", position: "right", fill: "var(--muted)", fontSize: 11 }} />
 
-            {/* current reading marker */}
+            {/* current reading marker, labeled on the right so it clears the y-axis */}
             <ReferenceLine
               y={currentResidual}
               stroke="var(--route-flown)"
               strokeWidth={1.5}
-              label={{ value: "now", position: "left", fill: "var(--route-flown)", fontSize: 11 }}
+              label={{ value: "now", position: "right", fill: "var(--route-flown)", fontSize: 11 }}
             />
 
             <Scatter data={data} isAnimationActive={false}>
@@ -136,10 +147,6 @@ export default function DriftChart({
             </Scatter>
           </ScatterChart>
         </ResponsiveContainer>
-      </div>
-      <div className="drift-sides muted" aria-hidden="true">
-        <span>↑ faster than expected</span>
-        <span>↓ slower than expected</span>
       </div>
     </section>
   );

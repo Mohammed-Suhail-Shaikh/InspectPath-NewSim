@@ -118,6 +118,62 @@ export function recoverTempModel(
   return { slope, intercept: my - slope * mx };
 }
 
+// Format an ISO timestamp in UTC (the data is UTC; KW51 is in Belgium but the
+// dataset records UTC). Always labeled "UTC" so the reader is never shown
+// browser-local time. Example: "2019-06-27 10:00 UTC".
+export function fmtUtc(iso: string): string {
+  const d = new Date(iso);
+  const p = (n: number) => String(n).padStart(2, "0");
+  return (
+    `${d.getUTCFullYear()}-${p(d.getUTCMonth() + 1)}-${p(d.getUTCDate())} ` +
+    `${p(d.getUTCHours())}:${p(d.getUTCMinutes())} UTC`
+  );
+}
+
+// UTC hour:minute only, for dense chart axes. Example: "10:00".
+export function fmtUtcHm(iso: string): string {
+  const d = new Date(iso);
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${p(d.getUTCHours())}:${p(d.getUTCMinutes())}`;
+}
+
+// Duration of the current above-normal stretch, measured from the first reading
+// of the stretch that includes the last reading to the last reading itself,
+// using the ACTUAL timestamps (not reading count x interval). Returns null when
+// the latest reading is normal (no current stretch).
+export function timeAboveNormal(
+  records: TriggerRecord[]
+): { hours: number; readings: number } | null {
+  if (records.length === 0) return null;
+  const last = records[records.length - 1];
+  if (RANK[last.alert_level] === 0) return null; // normal now -> no stretch
+  // Walk back while the reading stays above normal.
+  let startIdx = records.length - 1;
+  for (let i = records.length - 1; i >= 0; i--) {
+    if (RANK[records[i].alert_level] > 0) startIdx = i;
+    else break;
+  }
+  const hours =
+    (new Date(last.timestamp).getTime() -
+      new Date(records[startIdx].timestamp).getTime()) /
+    3600000;
+  return { hours, readings: records.length - startIdx };
+}
+
+// Share of readings whose measured frequency is ABOVE the model's predicted
+// frequency (i.e. positive residual). Returns the fraction 0..1 and the counts,
+// computed from the data so the UI can state the actual share instead of
+// assuming "all".
+export function shareAbovePredicted(
+  records: TriggerRecord[]
+): { fraction: number; above: number; total: number } {
+  const total = records.length;
+  const above = records.filter(
+    (r) => r.frequency_hz > r.predicted_frequency_hz
+  ).length;
+  return { fraction: total ? above / total : 0, above, total };
+}
+
 // Population standard deviation of the residual % over the "normal" readings in
 // the slice — a plain-language stand-in for the healthy-period scatter, computed
 // from the replay the dashboard is showing. Returns null if there are none.
