@@ -584,11 +584,6 @@ body {
   background-image: linear-gradient(135deg, transparent 45%, #b9c0c9 45%, #b9c0c9 55%, transparent 55%);
 }
 
-.legend-covered {
-  background: var(--route-soft);
-  border: 1px solid var(--route);
-}
-
 .legend-alert-zone {
   border: 1px dashed #c62828;
   background: rgba(198, 40, 40, 0.10);
@@ -975,15 +970,27 @@ body {
 }
 
 /* Legend swatches for the elevation map */
-.legend-stop {
+.legend-arch {
   border: 1.2px solid #8a93a0;
   border-radius: 50%;
   background: var(--surface);
 }
 
+.legend-deck {
+  border: 1.2px solid #8a93a0;
+  background: var(--surface);
+  transform: rotate(45deg); /* diamond */
+}
+
 .legend-sensor {
   border: 1px solid #5b6676;
   background: var(--surface);
+}
+
+.legend-visited {
+  border: 1.2px solid var(--route);
+  border-radius: 50%;
+  background: var(--route);
 }
 
 /* Dataset picker fallback note: shown when a real dataset is selected but the
@@ -993,4 +1000,154 @@ body {
   margin-top: 0.3rem;
   font-size: var(--text-label);
   color: #7a3f00;
+}
+
+/* ---- Imaged-connections strip (always-visible gallery of the imaged findings) ---- */
+.imaged-strip {
+  margin-top: var(--sp-5);
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--border);
+}
+
+.imaged-strip-head {
+  margin-bottom: var(--sp-3);
+}
+
+.imaged-strip-track {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 var(--sp-2);
+  display: flex;
+  gap: var(--sp-3);
+  overflow-x: auto; /* horizontal scroll on narrow screens (phone) */
+}
+
+.imaged-card {
+  display: flex;
+  flex-direction: column;
+  width: 180px;
+  flex: 0 0 auto;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 0;
+  overflow: hidden;
+}
+
+.imaged-card:hover {
+  border-color: var(--border-strong);
+}
+
+
+
+.imaged-card.selected {
+  border-color: var(--text);
+  box-shadow: 0 0 0 1px var(--text);
+}
+
+.imaged-card-img {
+  width: 100%;
+  height: 110px;
+  object-fit: cover;
+  display: block;
+  background: var(--bg);
+}
+
+/* card body is a button that selects the finding; reset its button chrome */
+.imaged-card-body {
+  width: 100%;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  padding: var(--sp-2) var(--sp-3) var(--sp-3);
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.imaged-card-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.imaged-tier-chip {
+  display: inline-block;
+  font-size: var(--text-label);
+  font-weight: 600;
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--radius-sm);
+}
+
+.imaged-mock-tag {
+  font-size: var(--text-label);
+  color: #7a3f00;
+  background: #f5e8b8;
+  border: 1px solid #806500;
+  border-radius: var(--radius-sm);
+  padding: 0.05rem 0.35rem;
+}
+
+.imaged-card-id {
+  font-size: var(--text-label);
+  font-weight: 500;
+  color: var(--text);
+}
+
+.imaged-card-scores {
+  font-size: var(--text-label);
+  line-height: 1.3;
+}
+
+/* ---- Image overlay (lightbox) ---- */
+.image-overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(15, 23, 36, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-5);
+}
+
+.image-overlay-content {
+  position: relative;
+  max-width: 92vw;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--sp-2);
+}
+
+.image-overlay-img {
+  max-width: 92vw;
+  max-height: 80vh;
+  object-fit: contain;
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+}
+
+.image-overlay-close {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: 0.4rem 0.9rem;
+  font-size: var(--text-body);
+  cursor: pointer;
+}
+
+/* Thumbnail trigger buttons reset to look like the plain image they wrap. */
+.imaged-card-thumb,
+.finding-img-btn {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
 }

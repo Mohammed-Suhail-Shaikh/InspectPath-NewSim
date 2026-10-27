@@ -1,6 +1,8 @@
+import { useRef, useState } from "react";
 import type { Finding, ImageMap } from "../../data/types";
-import { TIER_COLOR, TIER_LABEL } from "../../data/tiers";
+import { TIER_COLOR, TIER_LABEL, tierChipText } from "../../data/tiers";
 import { resolveImageUrl } from "../../data/activeSource";
+import ImageOverlay from "./ImageOverlay";
 
 const CLASS_LABELS: Record<string, string> = {
   crack: "Crack",
@@ -10,25 +12,42 @@ const CLASS_LABELS: Record<string, string> = {
   corrosion_stain: "Corrosion stain",
 };
 
-function ImageWithFallback({ src, alt }: { src?: string; alt: string }) {
-  if (!src) {
+// A thumbnail that enlarges in an overlay on click. Falls back to a placeholder
+// when the image is missing or fails to load. Focus returns to this button when
+// the overlay closes.
+function ZoomableImage({ src, alt }: { src?: string; alt: string }) {
+  const [open, setOpen] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const btnRef = useRef<HTMLButtonElement>(null);
+
+  if (!src || failed) {
     return <div className="finding-img placeholder-img">Image unavailable</div>;
   }
   return (
-    <img
-      className="finding-img"
-      src={src}
-      alt={alt}
-      onError={(e) => {
-        const el = e.currentTarget;
-        el.replaceWith(
-          Object.assign(document.createElement("div"), {
-            className: "finding-img placeholder-img",
-            textContent: "Image unavailable",
-          })
-        );
-      }}
-    />
+    <>
+      <button
+        type="button"
+        ref={btnRef}
+        className="finding-img-btn"
+        onClick={() => setOpen(true)}
+        aria-label={`Enlarge: ${alt}`}
+      >
+        <img
+          className="finding-img"
+          src={src}
+          alt={alt}
+          onError={() => setFailed(true)}
+        />
+      </button>
+      {open && (
+        <ImageOverlay
+          src={src}
+          alt={alt}
+          onClose={() => setOpen(false)}
+          returnFocusRef={btnRef}
+        />
+      )}
+    </>
   );
 }
 
@@ -67,7 +86,7 @@ export default function FindingDetail({
         className={`finding-tier finding-tier-${finding.tier}`}
         style={{ color: tierColor }}
       >
-        {TIER_LABEL[finding.tier]} priority
+        {tierChipText(finding.tier)} priority
       </div>
 
       {finding.defect_source === "mock" && (
@@ -88,14 +107,17 @@ export default function FindingDetail({
 
       <div className="finding-images">
         <figure>
-          <ImageWithFallback src={fullSrc} alt={`Capture at ${finding.image_key}`} />
+          <ZoomableImage
+            src={fullSrc}
+            alt={`Capture at connection ${finding.location_id}, ${TIER_LABEL[finding.tier]} priority`}
+          />
           <figcaption className="muted">Capture</figcaption>
         </figure>
         {finding.has_closeup && (
           <figure>
-            <ImageWithFallback
+            <ZoomableImage
               src={closeupSrc}
-              alt={`Close-up at ${finding.image_key}`}
+              alt={`Close-up at connection ${finding.location_id}, ${TIER_LABEL[finding.tier]} priority`}
             />
             <figcaption className="muted">Close-up</figcaption>
           </figure>
