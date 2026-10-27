@@ -12,7 +12,6 @@ import {
   bearingSpan,
   diagonalMemberNumbers,
   elevationBounds,
-  memberOpacity,
   memberStroke,
   memberWeight,
   nodeOnSide,
@@ -142,33 +141,8 @@ export default function ElevationMap({
             x2={pb.px}
             y2={pb.py}
             stroke={memberStroke(m.part)}
-            strokeOpacity={memberOpacity(m.part)}
             strokeWidth={memberWeight(m.part)}
           />
-        );
-      })}
-
-      {/* diagonal numbers: one per diagonal member, at its midpoint, so all 16
-          appear once per side (matching overview.pdf) */}
-      {members.map((m) => {
-        const num = diagNums.get(m.id);
-        if (num === undefined) return null;
-        const a = nodeById.get(m.nodes[0])!;
-        const b = nodeById.get(m.nodes[1])!;
-        const pa = project(a.x, a.z, bounds);
-        const pb = project(b.x, b.z, bounds);
-        return (
-          <text
-            key={`dn-${m.id}`}
-            x={(pa.px + pb.px) / 2}
-            y={(pa.py + pb.py) / 2}
-            textAnchor="middle"
-            dominantBaseline="central"
-            fontSize={8}
-            fill="#8a93a0"
-          >
-            {num}
-          </text>
         );
       })}
 
@@ -198,7 +172,8 @@ export default function ElevationMap({
           );
         })}
 
-      {/* span dimension line between the two bearing x-positions */}
+      {/* span dimension line between the two bearing x-positions (line only;
+          its label is drawn with the other labels, on top of everything) */}
       {span && (
         <g>
           {(() => {
@@ -209,41 +184,11 @@ export default function ElevationMap({
                 <line x1={left} y1={dimY} x2={right} y2={dimY} stroke="#5b6676" strokeWidth={1} />
                 <line x1={left} y1={dimY - 4} x2={left} y2={dimY + 4} stroke="#5b6676" strokeWidth={1} />
                 <line x1={right} y1={dimY - 4} x2={right} y2={dimY + 4} stroke="#5b6676" strokeWidth={1} />
-                <text
-                  x={(left + right) / 2}
-                  y={dimY - 5}
-                  textAnchor="middle"
-                  fontSize={10}
-                  fill="#5b6676"
-                >
-                  {`bearing span ${span.span} m`}
-                </text>
               </>
             );
           })()}
         </g>
       )}
-
-      {/* crown height label at the arch apex on this side */}
-      {crownNode && (
-        <text
-          x={project(crownNode.x, crownNode.z, bounds).px}
-          y={project(crownNode.x, crownNode.z, bounds).py - 6}
-          textAnchor="middle"
-          fontSize={10}
-          fill="#5b6676"
-        >
-          {`crown ${crownZ.toFixed(1)} m`}
-        </text>
-      )}
-
-      {/* end labels: Brussels left (low x), Leuven right (high x) */}
-      <text x={ELEV_SCALE} y={14} fontSize={10} fill="#5b6676">
-        Brussels
-      </text>
-      <text x={w - ELEV_SCALE} y={14} textAnchor="end" fontSize={10} fill="#5b6676">
-        Leuven
-      </text>
 
       {/* route: a thin white casing underneath so it stays visible where it
           crosses members, then the flown part solid and the remaining part
@@ -357,6 +302,62 @@ export default function ElevationMap({
       })}
 
       {children}
+
+      {/* ALL text labels last, each with a white halo (.map-label), so route
+          and member lines drawn underneath can never obscure or clip them. */}
+      {members.map((m) => {
+        const num = diagNums.get(m.id);
+        if (num === undefined) return null;
+        const a = nodeById.get(m.nodes[0])!;
+        const b = nodeById.get(m.nodes[1])!;
+        const pa = project(a.x, a.z, bounds);
+        const pb = project(b.x, b.z, bounds);
+        return (
+          <text
+            key={`dn-${m.id}`}
+            className="map-label"
+            x={(pa.px + pb.px) / 2}
+            y={(pa.py + pb.py) / 2}
+            textAnchor="middle"
+            dominantBaseline="central"
+            fontSize={8}
+          >
+            {num}
+          </text>
+        );
+      })}
+
+      {span && (
+        <text
+          className="map-label"
+          x={(project(span.xs[0], bounds.minZ, bounds).px +
+            project(span.xs[span.xs.length - 1], bounds.minZ, bounds).px) / 2}
+          y={dimY - 5}
+          textAnchor="middle"
+          fontSize={10}
+        >
+          {`bearing span ${span.span} m`}
+        </text>
+      )}
+
+      {crownNode && (
+        <text
+          className="map-label"
+          x={project(crownNode.x, crownNode.z, bounds).px}
+          y={project(crownNode.x, crownNode.z, bounds).py - 6}
+          textAnchor="middle"
+          fontSize={10}
+        >
+          {`crown ${crownZ.toFixed(1)} m`}
+        </text>
+      )}
+
+      <text className="map-label" x={ELEV_SCALE} y={14} fontSize={10}>
+        Brussels
+      </text>
+      <text className="map-label" x={w - ELEV_SCALE} y={14} textAnchor="end" fontSize={10}>
+        Leuven
+      </text>
     </svg>
   );
 }

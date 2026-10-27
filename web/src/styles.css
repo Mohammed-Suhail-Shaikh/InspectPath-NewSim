@@ -30,13 +30,13 @@
   /* Inspection elevation map: structure recedes (light grays), route and
      progress stand out (saturated purple on a white casing). All graphics are
      >=3:1 against the bg and the heaviest member line. */
-  --map-member-strong: #aeb6c0; /* arch + girder */
-  --map-member-mid: #c3cad3;    /* deck beams */
-  --map-member-light: #d4d9e0;  /* diagonals, braces */
+  --map-member-strong: #9099a6; /* arch + girder (~2.7:1 vs bg) */
+  --map-member-mid: #a2abb6;    /* deck beams (~2.2:1 vs bg) */
+  --map-member-light: #aab2bd;  /* diagonals, braces (~2.0:1 vs bg) */
   --map-sensor: #5b6676;        /* sensor squares */
   --map-stop-unvisited: #434c59;/* hollow unvisited stop outline */
   --route-flown: #5b21b6;       /* flown route, visited stops, robot */
-  --route-remaining: #6d28d9;   /* remaining route (lighter, dashed) */
+  --route-remaining: #5e23bd;   /* remaining route (dashed; relies on white casing over members) */
   --route-casing: #ffffff;      /* white casing under route / ring on stops */
 
   /* Typography */
@@ -1178,4 +1178,15 @@ body {
   border: 0;
   background: none;
   cursor: zoom-in;
+}
+
+/* Map text labels (diagonal numbers, span, crown, end names): a thin white halo
+   via paint-order so lines drawn underneath can't obscure or clip them. They are
+   also drawn after the route in the SVG, so they sit on top. */
+.map-label {
+  fill: var(--muted);
+  stroke: #ffffff;
+  stroke-width: 2.4px;
+  paint-order: stroke fill;
+  stroke-linejoin: round;
 }

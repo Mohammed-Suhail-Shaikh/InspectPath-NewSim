@@ -67,14 +67,23 @@ in the PR notes.
 
 | Token | Hex | Use |
 |---|---|---|
-| `--map-member-strong` | `#aeb6c0` | arch and girder lines (heaviest) |
-| `--map-member-mid` | `#c3cad3` | deck beam lines (medium) |
-| `--map-member-light` | `#d4d9e0` | diagonal and brace lines (lightest) |
+| `--map-member-strong` | `#9099a6` | arch and girder lines (heaviest; ~2.7:1 vs bg) |
+| `--map-member-mid` | `#a2abb6` | deck beam lines (medium; ~2.2:1 vs bg) |
+| `--map-member-light` | `#aab2bd` | diagonal and brace lines (lightest; ~2.0:1 vs bg) |
 | `--map-sensor` | `#5b6676` | small sensor squares (dark gray) |
 | `--map-stop-unvisited` | `#434c59` | hollow unvisited stop outline (dark gray) |
 | `--route-flown` | `#5b21b6` | flown part of the route (solid), visited stops, robot |
-| `--route-remaining` | `#6d28d9` | remaining part of the route (lighter, dashed) |
+| `--route-remaining` | `#5e23bd` | remaining part of the route (dashed) |
 | `--route-casing` | `#ffffff` | thin white casing under the route and ring on visited stops / robot |
+
+Members are context, kept deliberately low-contrast (~2:1 to ~2.7:1 vs the
+background) so they stay visible without competing with the route. Every route /
+stop / robot graphic is >=3:1 against the background AND against the heaviest
+member line (`--map-member-strong` #9099a6), EXCEPT the remaining-route dashes,
+which measure 2.98:1 against that member; they always sit on the white casing
+(>=3:1 vs white) and are distinguished from the flown route by the dash pattern,
+not color alone. Map text labels carry a white halo (paint-order stroke) and are
+drawn after the route so lines never obscure them.
 
 Route and progress: the flown segment is solid `--route-flown`; the remaining
 segment is `--route-remaining`, lighter and dashed; both sit on a white casing.
